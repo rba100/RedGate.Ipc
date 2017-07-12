@@ -100,13 +100,15 @@ namespace RedGate.Ipc.ImportedCode
 
             var properties = interfaceType.GetProperties();
             var events = interfaceType.GetEvents();
-            var methods = interfaceType.GetMethods().Where(m => !m.IsSpecialName);
-            if (!methods.Any(m => m.Name == "Dispose")) methods = methods.Union(typeof(IDisposable).GetMethods());
+            var methods = interfaceType.GetMethods()
+                .Where(m => !m.IsSpecialName && m.Name != "Dispose");
 
             foreach (var methodInfo in methods)
             {
                 GenerateProxyMethodFromInfo(methodInfo, typeBuilder, callHandlerFieldBuilder, getMethodFromHandle);
             }
+
+            GenerateProxyDispose(typeBuilder, callHandlerFieldBuilder);
 
             foreach (var property in properties)
             {
@@ -226,6 +228,20 @@ namespace RedGate.Ipc.ImportedCode
             return method;
         }
 
+        private void GenerateProxyDispose(TypeBuilder typeBuilder, FieldBuilder callHandlerFieldBuilder)
+        {
+            var disposeMethod = typeBuilder.DefineMethod(
+                "Dispose",
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                typeof(void),
+                Type.EmptyTypes);
+            var g = disposeMethod.GetILGenerator();
+            g.Emit(OpCodes.Ldarg_0);
+            g.Emit(OpCodes.Ldfld, callHandlerFieldBuilder);
+            g.Emit(OpCodes.Callvirt, typeof(ICallHandler).GetMethod("HandleDispose"));
+            g.Emit(OpCodes.Ret);
+        }
+
         private static void GenerateConstructor(TypeBuilder typeBuilder, FieldBuilder callbackFieldBuilder)
         {
             var ctor = typeBuilder.DefineConstructor(
@@ -246,5 +262,6 @@ namespace RedGate.Ipc.ImportedCode
     public interface ICallHandler
     {
         object HandleCall(MethodInfo methodInfo, object[] args);
+        void HandleDispose();
     }
 }

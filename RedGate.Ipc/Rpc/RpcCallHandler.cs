@@ -22,9 +22,9 @@ namespace RedGate.Ipc.Rpc
 
         public object HandleCall(MethodInfo methodInfo, object[] args)
         {
+            // This should not happen
             if (methodInfo.Name == "Dispose")
             {
-                m_Connection.Dispose();
                 return null;
             }
 
@@ -33,6 +33,11 @@ namespace RedGate.Ipc.Rpc
             var response = m_Connection.RpcMessageBroker.Send(request);
             if (methodInfo.ReturnType == typeof(void)) return null;
             return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
+        }
+
+        public void HandleDispose()
+        {
+            m_Connection.Dispose();
         }
     }
 }
