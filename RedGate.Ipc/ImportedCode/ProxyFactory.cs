@@ -100,7 +100,8 @@ namespace RedGate.Ipc.ImportedCode
 
             var properties = interfaceType.GetProperties();
             var events = interfaceType.GetEvents();
-            var methods = interfaceType.GetMethods().Where(m => !m.IsSpecialName).Union(typeof(IDisposable).GetMethods());
+            var methods = interfaceType.GetMethods().Where(m => !m.IsSpecialName);
+            if (!methods.Any(m => m.Name == "Dispose")) methods = methods.Union(typeof(IDisposable).GetMethods());
 
             foreach (var methodInfo in methods)
             {

@@ -13,6 +13,7 @@ namespace RedGate.Ipc.NamedPipes
         private readonly string m_PipeName;
         private Thread m_Worker;
         private bool m_Disposed;
+        private NamedPipeServerStream m_CurrentListener;
 
         public NamedPipeEndpoint(
             string pipeName)
@@ -35,14 +36,14 @@ namespace RedGate.Ipc.NamedPipes
             {
                 while (!m_Disposed)
                 {
-                    var listener = new NamedPipeServerStream(
+                    m_CurrentListener = new NamedPipeServerStream(
                         m_PipeName,
                         PipeDirection.InOut,
                         254, // Max clients
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous);
-                    listener.WaitForConnection();
-                    ChannelConnected?.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), listener));
+                    m_CurrentListener.WaitForConnection();
+                    ChannelConnected?.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), m_CurrentListener));
                 }
             }
             catch (SocketException)
@@ -53,8 +54,9 @@ namespace RedGate.Ipc.NamedPipes
 
         public void Stop()
         {
-            m_Worker.Abort();
             m_Disposed = true;
+            m_CurrentListener?.Dispose();
+            m_Worker.Abort();
         }
     }
 }

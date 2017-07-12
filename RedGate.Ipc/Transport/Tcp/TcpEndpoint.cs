@@ -29,7 +29,6 @@ namespace RedGate.Ipc.Tcp
 
         public void Stop()
         {
-            m_Worker?.Abort();
             m_Disposed = true;
             try
             {
@@ -39,6 +38,7 @@ namespace RedGate.Ipc.Tcp
             {
                 //
             }
+            m_Worker?.Abort();
         }
 
         private void Worker()

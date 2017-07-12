@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq.Expressions;
 using System.Threading;
 using RedGate.Ipc.Rpc;
 
@@ -15,7 +16,7 @@ namespace RedGate.Ipc.Channel
         private bool m_Disposed;
 
         internal ChannelMessageDispatcher(
-            IMessageStream messageStream, 
+            IMessageStream messageStream,
             IChannelMessageSerializer channelMessageSerializer,
             IChannelMessageMessagePipeline channelMessageMessagePipeline)
         {
@@ -44,6 +45,8 @@ namespace RedGate.Ipc.Channel
 
         public void Stop()
         {
+            m_Disposed = true;
+            m_MessageStream.Dispose();
             m_Worker?.Abort();
         }
 
@@ -55,25 +58,28 @@ namespace RedGate.Ipc.Channel
                 try
                 {
                     var bytes = m_MessageStream.Read();
+                    if (bytes == null)
+                    {
+                        break;
+                    }
                     message = m_ChannelMessageSerializer.FromBytes(bytes);
                     m_ChannelMessageMessagePipeline.Handle(message);
                 }
                 catch (ChannelFaultedException)
                 {
-                    message = null;
+                    break;
                 }
                 catch (IOException)
                 {
-                    message = null;
+                    break;
                 }
-
-                if (message == null)
+                catch (ObjectDisposedException)
                 {
-                    Disconnected?.Invoke();
-                    m_Disposed = true;
-                    return;
+                    break;
                 }
             }
+            Disconnected?.Invoke();
+            return;
         }
 
         public event DisconnectedEventHandler Disconnected;
@@ -82,7 +88,7 @@ namespace RedGate.Ipc.Channel
         {
             try
             {
-                Stop();
+                m_Disposed = true;
                 m_MessageStream.Dispose();
             }
             catch
