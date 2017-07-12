@@ -1,7 +1,6 @@
 using System;
-using System.IO;
-using System.Linq.Expressions;
 using System.Threading;
+using System.Threading.Tasks;
 using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc.Channel
@@ -54,7 +53,6 @@ namespace RedGate.Ipc.Channel
         {
             while (!m_Disposed)
             {
-                ChannelMessage message;
                 try
                 {
                     var bytes = m_MessageStream.Read();
@@ -62,18 +60,10 @@ namespace RedGate.Ipc.Channel
                     {
                         break;
                     }
-                    message = m_ChannelMessageSerializer.FromBytes(bytes);
-                    m_InboundHandler.Handle(message);
+                    var message = m_ChannelMessageSerializer.FromBytes(bytes);
+                    Task.Run(() => m_InboundHandler.Handle(message));
                 }
-                catch (ChannelFaultedException)
-                {
-                    break;
-                }
-                catch (IOException)
-                {
-                    break;
-                }
-                catch (ObjectDisposedException)
+                catch (Exception)
                 {
                     break;
                 }
