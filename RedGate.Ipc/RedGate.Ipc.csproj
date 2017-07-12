@@ -71,14 +71,13 @@
     <Compile Include="Channel\ChannelMessageType.cs" />
     <Compile Include="ConnectionFactory.cs" />
     <Compile Include="ServiceManager.cs" />
-    <Compile Include="Channel\IChannelMessageMessageHandler.cs" />
+    <Compile Include="Channel\IChannelMessageHandler.cs" />
     <Compile Include="Channel\IChannelMessageSerializer.cs" />
     <Compile Include="IConnectionFactory.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Json\IJsonSerializer.cs" />
     <Compile Include="Json\TinyJsonSerializer.cs" />
     <Compile Include="Rpc\IRpcMessageBroker.cs" />
-    <Compile Include="Channel\IChannelMessageMessagePipeline.cs" />
     <Compile Include="Rpc\IRpcRequestHandler.cs" />
     <Compile Include="Rpc\IRpcMessageEncoder.cs" />
     <Compile Include="Rpc\IRpcMessageSerialiser.cs" />

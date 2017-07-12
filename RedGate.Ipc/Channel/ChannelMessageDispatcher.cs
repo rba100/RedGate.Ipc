@@ -10,7 +10,7 @@ namespace RedGate.Ipc.Channel
     {
         private readonly IMessageStream m_MessageStream;
         private readonly IChannelMessageSerializer m_ChannelMessageSerializer;
-        private readonly IChannelMessageMessagePipeline m_ChannelMessageMessagePipeline;
+        private readonly IChannelMessageHandler m_InboundHandler;
 
         private Thread m_Worker;
         private bool m_Disposed;
@@ -18,11 +18,11 @@ namespace RedGate.Ipc.Channel
         internal ChannelMessageDispatcher(
             IMessageStream messageStream,
             IChannelMessageSerializer channelMessageSerializer,
-            IChannelMessageMessagePipeline channelMessageMessagePipeline)
+            IChannelMessageHandler inboundHandler)
         {
             m_MessageStream = messageStream;
             m_ChannelMessageSerializer = channelMessageSerializer;
-            m_ChannelMessageMessagePipeline = channelMessageMessagePipeline;
+            m_InboundHandler = inboundHandler;
         }
 
         public void Send(ChannelMessage channelMessage)
@@ -63,7 +63,7 @@ namespace RedGate.Ipc.Channel
                         break;
                     }
                     message = m_ChannelMessageSerializer.FromBytes(bytes);
-                    m_ChannelMessageMessagePipeline.Handle(message);
+                    m_InboundHandler.Handle(message);
                 }
                 catch (ChannelFaultedException)
                 {

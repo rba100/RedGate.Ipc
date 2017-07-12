@@ -1,6 +1,6 @@
 ﻿namespace RedGate.Ipc.Channel
 {
-    internal interface IChannelMessageMessageHandler
+    internal interface IChannelMessageHandler
     {
         ChannelMessage Handle(ChannelMessage message);
     }

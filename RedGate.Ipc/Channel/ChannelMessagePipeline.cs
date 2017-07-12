@@ -2,24 +2,24 @@
 
 namespace RedGate.Ipc.Channel
 {
-    internal class ChannelMessagePipeline : IChannelMessageMessagePipeline
+    internal class ChannelMessagePipeline : IChannelMessageHandler
     {
-        private readonly List<IChannelMessageMessageHandler> m_Handlers;
+        private readonly List<IChannelMessageHandler> m_Handlers;
 
-        public ChannelMessagePipeline(IEnumerable<IChannelMessageMessageHandler> handlers)
+        public ChannelMessagePipeline(IEnumerable<IChannelMessageHandler> handlers)
         {
-            m_Handlers = new List<IChannelMessageMessageHandler>(handlers);
+            m_Handlers = new List<IChannelMessageHandler>(handlers);
         }
 
-        public void Handle(ChannelMessage message)
+        public ChannelMessage Handle(ChannelMessage message)
         {
-            ChannelMessage passedMessage = message;
+            var passedMessage = message;
             foreach (var handler in m_Handlers)
             {
                 passedMessage = handler.Handle(passedMessage);
                 if (passedMessage == null) break;
             }
-            // TODO: Log unhandled message?
+            return passedMessage;
         }
     }
 }

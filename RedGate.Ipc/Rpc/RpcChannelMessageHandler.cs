@@ -3,7 +3,7 @@ using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc.Rpc
 {
-    internal class RpcChannelMessageHandler : IChannelMessageMessageHandler
+    internal class RpcChannelMessageHandler : IChannelMessageHandler
     {
         private readonly IRpcMessageBroker m_RpcMessageBroker;
         private readonly IRpcMessageEncoder m_MessageEncoder;
