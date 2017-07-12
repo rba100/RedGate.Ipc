@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using RedGate.Ipc.Rpc;
 using Rhino.Mocks;
@@ -52,6 +54,43 @@ namespace RedGate.Ipc.Tests
                 Assert.False(handled, "The request should not have been marked as handled");
                 Assert.Null(token.Response, "No response should have been set");
             }
+        }
+
+        [Test]
+        public void Send_unblocks_on_query_resolution()
+        {
+            var writer = MockRepository.GenerateStub<IRpcMessageWriter>();
+            var requestHandler = MockRepository.GenerateStub<IRpcRequestHandler>();
+            var broker = new RpcMessageBroker(writer, requestHandler);
+            var queryId = Guid.NewGuid().ToString();
+
+            var request = new RpcRequest(queryId, "Interface", "Method", new[] { "arg" });
+            var response = new RpcResponse(queryId, "ReturnValue");
+
+            RpcResponse returnedResponse = null;
+            Task sendTask;
+
+            // Call Send() and ensure the request obejct was passed to the underlying message writer
+            // before simulating the inbound response.
+            using (var requestSent = new ManualResetEvent(false))
+            {
+                // ReSharper disable once AccessToDisposedClosure
+                writer.Stub(w => w.Write(request)).WhenCalled(call => { requestSent.Set(); });
+                sendTask = Task.Run(() => { returnedResponse = broker.Send(request); });
+                Assert.True(requestSent.WaitOne(2000),
+                    "Timed out waiting for Send() to pass the request to the underlying message writer");
+            }
+
+            // Broker receives the response...
+            broker.HandleInbound(response);
+
+            // ...which should unlock .Send()
+            var timedOut = !sendTask.Wait(2000);
+
+            Assert.False(timedOut, "The broker.Send() should have unblocked.");
+            Assert.NotNull(returnedResponse, "Send should have returned the RpcResponse");
+            Assert.AreEqual(returnedResponse.QueryId, response.QueryId);
+            Assert.AreEqual(returnedResponse.ReturnValue, response.ReturnValue);
         }
     }
 }
