@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedGate.Ipc", "RedGate.Ipc\RedGate.Ipc.csproj", "{CBB21FFA-FD1F-4753-B35E-41B1012E3A59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedGate.Ipc.Tests", "RedGate.Ipc.Tests\RedGate.Ipc.Tests.csproj", "{329372F9-7F8B-42F1-8186-92C2A6273EB5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBB21FFA-FD1F-4753-B35E-41B1012E3A59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB21FFA-FD1F-4753-B35E-41B1012E3A59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBB21FFA-FD1F-4753-B35E-41B1012E3A59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBB21FFA-FD1F-4753-B35E-41B1012E3A59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{329372F9-7F8B-42F1-8186-92C2A6273EB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{329372F9-7F8B-42F1-8186-92C2A6273EB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{329372F9-7F8B-42F1-8186-92C2A6273EB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{329372F9-7F8B-42F1-8186-92C2A6273EB5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
