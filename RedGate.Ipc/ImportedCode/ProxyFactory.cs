@@ -238,4 +238,9 @@ namespace RedGate.Ipc.ImportedCode
             g.Emit(OpCodes.Ret);
         }
     }
+
+    public interface ICallHandler
+    {
+        object HandleCall(MethodInfo methodInfo, object[] args);
+    }
 }

@@ -40,18 +40,12 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channel\IChannelMessageDispatcher.cs" />
     <Compile Include="Channel\ChannelMessageWriter.cs" />
     <Compile Include="Channel\IChannelMessageWriter.cs" />
-    <Compile Include="ImportedCode\ICallHandler.cs" />
     <Compile Include="ImportedCode\JsonDeserializer.cs" />
     <Compile Include="ImportedCode\JsonParser.cs" />
     <Compile Include="ImportedCode\JsonSerializer.cs" />
