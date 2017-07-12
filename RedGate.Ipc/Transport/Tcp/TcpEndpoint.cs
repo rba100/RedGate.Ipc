@@ -2,8 +2,9 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using RedGate.Ipc.Channel;
 
-namespace RedGate.Ipc
+namespace RedGate.Ipc.Tcp
 {
     public class TcpEndpoint : IEndpoint
     {

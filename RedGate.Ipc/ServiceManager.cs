@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RedGate.Ipc.Channel;
 using RedGate.Ipc.Json;
 using RedGate.Ipc.Rpc;
 
@@ -33,8 +34,8 @@ namespace RedGate.Ipc
 
         private void EndpointOnClientConnected(ChannelConnectedEventArgs args)
         {
-            var connection = m_ConnectionFactory.Create(args.ConnectionId, args.ClientStream);
-            ClientConnected?.Invoke(new ClientConnectedEventArgs(connection));
+            var connection = m_ConnectionFactory.Create(args.ConnectionId, args.ChannelStream);
+            ClientConnected?.Invoke(new ConnectedEventArgs(connection));
         }
 
         public void Start()

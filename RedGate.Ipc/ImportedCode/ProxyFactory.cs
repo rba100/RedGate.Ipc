@@ -78,6 +78,9 @@ namespace RedGate.Ipc.ImportedCode
                 TypeAttributes.AutoLayout);
             typeBuilder.AddInterfaceImplementation(interfaceType);
 
+            // All proxy objects shall be disposable
+            typeBuilder.AddInterfaceImplementation(typeof(IDisposable));
+
             return typeBuilder;
         }
 
@@ -97,7 +100,7 @@ namespace RedGate.Ipc.ImportedCode
 
             var properties = interfaceType.GetProperties();
             var events = interfaceType.GetEvents();
-            var methods = interfaceType.GetMethods().Where(m => !m.IsSpecialName);
+            var methods = interfaceType.GetMethods().Where(m => !m.IsSpecialName).Union(typeof(IDisposable).GetMethods());
 
             foreach (var methodInfo in methods)
             {

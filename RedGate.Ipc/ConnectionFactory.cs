@@ -37,7 +37,7 @@ namespace RedGate.Ipc
             connection.Disconnected += args => ClientDisconnected?.Invoke(args);
 
             channelMessageDispatcher.Disconnected +=
-                () => ClientDisconnected?.Invoke(new ClientDisconnectedEventArgs(connection));
+                () => ClientDisconnected?.Invoke(new DisconnectedEventArgs(connection));
 
             channelMessageDispatcher.Start();
             return connection;

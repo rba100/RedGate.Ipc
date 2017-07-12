@@ -8,23 +8,29 @@ namespace RedGate.Ipc.Rpc
 {
     internal class RpcCallHandler<T> : ICallHandler
     {
-        private readonly IRpcMessageBroker m_MessageBroker;
+        private readonly IConnection m_Connection;
         private readonly IJsonSerializer m_JsonSerializer;
 
-        public RpcCallHandler(IRpcMessageBroker messageBroker, IJsonSerializer jsonSerializer)
+        public RpcCallHandler(IConnection connection, IJsonSerializer jsonSerializer)
         {
-            if (messageBroker == null) throw new ArgumentNullException(nameof(messageBroker));
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
             if (jsonSerializer == null) throw new ArgumentNullException(nameof(jsonSerializer));
 
-            m_MessageBroker = messageBroker;
+            m_Connection = connection;
             m_JsonSerializer = jsonSerializer;
         }
 
         public object HandleCall(MethodInfo methodInfo, object[] args)
         {
+            if (methodInfo.Name == "Dispose")
+            {
+                m_Connection.Dispose();
+                return null;
+            }
+
             var serialisedArgs = args.Select(a => m_JsonSerializer.Serialize(a)).ToArray();
             var request = new RpcRequest(Guid.NewGuid().ToString(), typeof(T).Name, methodInfo.Name, serialisedArgs);
-            var response = m_MessageBroker.Send(request);
+            var response = m_Connection.RpcMessageBroker.Send(request);
             if (methodInfo.ReturnType == typeof(void)) return null;
             return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
         }

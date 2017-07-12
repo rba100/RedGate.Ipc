@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc
 {

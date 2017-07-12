@@ -2,8 +2,9 @@
 using System.IO.Pipes;
 using System.Net.Sockets;
 using System.Threading;
+using RedGate.Ipc.Channel;
 
-namespace RedGate.Ipc
+namespace RedGate.Ipc.NamedPipes
 {
     public class NamedPipeEndpoint : IEndpoint
     {
