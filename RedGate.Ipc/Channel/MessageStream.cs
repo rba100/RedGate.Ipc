@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace RedGate.Ipc
+namespace RedGate.Ipc.Channel
 {
     public class MessageStream : IMessageStream
     {

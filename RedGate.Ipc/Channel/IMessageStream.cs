@@ -1,6 +1,6 @@
 using System;
 
-namespace RedGate.Ipc
+namespace RedGate.Ipc.Channel
 {
     public interface IMessageStream : IDisposable
     {

@@ -80,10 +80,10 @@
     <Compile Include="Rpc\RpcRequestHandler.cs" />
     <Compile Include="Rpc\RequestToken.cs" />
     <Compile Include="Rpc\RpcMessageBroker.cs" />
-    <Compile Include="IMessageStream.cs" />
+    <Compile Include="Channel\IMessageStream.cs" />
     <Compile Include="Rpc\RpcProxyFactory.cs" />
     <Compile Include="Channel\ChannelMessageDispatcher.cs" />
-    <Compile Include="MessageStream.cs" />
+    <Compile Include="Channel\MessageStream.cs" />
     <Compile Include="Transport\NamedPipes\NamedPipeEndpoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rpc\RpcMessageEncoder.cs" />
