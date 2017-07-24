@@ -28,5 +28,10 @@ namespace RedGate.Ipc.Rpc
         {
             m_ChannelMessageWriter.Write(m_MessageEncoder.ToChannelMessage(response));
         }
+
+        public void Write(RpcException exception)
+        {
+            m_ChannelMessageWriter.Write(m_MessageEncoder.ToChannelMessage(exception));
+        }
     }
 }

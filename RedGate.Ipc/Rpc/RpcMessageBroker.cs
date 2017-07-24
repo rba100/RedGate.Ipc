@@ -40,9 +40,13 @@ namespace RedGate.Ipc.Rpc
 
                 if (waitValue == 0)
                 {
-                    return token.Response;
+                    if(token.Response != null) return token.Response;
+                    throw token.Exception;
                 }
-                if(waitValue == WaitHandle.WaitTimeout) throw new Exception("Client timed out.");
+
+                RequestToken dummy;
+                m_PendingQueries.TryRemove(request.QueryId, out dummy);
+                if (waitValue == WaitHandle.WaitTimeout) throw new Exception("Client timed out.");
                 throw new ChannelFaultedException();
             }
         }
@@ -62,8 +66,18 @@ namespace RedGate.Ipc.Rpc
 
         public void HandleInbound(RpcRequest request)
         {
-            var response = m_RpcRequestHandler.Handle(request);
-            m_RpcMessageWriter.Write(response);
+            RpcResponse response = null;
+            try
+            {
+                response = m_RpcRequestHandler.Handle(request);
+                
+            }
+            catch (Exception exception)
+            {
+                var rpcException = new RpcException(request.QueryId, exception);
+                m_RpcMessageWriter.Write(rpcException);
+            }
+            if (response != null) m_RpcMessageWriter.Write(response);
         }
 
         public void HandleInbound(RpcResponse response)
@@ -78,6 +92,21 @@ namespace RedGate.Ipc.Rpc
                 }
                 catch (ObjectDisposedException) { }
                 m_PendingQueries.TryRemove(response.QueryId, out requestToken);
+            }
+        }
+
+        public void HandleInbound(RpcException message)
+        {
+            RequestToken requestToken;
+            if (m_PendingQueries.TryGetValue(message.QueryId, out requestToken))
+            {
+                requestToken.Exception = message.Exception;
+                try
+                {
+                    requestToken.Completed.Set();
+                }
+                catch (ObjectDisposedException) { }
+                m_PendingQueries.TryRemove(message.QueryId, out requestToken);
             }
         }
 

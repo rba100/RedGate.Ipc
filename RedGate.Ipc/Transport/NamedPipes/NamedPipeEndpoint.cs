@@ -8,7 +8,7 @@ namespace RedGate.Ipc.NamedPipes
 {
     public class NamedPipeEndpoint : IEndpoint
     {
-        public event ChannelConnectedEventHandler ChannelConnected;
+        public event ChannelConnectedEventHandler ChannelConnected = delegate { };
 
         private readonly string m_PipeName;
         private Thread m_Worker;
@@ -43,7 +43,7 @@ namespace RedGate.Ipc.NamedPipes
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous);
                     m_CurrentListener.WaitForConnection();
-                    ChannelConnected?.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), m_CurrentListener));
+                    ChannelConnected(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), m_CurrentListener));
                 }
             }
             catch (SocketException)

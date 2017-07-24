@@ -31,6 +31,10 @@ namespace RedGate.Ipc.Rpc
                     var response = m_MessageEncoder.ToResponse(message);
                     m_RpcMessageBroker.HandleInbound(response);
                     return null; // Handled
+               case ChannelMessageType.RpcException:
+                    var exception = m_MessageEncoder.ToException(message);
+                    m_RpcMessageBroker.HandleInbound(exception);
+                    return null;
                 default:
                     return message;  // Not handled
             }

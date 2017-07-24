@@ -8,8 +8,6 @@ namespace RedGate.Ipc
 {
     public class ConnectionFactory : IConnectionFactory
     {
-        public event ClientDisconnectedEventHandler ClientDisconnected;
-
         private readonly IRpcRequestHandler m_RpcRequestHandler;
 
         public ConnectionFactory(IRpcRequestHandler rpcRequestHandler)
@@ -34,10 +32,6 @@ namespace RedGate.Ipc
             var channelMessageDispatcher = new ChannelMessageDispatcher(messageStream, channelMessageSerializer, pipeline);
 
             var connection = new Connection(connectionId, messageBroker, channelMessageDispatcher);
-            connection.Disconnected += args => ClientDisconnected?.Invoke(args);
-
-            channelMessageDispatcher.Disconnected +=
-                () => ClientDisconnected?.Invoke(new DisconnectedEventArgs(connection));
 
             channelMessageDispatcher.Start();
             return connection;

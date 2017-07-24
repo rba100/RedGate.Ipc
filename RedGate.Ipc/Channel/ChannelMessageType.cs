@@ -4,6 +4,7 @@
     {
         Heartbeat = 0,
         RpcRequest = 1,
-        RpcResponse = 2
+        RpcResponse = 2,
+        RpcException = 3
     }
 }

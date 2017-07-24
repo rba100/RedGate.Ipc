@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Reflection;
 using RedGate.Ipc.Json;
 
 namespace RedGate.Ipc.Rpc
@@ -30,15 +31,26 @@ namespace RedGate.Ipc.Rpc
                 methodType.GetParameters()
                     .Select((p, i) => m_JsonSerializer.Deserialize(p.ParameterType, request.Arguments[i]))
                     .ToArray();
-
-            var returnValue = methodType.Invoke(handler, arguments);
-
-            if (methodType.ReturnType == typeof(void))
+            try
             {
-                return new RpcResponse(request.QueryId);
-            }
+                var returnValue = methodType.Invoke(handler, arguments);
 
-            return new RpcResponse(request.QueryId, m_JsonSerializer.Serialize(returnValue));
+
+                if (methodType.ReturnType == typeof(void))
+                {
+                    return new RpcResponse(request.QueryId);
+                }
+
+                return new RpcResponse(request.QueryId, m_JsonSerializer.Serialize(returnValue));
+            }
+            catch (TargetInvocationException exception)
+            {
+                if (exception.InnerException != null)
+                {
+                    throw exception.InnerException;
+                }
+                throw;
+            }
         }
     }
 }

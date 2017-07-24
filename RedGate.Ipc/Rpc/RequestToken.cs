@@ -8,6 +8,7 @@ namespace RedGate.Ipc.Rpc
         public ManualResetEvent Completed { get; } = new ManualResetEvent(false);
 
         public RpcResponse Response { get; set; }
+        public Exception Exception { get; set; }
 
         public void Dispose()
         {

@@ -61,6 +61,8 @@
     <Compile Include="Rpc\IRpcMessageWriter.cs" />
     <Compile Include="Rpc\RpcCallHandler.cs" />
     <Compile Include="Rpc\RpcChannelMessageHandler.cs" />
+    <Compile Include="Rpc\RpcException.cs" />
+    <Compile Include="Rpc\RpcExceptionBinding.cs" />
     <Compile Include="Rpc\RpcMessageWriter.cs" />
     <Compile Include="Rpc\RpcRequestBinding.cs" />
     <Compile Include="Rpc\RpcResponseBinding.cs" />

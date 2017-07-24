@@ -7,7 +7,7 @@ namespace RedGate.Ipc.Channel
         void Write(byte[] payload);
 
         /// <summary>
-        /// Returns null if stream will never return more data.
+        /// Returns null if stream will never return more data. Consumer shouold 
         /// </summary>
         byte[] Read();
     }

@@ -4,5 +4,6 @@
     {
         void Write(RpcRequest request);
         void Write(RpcResponse response);
+        void Write(RpcException exception);
     }
 }

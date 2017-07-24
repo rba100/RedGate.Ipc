@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using RedGate.Ipc.Channel;
 using RedGate.Ipc.Json;
@@ -28,6 +30,25 @@ namespace RedGate.Ipc.Rpc
             return new ChannelMessage((int)ChannelMessageType.RpcRequest, payload);
         }
 
+        public ChannelMessage ToChannelMessage(RpcException exception)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(memStream, exception.Exception);
+                var binding = new RpcExceptionBinding
+                {
+                    QueryId = exception.QueryId,
+                    Exception = Convert.ToBase64String(memStream.ToArray())
+                };
+
+                var payload = Encoding.UTF8.GetBytes(
+                m_JsonSerializer.Serialize(binding));
+
+                return new ChannelMessage((int)ChannelMessageType.RpcException, payload);
+            }
+        }
+
         public RpcResponse ToResponse(ChannelMessage channelMessage)
         {
             if(!channelMessage.IsMessageType(ChannelMessageType.RpcResponse))
@@ -46,6 +67,15 @@ namespace RedGate.Ipc.Rpc
             return FromBinding(m_JsonSerializer.Deserialize<RpcRequestBinding>(json));
         }
 
+        public RpcException ToException(ChannelMessage channelMessage)
+        {
+            if (!channelMessage.IsMessageType(ChannelMessageType.RpcException))
+                throw new InvalidOperationException("ChannelMessage is not an RpcException");
+
+            var json = Encoding.UTF8.GetString(channelMessage.Payload);
+            return FromBinding(m_JsonSerializer.Deserialize<RpcExceptionBinding>(json));
+        }
+
         private static RpcRequest FromBinding(RpcRequestBinding binding)
         {
             return new RpcRequest(
@@ -60,6 +90,17 @@ namespace RedGate.Ipc.Rpc
             return new RpcResponse(
                 binding.QueryId,
                 binding.ReturnValue);
+        }
+
+        private static RpcException FromBinding(RpcExceptionBinding binding)
+        {
+            var formatter = new BinaryFormatter();
+            using (var memStream = new MemoryStream(Convert.FromBase64String(binding.Exception)))
+            {
+                return new RpcException(
+                binding.QueryId,
+                formatter.Deserialize(memStream) as Exception);
+            }
         }
     }
 }
