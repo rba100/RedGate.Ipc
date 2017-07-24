@@ -95,11 +95,19 @@ namespace RedGate.Ipc.Rpc
         private static RpcException FromBinding(RpcExceptionBinding binding)
         {
             var formatter = new BinaryFormatter();
-            using (var memStream = new MemoryStream(Convert.FromBase64String(binding.Exception)))
+            try
             {
-                return new RpcException(
-                binding.QueryId,
-                formatter.Deserialize(memStream) as Exception);
+                using (var memStream = new MemoryStream(Convert.FromBase64String(binding.Exception)))
+                {
+                    return new RpcException(
+                        binding.QueryId,
+                        (Exception) formatter.Deserialize(memStream));
+                }
+            }
+            catch (Exception)
+            {
+                return new RpcException(binding.QueryId, new Exception("The operation could not be completed."));
+                // TODO: Log this as error
             }
         }
     }
