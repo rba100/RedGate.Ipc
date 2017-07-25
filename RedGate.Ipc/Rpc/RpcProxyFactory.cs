@@ -18,7 +18,7 @@ namespace RedGate.Ipc.Rpc
 
         public T CreateProxy<T>(IConnection connection)
         {
-            return m_ProxyFactory.Create<T>(new RpcCallHandler<T>(connection, m_JsonSerializer));
+            return m_ProxyFactory.Create<T>(new FixedCallHandler<T>(connection, m_JsonSerializer));
         }
     }
 }

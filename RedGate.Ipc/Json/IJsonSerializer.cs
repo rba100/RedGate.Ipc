@@ -2,7 +2,7 @@
 
 namespace RedGate.Ipc.Json
 {
-    internal interface IJsonSerializer
+    public interface IJsonSerializer
     {
         string Serialize(object o);
         T Deserialize<T>(string json);

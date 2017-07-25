@@ -6,12 +6,12 @@ using RedGate.Ipc.Json;
 
 namespace RedGate.Ipc.Rpc
 {
-    internal class RpcCallHandler<T> : ICallHandler
+    internal class FixedCallHandler<T> : ICallHandler
     {
         private readonly IConnection m_Connection;
         private readonly IJsonSerializer m_JsonSerializer;
 
-        public RpcCallHandler(IConnection connection, IJsonSerializer jsonSerializer)
+        public FixedCallHandler(IConnection connection, IJsonSerializer jsonSerializer)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
             if (jsonSerializer == null) throw new ArgumentNullException(nameof(jsonSerializer));

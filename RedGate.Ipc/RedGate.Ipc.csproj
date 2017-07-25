@@ -46,6 +46,7 @@
     <Compile Include="Channel\ChannelConnectedEventArgs.cs" />
     <Compile Include="Channel\ChannelConnectedEventHandler.cs" />
     <Compile Include="Channel\ChannelDisconnectedEventArgs.cs" />
+    <Compile Include="Channel\ChannelStreamCustomDispose.cs" />
     <Compile Include="Channel\IChannelMessageDispatcher.cs" />
     <Compile Include="Channel\ChannelMessageWriter.cs" />
     <Compile Include="Channel\IChannelMessageWriter.cs" />
@@ -59,8 +60,10 @@
     <Compile Include="ImportedCode\JsonParser.cs" />
     <Compile Include="ImportedCode\JsonSerializer.cs" />
     <Compile Include="ImportedCode\ProxyFactory.cs" />
+    <Compile Include="RpcClient.cs" />
+    <Compile Include="Rpc\DelegatingCallHandler.cs" />
     <Compile Include="Rpc\IRpcMessageWriter.cs" />
-    <Compile Include="Rpc\RpcCallHandler.cs" />
+    <Compile Include="Rpc\FixedCallHandler.cs" />
     <Compile Include="Rpc\RpcChannelMessageHandler.cs" />
     <Compile Include="Rpc\RpcException.cs" />
     <Compile Include="Rpc\RpcExceptionBinding.cs" />
@@ -86,9 +89,11 @@
     <Compile Include="Rpc\IRpcMessageSerialiser.cs" />
     <Compile Include="IRpcClient.cs" />
     <Compile Include="Channel\ChannelMessagePipeline.cs" />
+    <Compile Include="Transport\ClientConnectionAgent.cs" />
     <Compile Include="Channel\IChannelStream.cs" />
-    <Compile Include="Channel\IChannelStreamClientProvider.cs" />
-    <Compile Include="Transport\NamedPipes\NamedPipesRpcClient.cs" />
+    <Compile Include="Channel\IChannelStreamProvider.cs" />
+    <Compile Include="Transport\IClientConnectionAgent.cs" />
+    <Compile Include="Transport\NamedPipes\NamedPipesChannelStreamProvider.cs" />
     <Compile Include="Rpc\RpcRequestHandler.cs" />
     <Compile Include="Rpc\RequestToken.cs" />
     <Compile Include="Rpc\RpcMessageBroker.cs" />
@@ -101,8 +106,8 @@
     <Compile Include="Rpc\RpcMessageEncoder.cs" />
     <Compile Include="Rpc\RpcRequest.cs" />
     <Compile Include="Rpc\RpcResponse.cs" />
+    <Compile Include="Transport\Tcp\TcpChannelStreamProvider.cs" />
     <Compile Include="Transport\Tcp\TcpEndpoint.cs" />
-    <Compile Include="Transport\Tcp\TcpRpcClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

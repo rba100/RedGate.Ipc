@@ -6,7 +6,7 @@ using RedGate.Ipc.Json;
 
 namespace RedGate.Ipc.Rpc
 {
-    internal class RpcRequestHandler : IRpcRequestHandler
+    public class RpcRequestHandler : IRpcRequestHandler
     {
         private readonly IJsonSerializer m_JsonSerializer;
 
@@ -15,11 +15,16 @@ namespace RedGate.Ipc.Rpc
             m_JsonSerializer = jsonSerializer;
         }
 
+        public RpcRequestHandler()
+        {
+            m_JsonSerializer = new TinyJsonSerializer();
+        }
+
         private readonly Dictionary<string, object> m_Interfaces = new Dictionary<string, object>();
 
         public void Register<TInterface>(object implementation)
         {
-            m_Interfaces[typeof(TInterface).Name] = implementation;
+            m_Interfaces[typeof(TInterface).FullName] = implementation;
         }
 
         public RpcResponse Handle(RpcRequest request)

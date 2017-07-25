@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using RedGate.Ipc.Channel;
 using RedGate.Ipc.Json;
 using RedGate.Ipc.Rpc;
