@@ -2,7 +2,7 @@ using System;
 
 namespace RedGate.Ipc.Channel
 {
-    public interface IMessageStream : IDisposable
+    public interface IChannelMessageStream : IDisposable
     {
         void Write(byte[] payload);
 

@@ -2,12 +2,12 @@ namespace RedGate.Ipc.Channel
 {
     internal class ChannelMessageWriter : IChannelMessageWriter
     {
-        private readonly IMessageStream m_MessageStream;
+        private readonly IChannelMessageStream m_ChannelMessageStream;
         private readonly IChannelMessageSerializer m_ChannelMessageSerializer;
 
-        public ChannelMessageWriter(IMessageStream messageStream, IChannelMessageSerializer channelMessageSerializer)
+        public ChannelMessageWriter(IChannelMessageStream channelMessageStream, IChannelMessageSerializer channelMessageSerializer)
         {
-            m_MessageStream = messageStream;
+            m_ChannelMessageStream = channelMessageStream;
             m_ChannelMessageSerializer = channelMessageSerializer;
         }
 
@@ -15,7 +15,7 @@ namespace RedGate.Ipc.Channel
         {
             try
             {
-                m_MessageStream.Write(m_ChannelMessageSerializer.ToBytes(channelMessage));
+                m_ChannelMessageStream.Write(m_ChannelMessageSerializer.ToBytes(channelMessage));
             }
             catch
             {

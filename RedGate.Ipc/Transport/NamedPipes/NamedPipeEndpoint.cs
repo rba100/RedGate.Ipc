@@ -43,7 +43,7 @@ namespace RedGate.Ipc.NamedPipes
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous);
                     m_CurrentListener.WaitForConnection();
-                    ChannelConnected(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), m_CurrentListener));
+                    ChannelConnected(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new SimpleStream(m_CurrentListener)));
                 }
             }
             catch (SocketException)

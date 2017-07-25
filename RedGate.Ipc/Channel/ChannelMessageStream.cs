@@ -1,17 +1,16 @@
 using System;
-using System.IO;
 
 namespace RedGate.Ipc.Channel
 {
-    public class MessageStream : IMessageStream
+    public class ChannelMessageStream : IChannelMessageStream
     {
-        private readonly Stream m_Stream;
+        private IChannelStream m_Stream;
         private readonly object m_WriteLock = new object();
         private readonly object m_ReadLock = new object();
 
         private const int c_HeaderSize = sizeof(Int32);
 
-        public MessageStream(Stream stream)
+        public ChannelMessageStream(IChannelStream stream)
         {
             m_Stream = stream;
         }
@@ -41,26 +40,31 @@ namespace RedGate.Ipc.Channel
 
         private byte[] EncodeHeader(int payloadSize)
         {
+            // Little endian 
             return BitConverter.GetBytes(payloadSize);
         }
 
         private int DecodeHeader(byte[] header)
         {
+            // Little endian 
             return BitConverter.ToInt32(header, 0);
         }
 
         private void WriteAll(byte[] buffer, int totalBytes)
         {
-            m_Stream.Write(buffer, 0, totalBytes);
-            m_Stream.Flush();
+            var stream = m_Stream;
+            if(stream == null) throw new ObjectDisposedException(GetType().FullName);
+            m_Stream?.Write(buffer, 0, totalBytes);
         }
 
         private bool ReadAll(byte[] buffer, int totalBytes)
         {
+            var stream = m_Stream;
+            if (stream == null) throw new ObjectDisposedException(GetType().FullName);
             int bytesLeft = totalBytes;
             while (bytesLeft > 0)
             {
-                var bytesRead = m_Stream.Read(buffer, totalBytes - bytesLeft, bytesLeft);
+                var bytesRead = stream.Read(buffer, totalBytes - bytesLeft, bytesLeft);
                 if (bytesRead == 0) return false;
                 bytesLeft -= bytesRead;
             }
@@ -70,6 +74,7 @@ namespace RedGate.Ipc.Channel
         public void Dispose()
         {
             m_Stream?.Dispose();
+            m_Stream = null;
         }
     }
 }

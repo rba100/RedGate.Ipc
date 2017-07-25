@@ -7,7 +7,7 @@ namespace RedGate.Ipc.Channel
 {
     internal class ChannelMessageDispatcher : IChannelMessageDispatcher
     {
-        private readonly IMessageStream m_MessageStream;
+        private readonly IChannelMessageStream m_ChannelMessageStream;
         private readonly IChannelMessageSerializer m_ChannelMessageSerializer;
         private readonly IChannelMessageHandler m_InboundHandler;
 
@@ -15,18 +15,18 @@ namespace RedGate.Ipc.Channel
         private bool m_Disposed;
 
         internal ChannelMessageDispatcher(
-            IMessageStream messageStream,
+            IChannelMessageStream channelMessageStream,
             IChannelMessageSerializer channelMessageSerializer,
             IChannelMessageHandler inboundHandler)
         {
-            m_MessageStream = messageStream;
+            m_ChannelMessageStream = channelMessageStream;
             m_ChannelMessageSerializer = channelMessageSerializer;
             m_InboundHandler = inboundHandler;
         }
 
         public void Send(ChannelMessage channelMessage)
         {
-            m_MessageStream.Write(m_ChannelMessageSerializer.ToBytes(channelMessage));
+            m_ChannelMessageStream.Write(m_ChannelMessageSerializer.ToBytes(channelMessage));
         }
 
         public void Start()
@@ -45,7 +45,7 @@ namespace RedGate.Ipc.Channel
         public void Stop()
         {
             m_Disposed = true;
-            m_MessageStream.Dispose();
+            m_ChannelMessageStream.Dispose();
             m_Worker?.Abort();
         }
 
@@ -55,7 +55,7 @@ namespace RedGate.Ipc.Channel
             {
                 try
                 {
-                    var bytes = m_MessageStream.Read();
+                    var bytes = m_ChannelMessageStream.Read();
                     if (bytes == null)
                     {
                         break;
@@ -79,7 +79,7 @@ namespace RedGate.Ipc.Channel
             try
             {
                 m_Disposed = true;
-                m_MessageStream.Dispose();
+                m_ChannelMessageStream.Dispose();
             }
             catch
             {

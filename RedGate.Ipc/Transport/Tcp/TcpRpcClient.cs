@@ -1,5 +1,6 @@
 using System;
 using System.Net.Sockets;
+using RedGate.Ipc.Channel;
 using RedGate.Ipc.Json;
 using RedGate.Ipc.Rpc;
 
@@ -28,7 +29,7 @@ namespace RedGate.Ipc.Tcp
         {
             var client = new TcpClient();
             client.Connect(m_HostName, m_PortNumber);
-            var connection = m_ConnectionFactory.Create(Guid.NewGuid().ToString(), client.GetStream());
+            var connection = m_ConnectionFactory.Create(Guid.NewGuid().ToString(), new SimpleStream(client.GetStream()));
             return m_ProxyFactory.CreateProxy<T>(connection);
         }
 

@@ -51,7 +51,7 @@ namespace RedGate.Ipc.Tcp
                 {
                     var socket = Listener.AcceptSocket();
                     var stream = new NetworkStream(socket);
-                    ChannelConnected?.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), stream));
+                    ChannelConnected?.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new SimpleStream(stream)));
                 }
             }
             catch (SocketException)

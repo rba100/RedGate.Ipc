@@ -17,11 +17,11 @@ namespace RedGate.Ipc
             m_RpcRequestHandler = rpcRequestHandler;
         }
 
-        public IConnection Create(string connectionId, Stream stream)
+        public IConnection Create(string connectionId, IChannelStream stream)
         {
             var jsonSerialiser = new TinyJsonSerializer();
             var rpcMessageEncoder = new RpcMessageEncoder(jsonSerialiser);
-            var messageStream = new MessageStream(stream);
+            var messageStream = new ChannelMessageStream(stream);
             var channelMessageSerializer = new ChannelMessageSerializer();
             var channelWriter = new ChannelMessageWriter(messageStream, channelMessageSerializer);
             

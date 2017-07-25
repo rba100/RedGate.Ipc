@@ -1,5 +1,6 @@
 using System;
 using System.IO.Pipes;
+using RedGate.Ipc.Channel;
 using RedGate.Ipc.Json;
 using RedGate.Ipc.Rpc;
 
@@ -22,7 +23,7 @@ namespace RedGate.Ipc.NamedPipes
             var client = new NamedPipeClientStream(".", m_PipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
             client.Connect(5000);
             client.ReadMode = PipeTransmissionMode.Byte;
-            var connection = m_ConnectionFactory.Create(Guid.NewGuid().ToString(), client);
+            var connection = m_ConnectionFactory.Create(Guid.NewGuid().ToString(), new SimpleStream(client));
             return m_ProxyFactory.CreateProxy<T>(connection);
         }
 

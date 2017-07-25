@@ -49,6 +49,7 @@
     <Compile Include="Channel\IChannelMessageDispatcher.cs" />
     <Compile Include="Channel\ChannelMessageWriter.cs" />
     <Compile Include="Channel\IChannelMessageWriter.cs" />
+    <Compile Include="Channel\SimpleStream.cs" />
     <Compile Include="ConnectedEventArgs.cs" />
     <Compile Include="DisconnectedEventArgs.cs" />
     <Compile Include="Connection.cs" />
@@ -85,14 +86,16 @@
     <Compile Include="Rpc\IRpcMessageSerialiser.cs" />
     <Compile Include="IRpcClient.cs" />
     <Compile Include="Channel\ChannelMessagePipeline.cs" />
+    <Compile Include="Channel\IChannelStream.cs" />
+    <Compile Include="Channel\IChannelStreamClientProvider.cs" />
     <Compile Include="Transport\NamedPipes\NamedPipesRpcClient.cs" />
     <Compile Include="Rpc\RpcRequestHandler.cs" />
     <Compile Include="Rpc\RequestToken.cs" />
     <Compile Include="Rpc\RpcMessageBroker.cs" />
-    <Compile Include="Channel\IMessageStream.cs" />
+    <Compile Include="Channel\IChannelMessageStream.cs" />
     <Compile Include="Rpc\RpcProxyFactory.cs" />
     <Compile Include="Channel\ChannelMessageDispatcher.cs" />
-    <Compile Include="Channel\MessageStream.cs" />
+    <Compile Include="Channel\ChannelMessageStream.cs" />
     <Compile Include="Transport\NamedPipes\NamedPipeEndpoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rpc\RpcMessageEncoder.cs" />
