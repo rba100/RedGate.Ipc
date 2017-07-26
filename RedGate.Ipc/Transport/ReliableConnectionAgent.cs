@@ -35,16 +35,12 @@ namespace RedGate.Ipc
         {
             if (m_Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            if (m_Connection?.IsConnected != true)
-            {
-                AsyncReconnect();
-            }
-
             if (timeoutMs > 0 && !m_ConnectionWaitHandle.WaitOne(timeoutMs))
             {
                 return null;
             }
-            return m_Connection?.IsConnected == true ? m_Connection : null;
+
+            return m_Connection;
         }
 
         private void ConnectionOnDisconnected(DisconnectedEventArgs args)
@@ -53,34 +49,26 @@ namespace RedGate.Ipc
             {
                 if (m_Connection == args.Connection)
                 {
-                    if(!m_Disposed) m_ConnectionWaitHandle.Reset();
+                    if (!m_Disposed) m_ConnectionWaitHandle.Reset();
                     m_Connection = null;
                     AsyncReconnect();
                 }
             }
-            args.Connection.Dispose();
         }
 
         private void AsyncReconnect()
         {
-            if (m_Disposed) return;
-            lock (m_ConnectionLock)
-            {
-                if (m_Connection?.IsConnected == true) return;
-                m_ConnectionWaitHandle.Reset();
-                m_Connection = null;
-                Task.Factory.StartNew(
-                    ReconnectLoop,
-                    TaskCreationOptions.LongRunning);
-            }
+            Task.Factory.StartNew(
+                ReconnectLoop,
+                TaskCreationOptions.LongRunning);
         }
 
         private void ReconnectLoop()
         {
             var stopwatch = new Stopwatch();
-            do
+
+            while (!m_Disposed)
             {
-                if (m_Disposed) return;
                 stopwatch.Restart();
                 try
                 {
@@ -90,6 +78,7 @@ namespace RedGate.Ipc
                     m_Connection = connection;
                     connection.Disconnected += ConnectionOnDisconnected;
                     m_ConnectionWaitHandle.Set();
+                    return;
                 }
                 catch (Exception)
                 {
@@ -107,8 +96,7 @@ namespace RedGate.Ipc
                         return;
                     }
                 }
-
-            } while (m_Connection?.IsConnected != true);
+            }
         }
 
         public void Dispose()
