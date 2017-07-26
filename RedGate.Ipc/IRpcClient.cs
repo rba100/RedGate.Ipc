@@ -7,8 +7,8 @@ namespace RedGate.Ipc
         /// <summary>
         /// Regesters a concrete implementation of T to be used when remote parties create and use proxies of T.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="implementation"></param>
+        /// <typeparam name="T">Must be an interface</typeparam>
+        /// <param name="implementation">Must implement T</param>
         void Register<T>(object implementation);
 
         /// <summary>

@@ -24,6 +24,12 @@ namespace RedGate.Ipc.Rpc
 
         public void Register<TInterface>(object implementation)
         {
+            if (implementation.GetType().GetInterfaces().All(i => i != typeof(TInterface)))
+            {
+                throw new ArgumentException(
+                    "Supplied implementation must implement the specified TInterface type.",
+                    nameof(implementation));
+            }
             m_Interfaces[typeof(TInterface).FullName] = implementation;
         }
 
