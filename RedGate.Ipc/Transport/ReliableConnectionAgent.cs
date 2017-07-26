@@ -35,7 +35,7 @@ namespace RedGate.Ipc
         {
             if (m_Disposed) throw new ObjectDisposedException(GetType().FullName);
 
-            if (m_Connection?.IsConnected == false)
+            if (m_Connection?.IsConnected != true)
             {
                 AsyncReconnect();
             }

@@ -87,7 +87,7 @@ namespace RedGate.Ipc
         public void Dispose()
         {
             m_IsDisposed = true;
-            m_ReliableConnectionAgent?.Dispose();
+            m_ReliableConnectionAgent.Dispose();
         }
     }
 }
