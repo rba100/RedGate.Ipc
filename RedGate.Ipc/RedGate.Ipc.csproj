@@ -55,7 +55,7 @@
     <Compile Include="DisconnectedEventArgs.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="IConnection.cs" />
-    <Compile Include="IEndpointListener.cs" />
+    <Compile Include="IEndpoint.cs" />
     <Compile Include="ImportedCode\JsonDeserializer.cs" />
     <Compile Include="ImportedCode\JsonParser.cs" />
     <Compile Include="ImportedCode\JsonSerializer.cs" />
@@ -101,13 +101,13 @@
     <Compile Include="Rpc\RpcProxyFactory.cs" />
     <Compile Include="Channel\ChannelMessageReader.cs" />
     <Compile Include="Channel\ChannelMessageStream.cs" />
-    <Compile Include="Transport\NamedPipes\NamedPipeEndpointListener.cs" />
+    <Compile Include="Transport\NamedPipes\NamedPipeEndpoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rpc\RpcMessageEncoder.cs" />
     <Compile Include="Rpc\RpcRequest.cs" />
     <Compile Include="Rpc\RpcResponse.cs" />
     <Compile Include="Transport\Tcp\TcpEndpointClient.cs" />
-    <Compile Include="Transport\Tcp\TcpEndpointListener.cs" />
+    <Compile Include="Transport\Tcp\TcpEndpoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

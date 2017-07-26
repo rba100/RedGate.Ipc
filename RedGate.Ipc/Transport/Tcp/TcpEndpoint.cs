@@ -6,14 +6,14 @@ using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc.Tcp
 {
-    public class TcpEndpointListener : IEndpointListener
+    public class TcpEndpoint : IEndpoint
     {
         private readonly int m_PortNumber;
         private TcpListener m_Listener;
         private Thread m_Worker;
         private bool m_Disposed;
 
-        public TcpEndpointListener(
+        public TcpEndpoint(
             int portNumber)
         {
             m_PortNumber = portNumber;

@@ -7,7 +7,7 @@ namespace RedGate.Ipc
 {
     public class ServiceManager : IServiceManager
     {
-        private readonly List<IEndpointListener> m_Endpoints = new List<IEndpointListener>();
+        private readonly List<IEndpoint> m_Endpoints = new List<IEndpoint>();
         private static readonly IJsonSerializer s_JsonSerializer = new TinyJsonSerializer();
         private readonly IConnectionFactory m_ConnectionFactory;
         private readonly IRpcRequestHandler m_RpcRequestHandler;
@@ -26,10 +26,10 @@ namespace RedGate.Ipc
 
         public event ClientConnectedEventHandler ClientConnected;
 
-        public void AddEndpoint(IEndpointListener endpointListener)
+        public void AddEndpoint(IEndpoint endpoint)
         {
-            m_Endpoints.Add(endpointListener);
-            endpointListener.ChannelConnected += EndpointOnClientConnected;
+            m_Endpoints.Add(endpoint);
+            endpoint.ChannelConnected += EndpointOnClientConnected;
         }
 
         private void EndpointOnClientConnected(ChannelConnectedEventArgs args)
