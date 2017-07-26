@@ -54,9 +54,9 @@ namespace RedGate.Ipc
             return s_ProxyFactory.Create<T>(new DelegatingCallHandler(HandleCall, ProxyDisposed));
         }
 
-        public T CreateProxy<T>(Type exceptionTypeConnectionFailure)
+        public T CreateProxy<T, TConnectionFailureExceptionType>() where TConnectionFailureExceptionType : Exception
         {
-            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(HandleCall, ProxyDisposed, exceptionTypeConnectionFailure));
+            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(HandleCall, ProxyDisposed, typeof(TConnectionFailureExceptionType)));
         }
 
         public void Register<T>(object implementation)

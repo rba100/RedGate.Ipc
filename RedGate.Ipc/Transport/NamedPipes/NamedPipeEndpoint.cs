@@ -41,7 +41,7 @@ namespace RedGate.Ipc.NamedPipes
                     m_CurrentListener = new NamedPipeServerStream(
                         m_PipeName,
                         PipeDirection.InOut,
-                        254, // Max clients
+                        NamedPipeServerStream.MaxAllowedServerInstances,
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous);
                     m_CurrentListener.WaitForConnection();

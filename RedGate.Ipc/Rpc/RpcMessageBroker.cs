@@ -6,7 +6,7 @@ namespace RedGate.Ipc.Rpc
 {
     public delegate void DisconnectedEventHandler();
 
-    internal class RpcMessageBroker : IRpcMessageBroker, IDisposable
+    internal class RpcMessageBroker : IRpcMessageBroker
     {
         public event DisconnectedEventHandler Disconnected;
 
