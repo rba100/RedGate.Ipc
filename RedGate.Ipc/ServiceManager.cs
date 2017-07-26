@@ -24,7 +24,7 @@ namespace RedGate.Ipc
             m_ConnectionFactory = connectionFactory;
         }
 
-        public event ClientConnectedEventHandler ClientConnected;
+        public event ClientConnectedEventHandler ClientConnected = delegate { };
 
         public void AddEndpoint(IEndpoint endpoint)
         {
@@ -35,7 +35,7 @@ namespace RedGate.Ipc
         private void EndpointOnClientConnected(ChannelConnectedEventArgs args)
         {
             var connection = m_ConnectionFactory.Create(args.ConnectionId, args.ChannelStream);
-            ClientConnected?.Invoke(new ConnectedEventArgs(connection));
+            ClientConnected.Invoke(new ConnectedEventArgs(connection));
         }
 
         public void Start()

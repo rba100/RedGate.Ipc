@@ -29,10 +29,10 @@ namespace RedGate.Ipc
         private void OnDisconnected()
         {
             IsConnected = false;
-            Disconnected?.Invoke(new DisconnectedEventArgs(this));
+            Disconnected.Invoke(new DisconnectedEventArgs(this));
         }
 
-        public event ClientDisconnectedEventHandler Disconnected;
+        public event ClientDisconnectedEventHandler Disconnected = delegate { };
 
         public void Dispose()
         {

@@ -68,11 +68,11 @@ namespace RedGate.Ipc.Channel
                     break;
                 }
             }
-            Disconnected?.Invoke();
+            Disconnected.Invoke();
             return;
         }
 
-        public event DisconnectedEventHandler Disconnected;
+        public event DisconnectedEventHandler Disconnected = delegate { };
 
         public void Dispose()
         {

@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc.Tcp
@@ -51,7 +52,7 @@ namespace RedGate.Ipc.Tcp
                 {
                     var socket = m_Listener.AcceptSocket();
                     var stream = new NetworkStream(socket);
-                    ChannelConnected?.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new SimpleStream(stream)));
+                    ChannelConnected.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new SimpleStream(stream)));
                 }
             }
             catch (SocketException)
@@ -60,6 +61,6 @@ namespace RedGate.Ipc.Tcp
             }
         }
 
-        public event ChannelConnectedEventHandler ChannelConnected;
+        public event ChannelConnectedEventHandler ChannelConnected = delegate { };
     }
 }

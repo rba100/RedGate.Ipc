@@ -8,7 +8,7 @@ namespace RedGate.Ipc.Rpc
 
     internal class RpcMessageBroker : IRpcMessageBroker
     {
-        public event DisconnectedEventHandler Disconnected;
+        public event DisconnectedEventHandler Disconnected = delegate { };
 
         private readonly ConcurrentDictionary<string, RequestToken> m_PendingQueries
             = new ConcurrentDictionary<string, RequestToken>();
@@ -62,7 +62,7 @@ namespace RedGate.Ipc.Rpc
             }
             catch (ChannelFaultedException)
             {
-                Disconnected?.Invoke();
+                Disconnected.Invoke();
                 throw;
             }
         }
