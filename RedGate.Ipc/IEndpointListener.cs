@@ -2,7 +2,7 @@
 
 namespace RedGate.Ipc
 {
-    public interface IEndpoint
+    public interface IEndpointListener
     {
         event ChannelConnectedEventHandler ChannelConnected;
         void Start();

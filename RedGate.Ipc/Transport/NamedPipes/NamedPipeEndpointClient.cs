@@ -5,12 +5,12 @@ using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc.NamedPipes
 {
-    public class NamedPipesChannelStreamProvider : IChannelStreamProvider
+    public class NamedPipeEndpointClient : IEndpointClient
     {
         private readonly string m_PipeName;
         private readonly IRpcRequestHandler m_RpcRequestHandler = new RpcRequestHandler(new TinyJsonSerializer());
 
-        public NamedPipesChannelStreamProvider(string pipeName)
+        public NamedPipeEndpointClient(string pipeName)
         {
             m_PipeName = pipeName;
         }

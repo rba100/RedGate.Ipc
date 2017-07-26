@@ -33,7 +33,7 @@ namespace RedGate.Ipc
 
         public static IRpcClient CreateNamedPipeClient(string pipeName)
         {
-            var namedPipesClient = new NamedPipesChannelStreamProvider(pipeName);
+            var namedPipesClient = new NamedPipeEndpointClient(pipeName);
             var requestHandler = new RpcRequestHandler();
             var connectionFactory = new ConnectionFactory(requestHandler);
             var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()), null);
@@ -42,7 +42,7 @@ namespace RedGate.Ipc
 
         public static IRpcClient CreateTcpClient(string hostname, int portNumber)
         {
-            var tcpProvider = new TcpChannelStreamProvider(portNumber, hostname);
+            var tcpProvider = new TcpEndpointClient(portNumber, hostname);
             var requestHandler = new RpcRequestHandler();
             var connectionFactory = new ConnectionFactory(requestHandler);
             var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()), null);

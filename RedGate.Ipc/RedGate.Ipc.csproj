@@ -55,7 +55,7 @@
     <Compile Include="DisconnectedEventArgs.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="IConnection.cs" />
-    <Compile Include="IEndpoint.cs" />
+    <Compile Include="IEndpointListener.cs" />
     <Compile Include="ImportedCode\JsonDeserializer.cs" />
     <Compile Include="ImportedCode\JsonParser.cs" />
     <Compile Include="ImportedCode\JsonSerializer.cs" />
@@ -91,9 +91,9 @@
     <Compile Include="Channel\ChannelMessagePipeline.cs" />
     <Compile Include="Transport\ReliableConnectionAgent.cs" />
     <Compile Include="Channel\IChannelStream.cs" />
-    <Compile Include="Channel\IChannelStreamProvider.cs" />
+    <Compile Include="Channel\IEndpointClient.cs" />
     <Compile Include="Transport\IReliableConnectionAgent.cs" />
-    <Compile Include="Transport\NamedPipes\NamedPipesChannelStreamProvider.cs" />
+    <Compile Include="Transport\NamedPipes\NamedPipeEndpointClient.cs" />
     <Compile Include="Rpc\RpcRequestHandler.cs" />
     <Compile Include="Rpc\RequestToken.cs" />
     <Compile Include="Rpc\RpcMessageBroker.cs" />
@@ -101,13 +101,13 @@
     <Compile Include="Rpc\RpcProxyFactory.cs" />
     <Compile Include="Channel\ChannelMessageReader.cs" />
     <Compile Include="Channel\ChannelMessageStream.cs" />
-    <Compile Include="Transport\NamedPipes\NamedPipeEndpoint.cs" />
+    <Compile Include="Transport\NamedPipes\NamedPipeEndpointListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rpc\RpcMessageEncoder.cs" />
     <Compile Include="Rpc\RpcRequest.cs" />
     <Compile Include="Rpc\RpcResponse.cs" />
-    <Compile Include="Transport\Tcp\TcpChannelStreamProvider.cs" />
-    <Compile Include="Transport\Tcp\TcpEndpoint.cs" />
+    <Compile Include="Transport\Tcp\TcpEndpointClient.cs" />
+    <Compile Include="Transport\Tcp\TcpEndpointListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

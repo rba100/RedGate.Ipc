@@ -6,7 +6,7 @@ using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc.NamedPipes
 {
-    public class NamedPipeEndpoint : IEndpoint
+    public class NamedPipeEndpointListener : IEndpointListener
     {
         public event ChannelConnectedEventHandler ChannelConnected = delegate { };
 
@@ -15,7 +15,7 @@ namespace RedGate.Ipc.NamedPipes
         private bool m_Disposed;
         private NamedPipeServerStream m_CurrentListener;
 
-        public NamedPipeEndpoint(
+        public NamedPipeEndpointListener(
             string pipeName)
         {
             m_PipeName = pipeName;

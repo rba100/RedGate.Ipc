@@ -5,7 +5,7 @@ namespace RedGate.Ipc
     public interface IServiceManager
     {
         void Register<T>(object implementation);
-        void AddEndpoint(IEndpoint endpoint);
+        void AddEndpoint(IEndpointListener endpointListener);
         void Start();
         void Stop();
 

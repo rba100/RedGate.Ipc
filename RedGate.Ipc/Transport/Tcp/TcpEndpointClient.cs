@@ -3,12 +3,12 @@ using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc.Tcp
 {
-    public class TcpChannelStreamProvider : IChannelStreamProvider
+    public class TcpEndpointClient : IEndpointClient
     {
         private readonly int m_PortNumber;
         private readonly string m_HostName;
 
-        public TcpChannelStreamProvider(int portNumber, string hostName)
+        public TcpEndpointClient(int portNumber, string hostName)
         {
             m_PortNumber = portNumber;
             m_HostName = hostName;
