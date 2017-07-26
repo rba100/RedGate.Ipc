@@ -21,7 +21,7 @@ namespace RedGate.Ipc.Tcp
 
         public void Start()
         {
-            if (m_Disposed) throw new InvalidOperationException("TcpEndpoint does not support restarting.");
+            if (m_Disposed) throw new InvalidOperationException($"{nameof(TcpEndpoint)} does not support restarting.");
             if (m_Worker != null) return;
             m_Worker = new Thread(Worker);
             m_Worker.Start();

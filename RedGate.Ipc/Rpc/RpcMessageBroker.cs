@@ -49,7 +49,7 @@ namespace RedGate.Ipc.Rpc
 
                 if (waitValue == WaitHandle.WaitTimeout) throw new ChannelFaultedException("Connection timed out.");
 
-                throw new ChannelFaultedException("Connection was closed.");
+                throw new ChannelFaultedException("The connection was closed before the response was received.");
             }
         }
 

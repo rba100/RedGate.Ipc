@@ -2,6 +2,7 @@
 using System.IO.Pipes;
 using System.Net.Sockets;
 using System.Threading;
+
 using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc.NamedPipes
@@ -23,6 +24,7 @@ namespace RedGate.Ipc.NamedPipes
 
         public void Start()
         {
+            if (m_Disposed) throw new InvalidOperationException($"{nameof(NamedPipeEndpoint)} does not support restarting.");
             if (m_Worker == null)
             {
                 m_Worker = new Thread(Worker);
