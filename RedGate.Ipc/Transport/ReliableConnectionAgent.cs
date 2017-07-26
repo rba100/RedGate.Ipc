@@ -5,19 +5,25 @@ using System.Threading.Tasks;
 
 namespace RedGate.Ipc
 {
-    public class ClientConnectionAgent : IClientConnectionAgent
+    public class ReliableConnectionAgent : IReliableConnectionAgent
     {
+        // Dependencies
         private readonly Func<IConnection> m_GetConnection;
         private readonly Action<IConnection> m_Initialisation;
 
+        // Constants
         private const long c_DelayMs = 5000;
+
+        // State variables
         private volatile bool m_Disposed;
-        private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
         private IConnection m_Connection;
+
+        // Synchronisation objects
         private readonly object m_ConnectionLock = new object();
         private readonly ManualResetEvent m_ConnectionWaitHandle = new ManualResetEvent(false);
+        private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
-        public ClientConnectionAgent(Func<IConnection> getConnection, Action<IConnection> initialisation)
+        public ReliableConnectionAgent(Func<IConnection> getConnection, Action<IConnection> initialisation)
         {
             m_GetConnection = getConnection;
             m_Initialisation = initialisation;
@@ -25,7 +31,7 @@ namespace RedGate.Ipc
             AsyncReconnect();
         }
 
-        public IConnection TryGetConnection(int timeoutMs = 0)
+        public IConnection TryGetConnection(int timeoutMs)
         {
             if (m_Disposed) throw new ObjectDisposedException(GetType().FullName);
 
@@ -47,7 +53,7 @@ namespace RedGate.Ipc
             {
                 if (m_Connection == args.Connection)
                 {
-                    m_ConnectionWaitHandle.Reset();
+                    if(!m_Disposed) m_ConnectionWaitHandle.Reset();
                     m_Connection = null;
                     AsyncReconnect();
                 }
@@ -61,6 +67,7 @@ namespace RedGate.Ipc
             lock (m_ConnectionLock)
             {
                 if (m_Connection?.IsConnected == true) return;
+                m_ConnectionWaitHandle.Reset();
                 m_Connection = null;
                 Task.Factory.StartNew(
                     ReconnectLoop,

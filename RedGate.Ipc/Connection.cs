@@ -1,24 +1,29 @@
-﻿using RedGate.Ipc.Channel;
+﻿using System;
+using System.Collections.Generic;
+
+using RedGate.Ipc.Channel;
 using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc
 {
     internal class Connection : IConnection
     {
-        private readonly IChannelMessageDispatcher m_ChannelMessageDispatcher;
+        private readonly List<IDisposable> m_Disposables;
+
         public string ConnectionId { get; }
         public IRpcMessageBroker RpcMessageBroker { get; }
 
-        public Connection(
-            string connectionId,
-            IRpcMessageBroker rpcMessageBroker,
-            IChannelMessageDispatcher channelMessageDispatcher)
+        internal Connection(
+            string connectionId, 
+            IRpcMessageBroker rpcMessageBroker, 
+            ChannelMessageReader channelMessageReader,
+            IEnumerable<IDisposable> disposeChain)
         {
-            m_ChannelMessageDispatcher = channelMessageDispatcher;
+            m_Disposables = new List<IDisposable>(disposeChain);
             ConnectionId = connectionId;
             RpcMessageBroker = rpcMessageBroker;
-            channelMessageDispatcher.Disconnected += OnDisconnected;
             rpcMessageBroker.Disconnected += OnDisconnected;
+            channelMessageReader.Disconnected += OnDisconnected;
         }
 
         private void OnDisconnected()
@@ -32,8 +37,7 @@ namespace RedGate.Ipc
         public void Dispose()
         {
             IsConnected = false;
-            m_ChannelMessageDispatcher?.Stop();
-            RpcMessageBroker.Dispose();
+            m_Disposables.ForEach(d => d.Dispose());
         }
 
         public bool IsConnected { get; private set; } = true;

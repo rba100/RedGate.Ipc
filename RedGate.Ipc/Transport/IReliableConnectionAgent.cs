@@ -2,7 +2,7 @@ using System;
 
 namespace RedGate.Ipc
 {
-    public interface IClientConnectionAgent : IDisposable
+    public interface IReliableConnectionAgent : IDisposable
     {
         IConnection TryGetConnection(int timeoutMs);
     }

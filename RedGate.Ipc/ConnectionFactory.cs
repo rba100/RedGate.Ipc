@@ -20,19 +20,25 @@ namespace RedGate.Ipc
         {
             var jsonSerialiser = new TinyJsonSerializer();
             var rpcMessageEncoder = new RpcMessageEncoder(jsonSerialiser);
-            var messageStream = new ChannelMessageStream(stream);
+
+            var channelMessageStream = new ChannelMessageStream(stream);
             var channelMessageSerializer = new ChannelMessageSerializer();
-            var channelWriter = new ChannelMessageWriter(messageStream, channelMessageSerializer);
-            
-            var rpcMessageWriter = new RpcMessageWriter(channelWriter, rpcMessageEncoder);
-            var messageBroker = new RpcMessageBroker(rpcMessageWriter, m_RpcRequestHandler);
-            var rpcMessageHandler = new RpcChannelMessageHandler(messageBroker, rpcMessageEncoder);
-            var pipeline = new ChannelMessagePipeline(new []{ rpcMessageHandler });
-            var channelMessageDispatcher = new ChannelMessageDispatcher(messageStream, channelMessageSerializer, pipeline);
+            var channelMessageWriter = new ChannelMessageWriter(channelMessageStream, channelMessageSerializer);
 
-            var connection = new Connection(connectionId, messageBroker, channelMessageDispatcher);
+            var rpcMessageWriter = new RpcMessageWriter(channelMessageWriter, rpcMessageEncoder);
+            var rpcMessageBroker = new RpcMessageBroker(rpcMessageWriter, m_RpcRequestHandler);
+            var rpcMessageHandler = new RpcChannelMessageHandler(rpcMessageBroker, rpcMessageEncoder);
+            var pipeline = new ChannelMessagePipeline(new[] { rpcMessageHandler });
+            var channelMessageReader = new ChannelMessageReader(channelMessageStream, channelMessageSerializer, pipeline);
 
-            channelMessageDispatcher.Start();
+            var connection = new Connection(
+                connectionId,
+                rpcMessageBroker,
+                channelMessageReader,
+                disposeChain: new IDisposable[] { channelMessageReader, rpcMessageBroker });
+
+            channelMessageReader.Start();
+
             return connection;
         }
     }

@@ -5,7 +5,7 @@ using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc.Channel
 {
-    internal class ChannelMessageDispatcher : IChannelMessageDispatcher
+    internal class ChannelMessageReader : IChannelMessageDispatcher
     {
         private readonly IChannelMessageStream m_ChannelMessageStream;
         private readonly IChannelMessageSerializer m_ChannelMessageSerializer;
@@ -14,7 +14,7 @@ namespace RedGate.Ipc.Channel
         private Thread m_Worker;
         private bool m_Disposed;
 
-        internal ChannelMessageDispatcher(
+        internal ChannelMessageReader(
             IChannelMessageStream channelMessageStream,
             IChannelMessageSerializer channelMessageSerializer,
             IChannelMessageHandler inboundHandler)
@@ -38,7 +38,7 @@ namespace RedGate.Ipc.Channel
             }
             else
             {
-                throw new InvalidOperationException($"{nameof(ChannelMessageDispatcher)} does not support restarting.");
+                throw new InvalidOperationException($"{nameof(ChannelMessageReader)} does not support restarting.");
             }
         }
 

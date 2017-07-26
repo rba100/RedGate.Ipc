@@ -6,13 +6,14 @@ using RedGate.Ipc.ImportedCode;
 using RedGate.Ipc.Json;
 using RedGate.Ipc.NamedPipes;
 using RedGate.Ipc.Rpc;
+using RedGate.Ipc.Tcp;
 
 namespace RedGate.Ipc
 {
     public class RpcClient : IRpcClient
     {
         private readonly IRpcRequestHandler m_RequestHandler;
-        private readonly IClientConnectionAgent m_ClientConnectionAgent;
+        private readonly IReliableConnectionAgent m_ReliableConnectionAgent;
         private readonly IJsonSerializer m_JsonSerializer;
 
         private readonly ICallHandler m_CallHandler;
@@ -22,15 +23,15 @@ namespace RedGate.Ipc
 
         internal RpcClient(
             IRpcRequestHandler requestHandler,
-            IClientConnectionAgent clientConnectionAgent)
+            IReliableConnectionAgent reliableConnectionAgent)
         {
             if (requestHandler == null) throw new ArgumentNullException(nameof(requestHandler));
-            if (clientConnectionAgent == null) throw new ArgumentNullException(nameof(clientConnectionAgent));
+            if (reliableConnectionAgent == null) throw new ArgumentNullException(nameof(reliableConnectionAgent));
 
             m_CallHandler = new DelegatingCallHandler(HandleCall, ProxyDisposed);
 
             m_RequestHandler = requestHandler;
-            m_ClientConnectionAgent = clientConnectionAgent;
+            m_ReliableConnectionAgent = reliableConnectionAgent;
             m_JsonSerializer = new TinyJsonSerializer();
         }
 
@@ -39,7 +40,16 @@ namespace RedGate.Ipc
             var namedPipesClient = new NamedPipesChannelStreamProvider(pipeName);
             var requestHandler = new RpcRequestHandler();
             var connectionFactory = new ConnectionFactory(requestHandler);
-            var clientAgent = new ClientConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()), null);
+            var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()), null);
+            return new RpcClient(requestHandler, clientAgent);
+        }
+
+        public static IRpcClient CreateTcpClient(string hostname, int portNumber)
+        {
+            var tcpProvider = new TcpChannelStreamProvider(portNumber, hostname);
+            var requestHandler = new RpcRequestHandler();
+            var connectionFactory = new ConnectionFactory(requestHandler);
+            var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()), null);
             return new RpcClient(requestHandler, clientAgent);
         }
 
@@ -56,7 +66,7 @@ namespace RedGate.Ipc
         private object HandleCall(MethodInfo methodInfo, object[] args)
         {
             if(m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, "The underlying RpcClient was disposed.");
-            var connection = m_ClientConnectionAgent.TryGetConnection(5000);
+            var connection = m_ReliableConnectionAgent.TryGetConnection(5000);
             // TODO: use correct exception type
             if (connection == null) throw new Exception("Could not connect");
             var response = connection.RpcMessageBroker.Send(
@@ -76,7 +86,7 @@ namespace RedGate.Ipc
         public void Dispose()
         {
             m_IsDisposed = true;
-            m_ClientConnectionAgent?.Dispose();
+            m_ReliableConnectionAgent?.Dispose();
         }
     }
 }

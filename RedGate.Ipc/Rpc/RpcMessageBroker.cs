@@ -38,15 +38,17 @@ namespace RedGate.Ipc.Rpc
                     m_CancellationTokenSource.Token.WaitHandle
                 }, TimeSpan.FromSeconds(15));
 
+                RequestToken dummy;
+                m_PendingQueries.TryRemove(request.QueryId, out dummy);
+
                 if (waitValue == 0)
                 {
                     if(token.Response != null) return token.Response;
                     throw token.Exception;
                 }
 
-                RequestToken dummy;
-                m_PendingQueries.TryRemove(request.QueryId, out dummy);
                 if (waitValue == WaitHandle.WaitTimeout) throw new Exception("Client timed out.");
+
                 throw new ChannelFaultedException();
             }
         }
