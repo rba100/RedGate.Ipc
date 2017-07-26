@@ -47,9 +47,9 @@ namespace RedGate.Ipc.Rpc
                     throw token.Exception;
                 }
 
-                if (waitValue == WaitHandle.WaitTimeout) throw new Exception("Client timed out.");
+                if (waitValue == WaitHandle.WaitTimeout) throw new ChannelFaultedException("Connection timed out.");
 
-                throw new ChannelFaultedException();
+                throw new ChannelFaultedException("Connection was closed.");
             }
         }
 
@@ -63,23 +63,31 @@ namespace RedGate.Ipc.Rpc
             catch (ChannelFaultedException)
             {
                 Disconnected?.Invoke();
+                throw;
             }
         }
 
         public void HandleInbound(RpcRequest request)
         {
-            RpcResponse response = null;
+            RpcResponse rpcResponse = null;
+            RpcException rpcException = null;
             try
             {
-                response = m_RpcRequestHandler.Handle(request);
-                
+                rpcResponse = m_RpcRequestHandler.Handle(request);
             }
             catch (Exception exception)
             {
-                var rpcException = new RpcException(request.QueryId, exception);
-                m_RpcMessageWriter.Write(rpcException);
+                rpcException = new RpcException(request.QueryId, exception);
             }
-            if (response != null) m_RpcMessageWriter.Write(response);
+            try
+            {
+                if (rpcResponse != null) m_RpcMessageWriter.Write(rpcResponse);
+                if (rpcException != null) m_RpcMessageWriter.Write(rpcException);
+            }
+            catch (ChannelFaultedException)
+            {
+                // Other components will handle disconnection
+            }
         }
 
         public void HandleInbound(RpcResponse response)

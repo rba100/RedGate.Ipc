@@ -16,8 +16,6 @@ namespace RedGate.Ipc
         private readonly IReliableConnectionAgent m_ReliableConnectionAgent;
         private readonly IJsonSerializer m_JsonSerializer;
 
-        private readonly ICallHandler m_CallHandler;
-
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
         private bool m_IsDisposed;
 
@@ -27,8 +25,6 @@ namespace RedGate.Ipc
         {
             if (requestHandler == null) throw new ArgumentNullException(nameof(requestHandler));
             if (reliableConnectionAgent == null) throw new ArgumentNullException(nameof(reliableConnectionAgent));
-
-            m_CallHandler = new DelegatingCallHandler(HandleCall, ProxyDisposed);
 
             m_RequestHandler = requestHandler;
             m_ReliableConnectionAgent = reliableConnectionAgent;
@@ -55,7 +51,12 @@ namespace RedGate.Ipc
 
         public T CreateProxy<T>()
         {
-            return s_ProxyFactory.Create<T>(m_CallHandler);
+            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(HandleCall, ProxyDisposed));
+        }
+
+        public T CreateProxy<T>(Type exceptionTypeConnectionFailure)
+        {
+            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(HandleCall, ProxyDisposed, exceptionTypeConnectionFailure));
         }
 
         public void Register<T>(object implementation)
@@ -68,7 +69,7 @@ namespace RedGate.Ipc
             if(m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, "The underlying RpcClient was disposed.");
             var connection = m_ReliableConnectionAgent.TryGetConnection(5000);
             // TODO: use correct exception type
-            if (connection == null) throw new Exception("Could not connect");
+            if (connection == null) throw new ChannelFaultedException("Timed out trying to connect");
             var response = connection.RpcMessageBroker.Send(
                 new RpcRequest(
                     Guid.NewGuid().ToString(),

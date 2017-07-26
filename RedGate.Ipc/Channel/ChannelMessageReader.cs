@@ -76,15 +76,8 @@ namespace RedGate.Ipc.Channel
 
         public void Dispose()
         {
-            try
-            {
-                m_Disposed = true;
-                m_ChannelMessageStream.Dispose();
-            }
-            catch
-            {
-                //
-            }
+            m_Disposed = true;
+            m_ChannelMessageStream.Dispose();
         }
     }
 }
