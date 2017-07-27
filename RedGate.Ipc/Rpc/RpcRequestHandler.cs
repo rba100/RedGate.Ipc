@@ -2,40 +2,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 using RedGate.Ipc.Json;
 
 namespace RedGate.Ipc.Rpc
 {
     public class RpcRequestHandler : IRpcRequestHandler
     {
+        private readonly ITypeResolver m_TypeResolver;
         private readonly IJsonSerializer m_JsonSerializer;
 
-        internal RpcRequestHandler(IJsonSerializer jsonSerializer)
+        private readonly Dictionary<string, object> m_DelegateCache = new Dictionary<string, object>();
+
+        internal RpcRequestHandler(ITypeResolver typeResolver, IJsonSerializer jsonSerializer)
         {
+            if (typeResolver == null) throw new ArgumentNullException(nameof(typeResolver));
+            if (jsonSerializer == null) throw new ArgumentNullException(nameof(jsonSerializer));
+
+            m_TypeResolver = typeResolver;
             m_JsonSerializer = jsonSerializer;
-        }
-
-        public RpcRequestHandler()
-        {
-            m_JsonSerializer = new TinyJsonSerializer();
-        }
-
-        private readonly Dictionary<string, object> m_Interfaces = new Dictionary<string, object>();
-
-        public void Register<TInterface>(object implementation)
-        {
-            if (implementation.GetType().GetInterfaces().All(i => i != typeof(TInterface)))
-            {
-                throw new ArgumentException(
-                    "Supplied implementation must implement the specified TInterface type.",
-                    nameof(implementation));
-            }
-            m_Interfaces[typeof(TInterface).FullName] = implementation;
         }
 
         public RpcResponse Handle(RpcRequest request)
         {
-            var handler = m_Interfaces[request.Interface];
+            lock (m_DelegateCache)
+            {
+                if (!m_DelegateCache.ContainsKey(request.Interface))
+                {
+                    m_DelegateCache[request.Interface] = m_TypeResolver.Resolve(request.Interface);
+                }
+            }
+            
+            var handler = m_DelegateCache[request.Interface];
             var methodType = handler.GetType().GetMethod(request.Method);
 
             var arguments =

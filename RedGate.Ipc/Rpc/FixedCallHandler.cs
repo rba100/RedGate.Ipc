@@ -29,7 +29,7 @@ namespace RedGate.Ipc.Rpc
             }
 
             var serialisedArgs = args.Select(a => m_JsonSerializer.Serialize(a)).ToArray();
-            var request = new RpcRequest(Guid.NewGuid().ToString(), typeof(T).Name, methodInfo.Name, serialisedArgs);
+            var request = new RpcRequest(Guid.NewGuid().ToString(), typeof(T).AssemblyQualifiedName, methodInfo.Name, serialisedArgs);
             var response = m_Connection.RpcMessageBroker.Send(request);
             if (methodInfo.ReturnType == typeof(void)) return null;
             return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
