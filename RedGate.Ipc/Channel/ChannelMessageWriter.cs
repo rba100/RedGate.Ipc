@@ -19,7 +19,7 @@ namespace RedGate.Ipc.Channel
             }
             catch
             {
-                throw new ChannelFaultedException();
+                throw new ChannelFaultedException("The connection was closed before the message was written.");
             }
         }
     }

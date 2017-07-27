@@ -10,7 +10,12 @@ namespace RedGate.Ipc
     {
         private readonly List<IDisposable> m_Disposables;
 
+        public bool IsConnected { get; private set; }
+
         public string ConnectionId { get; }
+        
+        public event ClientDisconnectedEventHandler Disconnected = delegate { };
+
         public IRpcMessageBroker RpcMessageBroker { get; }
 
         internal Connection(
@@ -22,24 +27,25 @@ namespace RedGate.Ipc
             m_Disposables = new List<IDisposable>(disposeChain);
             ConnectionId = connectionId;
             RpcMessageBroker = rpcMessageBroker;
+            IsConnected = true;
             rpcMessageBroker.Disconnected += OnDisconnected;
             channelMessageReader.Disconnected += OnDisconnected;
         }
 
         private void OnDisconnected()
         {
-            IsConnected = false;
-            Disconnected.Invoke(new DisconnectedEventArgs(this));
+            if (IsConnected)
+            {
+                // Race condition of multiple OnDisconnected cos dispose sets IsConnected
+                Dispose();
+            }
         }
-
-        public event ClientDisconnectedEventHandler Disconnected = delegate { };
 
         public void Dispose()
         {
             IsConnected = false;
+            Disconnected.Invoke(new DisconnectedEventArgs(this));
             m_Disposables.ForEach(d => d.Dispose());
         }
-
-        public bool IsConnected { get; private set; } = true;
     }
 }

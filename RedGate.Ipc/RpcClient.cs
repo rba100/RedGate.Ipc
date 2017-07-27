@@ -19,6 +19,8 @@ namespace RedGate.Ipc
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
         private bool m_IsDisposed;
 
+        public TimeSpan ConnectionTimeout = TimeSpan.FromSeconds(30);
+
         internal RpcClient(
             IRpcRequestHandler requestHandler,
             IReliableConnectionAgent reliableConnectionAgent)
@@ -67,7 +69,7 @@ namespace RedGate.Ipc
         private object HandleCall(MethodInfo methodInfo, object[] args)
         {
             if(m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, "The underlying RpcClient was disposed.");
-            var connection = m_ReliableConnectionAgent.TryGetConnection(5000);
+            var connection = m_ReliableConnectionAgent.TryGetConnection(ConnectionTimeout.Milliseconds);
             // TODO: use correct exception type
             if (connection == null) throw new ChannelFaultedException("Timed out trying to connect");
             var response = connection.RpcMessageBroker.Send(
