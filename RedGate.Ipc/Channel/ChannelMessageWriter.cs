@@ -1,3 +1,5 @@
+using RedGate.Ipc.Rpc;
+
 namespace RedGate.Ipc.Channel
 {
     internal class ChannelMessageWriter : IChannelMessageWriter

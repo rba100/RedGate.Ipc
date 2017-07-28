@@ -6,7 +6,7 @@ namespace RedGate.Ipc.Channel
     {
         public ChannelMessage FromBytes(byte[] bytes)
         {
-            if (bytes.Length < 4) throw new Exception("Malformed channel message");
+            if (bytes.Length < 4) throw new ChannelFaultedException("Malformed channel message");
             var header = BitConverter.ToInt32(bytes, 0);
             var payload = new byte[bytes.Length - 4];
             Array.Copy(bytes, 4, payload, 0, payload.Length);

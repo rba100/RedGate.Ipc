@@ -27,7 +27,10 @@ namespace RedGate.Ipc.NamedPipes
             if (m_Disposed) throw new InvalidOperationException($"{nameof(NamedPipeEndpoint)} does not support restarting.");
             if (m_Worker == null)
             {
-                m_Worker = new Thread(Worker);
+                m_Worker = new Thread(Worker)
+                {
+                    Name = "NamedPipeEndpoint Listener"
+                };
                 m_Worker.Start();
             }
         }
@@ -45,7 +48,7 @@ namespace RedGate.Ipc.NamedPipes
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous);
                     m_CurrentListener.WaitForConnection();
-                    ChannelConnected(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new SimpleStream(m_CurrentListener)));
+                    ChannelConnected(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new ChannelStream(m_CurrentListener)));
                 }
             }
             catch (SocketException)

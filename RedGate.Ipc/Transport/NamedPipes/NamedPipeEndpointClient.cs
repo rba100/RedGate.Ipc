@@ -24,7 +24,7 @@ namespace RedGate.Ipc.NamedPipes
         {
             var client = new NamedPipeClientStream(".", m_PipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
             client.Connect(5000);
-            return new SimpleStream(client);
+            return new ChannelStream(client);
         }
     }
 }

@@ -8,7 +8,5 @@ namespace RedGate.Ipc.Rpc
         void HandleInbound(RpcRequest message);
         void HandleInbound(RpcResponse message);
         void HandleInbound(RpcException message);
-
-        event DisconnectedEventHandler Disconnected;
     }
 }

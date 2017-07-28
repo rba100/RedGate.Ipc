@@ -8,8 +8,6 @@ namespace RedGate.Ipc.Rpc
 
     internal class RpcMessageBroker : IRpcMessageBroker
     {
-        public event DisconnectedEventHandler Disconnected = delegate { };
-
         private readonly ConcurrentDictionary<string, RequestToken> m_PendingQueries
             = new ConcurrentDictionary<string, RequestToken>();
 
@@ -43,7 +41,7 @@ namespace RedGate.Ipc.Rpc
 
                 if (waitValue == 0)
                 {
-                    if(token.Response != null) return token.Response;
+                    if (token.Response != null) return token.Response;
                     throw token.Exception;
                 }
 
@@ -56,15 +54,7 @@ namespace RedGate.Ipc.Rpc
         public void BeginRequest(RpcRequest request, RequestToken requestToken)
         {
             m_PendingQueries[request.QueryId] = requestToken;
-            try
-            {
-                m_RpcMessageWriter.Write(request);
-            }
-            catch (ChannelFaultedException)
-            {
-                Disconnected.Invoke();
-                throw;
-            }
+            m_RpcMessageWriter.Write(request);
         }
 
         public void HandleInbound(RpcRequest request)

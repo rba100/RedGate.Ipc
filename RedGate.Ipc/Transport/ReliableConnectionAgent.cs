@@ -84,7 +84,7 @@ namespace RedGate.Ipc
                 {
                     //
                 }
-                var remaingDelay = (int)(stopwatch.ElapsedMilliseconds - c_DelayMs);
+                var remaingDelay = (int)(c_DelayMs - stopwatch.ElapsedMilliseconds);
                 if (remaingDelay > 0)
                 {
                     try

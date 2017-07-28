@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace RedGate.Ipc.Channel
 {
@@ -9,6 +10,8 @@ namespace RedGate.Ipc.Channel
         private readonly object m_ReadLock = new object();
 
         private const int c_HeaderSize = sizeof(Int32);
+
+        private int m_Disposed;
 
         public ChannelMessageStream(IChannelStream stream)
         {
@@ -53,8 +56,16 @@ namespace RedGate.Ipc.Channel
         private void WriteAll(byte[] buffer, int totalBytes)
         {
             var stream = m_Stream;
-            if(stream == null) throw new ObjectDisposedException(GetType().FullName);
-            m_Stream?.Write(buffer, 0, totalBytes);
+            if (stream == null) throw new ObjectDisposedException(GetType().FullName);
+            try
+            {
+                m_Stream.Write(buffer, 0, totalBytes);
+            }
+            catch (ChannelFaultedException)
+            {
+                Dispose();
+                throw new ChannelFaultedException("Could not write message");
+            }
         }
 
         private bool ReadAll(byte[] buffer, int totalBytes)
@@ -62,19 +73,29 @@ namespace RedGate.Ipc.Channel
             var stream = m_Stream;
             if (stream == null) throw new ObjectDisposedException(GetType().FullName);
             int bytesLeft = totalBytes;
-            while (bytesLeft > 0)
+            try
             {
-                var bytesRead = stream.Read(buffer, totalBytes - bytesLeft, bytesLeft);
-                if (bytesRead == 0) return false;
-                bytesLeft -= bytesRead;
+                while (bytesLeft > 0)
+                {
+                    var bytesRead = stream.Read(buffer, totalBytes - bytesLeft, bytesLeft);
+                    if (bytesRead == 0) return false;
+                    bytesLeft -= bytesRead;
+                }
+            }
+            catch (ChannelFaultedException)
+            {
+                Dispose();
+                throw new ChannelFaultedException("Could not read message");
             }
             return true;
         }
 
         public void Dispose()
         {
-            m_Stream?.Dispose();
-            m_Stream = null;
+            if (Interlocked.Increment(ref m_Disposed) == 1)
+            {
+                m_Stream.Dispose();
+            }
         }
     }
 }

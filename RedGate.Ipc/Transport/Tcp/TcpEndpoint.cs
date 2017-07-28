@@ -24,7 +24,10 @@ namespace RedGate.Ipc.Tcp
         {
             if (m_Disposed) throw new InvalidOperationException($"{nameof(TcpEndpoint)} does not support restarting.");
             if (m_Worker != null) return;
-            m_Worker = new Thread(Worker);
+            m_Worker = new Thread(Worker)
+            {
+                Name = "TcpEndpoint Listener"
+            };
             m_Worker.Start();
         }
 
@@ -52,7 +55,7 @@ namespace RedGate.Ipc.Tcp
                 {
                     var socket = m_Listener.AcceptSocket();
                     var stream = new NetworkStream(socket);
-                    ChannelConnected.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new SimpleStream(stream)));
+                    ChannelConnected.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new ChannelStream(stream)));
                 }
             }
             catch (SocketException)

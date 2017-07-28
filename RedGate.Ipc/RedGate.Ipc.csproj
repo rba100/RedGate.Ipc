@@ -46,15 +46,15 @@
     <Compile Include="Channel\ChannelConnectedEventArgs.cs" />
     <Compile Include="Channel\ChannelConnectedEventHandler.cs" />
     <Compile Include="Channel\ChannelDisconnectedEventArgs.cs" />
-    <Compile Include="Channel\ChannelStreamCustomDispose.cs" />
+    <Compile Include="Channel\ChannelStream.cs" />
     <Compile Include="Channel\IChannelMessageDispatcher.cs" />
     <Compile Include="Channel\ChannelMessageWriter.cs" />
     <Compile Include="Channel\IChannelMessageWriter.cs" />
-    <Compile Include="Channel\SimpleStream.cs" />
     <Compile Include="ConnectedEventArgs.cs" />
     <Compile Include="DisconnectedEventArgs.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="IConnection.cs" />
+    <Compile Include="Channel\IDisconnectReporter.cs" />
     <Compile Include="IEndpoint.cs" />
     <Compile Include="ImportedCode\JsonDeserializer.cs" />
     <Compile Include="ImportedCode\JsonParser.cs" />

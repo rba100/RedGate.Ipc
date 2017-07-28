@@ -44,7 +44,6 @@ namespace RedGate.Ipc.Rpc
             {
                 var returnValue = methodType.Invoke(handler, arguments);
 
-
                 if (methodType.ReturnType == typeof(void))
                 {
                     return new RpcResponse(request.QueryId);

@@ -23,7 +23,7 @@ namespace RedGate.Ipc.Tcp
             var client = new TcpClient();
             client.Connect(m_HostName, m_PortNumber);
             var stream = client.GetStream();
-            return new ChannelStreamCustomDispose(
+            return new ChannelStream(
                 stream, () =>
                 {
                     client.Close();
