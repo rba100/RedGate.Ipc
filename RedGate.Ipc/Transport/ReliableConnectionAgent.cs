@@ -16,7 +16,7 @@ namespace RedGate.Ipc
 
         // State variables
         private volatile bool m_Disposed;
-        private IConnection m_Connection;
+        private volatile IConnection m_Connection;
 
         // Synchronisation objects
         private readonly object m_ConnectionLock = new object();
@@ -35,11 +35,12 @@ namespace RedGate.Ipc
         {
             if (m_Disposed) throw new ObjectDisposedException(GetType().FullName);
 
+            // ReSharper disable once InconsistentlySynchronizedField
             if (timeoutMs > 0 && !m_ConnectionWaitHandle.WaitOne(timeoutMs))
             {
                 return null;
             }
-
+            if (m_Disposed) throw new ObjectDisposedException(GetType().FullName);
             return m_Connection;
         }
 
@@ -49,7 +50,7 @@ namespace RedGate.Ipc
             {
                 if (m_Connection == args.Connection)
                 {
-                    if (!m_Disposed) m_ConnectionWaitHandle.Reset();
+                    m_ConnectionWaitHandle.Reset();
                     m_Connection = null;
                     AsyncReconnect();
                 }
@@ -75,9 +76,12 @@ namespace RedGate.Ipc
                     m_ConnectionWaitHandle.Reset();
                     var connection = m_GetConnection();
                     m_Initialisation?.Invoke(connection);
-                    m_Connection = connection;
-                    connection.Disconnected += ConnectionOnDisconnected;
-                    m_ConnectionWaitHandle.Set();
+                    lock(m_ConnectionLock)
+                    {
+                        m_Connection = connection;
+                        connection.Disconnected += ConnectionOnDisconnected;
+                    }
+                    if(m_Connection?.IsConnected == true) m_ConnectionWaitHandle.Set();
                     return;
                 }
                 catch (Exception)

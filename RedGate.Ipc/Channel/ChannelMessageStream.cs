@@ -33,10 +33,10 @@ namespace RedGate.Ipc.Channel
             lock (m_ReadLock)
             {
                 var header = new byte[c_HeaderSize];
-                if (!ReadAll(header, c_HeaderSize)) return null;
+                ReadAll(header, c_HeaderSize);
                 var payloadSize = DecodeHeader(header);
                 var payloadBuffer = new byte[payloadSize];
-                if (!ReadAll(payloadBuffer, payloadSize)) return null;
+                ReadAll(payloadBuffer, payloadSize);
                 return payloadBuffer;
             }
         }
@@ -61,14 +61,13 @@ namespace RedGate.Ipc.Channel
             {
                 m_Stream.Write(buffer, 0, totalBytes);
             }
-            catch (ChannelFaultedException)
+            catch (ChannelFaultedException e)
             {
-                Dispose();
-                throw new ChannelFaultedException("Could not write message");
+                throw new ChannelFaultedException("Could not write message " + e.Message);
             }
         }
 
-        private bool ReadAll(byte[] buffer, int totalBytes)
+        private void ReadAll(byte[] buffer, int totalBytes)
         {
             var stream = m_Stream;
             if (stream == null) throw new ObjectDisposedException(GetType().FullName);
@@ -78,16 +77,13 @@ namespace RedGate.Ipc.Channel
                 while (bytesLeft > 0)
                 {
                     var bytesRead = stream.Read(buffer, totalBytes - bytesLeft, bytesLeft);
-                    if (bytesRead == 0) return false;
                     bytesLeft -= bytesRead;
                 }
             }
             catch (ChannelFaultedException)
             {
-                Dispose();
                 throw new ChannelFaultedException("Could not read message");
             }
-            return true;
         }
 
         public void Dispose()

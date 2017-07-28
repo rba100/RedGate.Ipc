@@ -2,7 +2,6 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
 using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc.Tcp
@@ -55,8 +54,14 @@ namespace RedGate.Ipc.Tcp
                 {
                     var socket = m_Listener.AcceptSocket();
                     var stream = new NetworkStream(socket);
-                    ChannelConnected.Invoke(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new ChannelStream(stream)));
+                    ChannelConnected.Invoke(new ChannelConnectedEventArgs(
+                        Guid.NewGuid().ToString(),
+                        new ChannelStream(stream)));
                 }
+            }
+            catch (ObjectDisposedException)
+            {
+
             }
             catch (SocketException)
             {

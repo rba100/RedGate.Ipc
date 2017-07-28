@@ -19,9 +19,9 @@ namespace RedGate.Ipc.Channel
             {
                 m_ChannelMessageStream.Write(m_ChannelMessageSerializer.ToBytes(channelMessage));
             }
-            catch
+            catch(ChannelFaultedException e)
             {
-                throw new ChannelFaultedException("The connection was closed before the message was written.");
+                throw new ChannelFaultedException("The connection was closed before the message was written. " + e.Message);
             }
         }
     }

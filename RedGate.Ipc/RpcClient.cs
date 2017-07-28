@@ -69,13 +69,14 @@ namespace RedGate.Ipc
         private object HandleCall(MethodInfo methodInfo, object[] args)
         {
             if(m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, $"The underlying {nameof(RpcClient)} was disposed.");
-            var connection = m_ReliableConnectionAgent.TryGetConnection(ConnectionTimeoutMs);
-            if (connection == null) throw new ChannelFaultedException("Timed out trying to connect");
-            var response = connection.RpcMessageBroker.Send(
-                new RpcRequest(
+            var request = new RpcRequest(
                     Guid.NewGuid().ToString(),
                     methodInfo.DeclaringType.AssemblyQualifiedName,
-                    methodInfo.Name, args.Select(m_JsonSerializer.Serialize).ToArray()));
+                    methodInfo.Name, args.Select(m_JsonSerializer.Serialize).ToArray());
+            var connection = m_ReliableConnectionAgent.TryGetConnection(ConnectionTimeoutMs);
+            if (m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, $"The underlying {nameof(RpcClient)} was disposed.");
+            if (connection == null) throw new ChannelFaultedException("Timed out trying to connect");
+            var response = connection.RpcMessageBroker.Send(request);
             if (methodInfo.ReturnType == typeof(void)) return null;
             return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
         }

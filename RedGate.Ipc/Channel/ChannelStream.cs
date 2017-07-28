@@ -93,13 +93,13 @@ namespace RedGate.Ipc.Channel
                 if (bytes == 0) throw new ChannelFaultedException();
                 return bytes;
             }
-            catch (IOException)
+            catch (IOException e)
             {
-                throw OnFailure();
+                throw OnFailure(e.Message);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException e)
             {
-                throw OnFailure();
+                throw OnFailure(e.Message);
             }
         }
 
@@ -110,20 +110,20 @@ namespace RedGate.Ipc.Channel
                 m_Stream.Write(buffer, offset, count);
                 m_Stream.Flush();
             }
-            catch (IOException)
+            catch (IOException e)
             {
-                throw OnFailure();
+                throw OnFailure(e.Message);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException e)
             {
-                throw OnFailure();
+                throw OnFailure(e.Message);
             }
         }
 
-        private Exception OnFailure()
+        private Exception OnFailure(string message)
         {
             Dispose();
-            return new ChannelFaultedException();
+            return new ChannelFaultedException(message);
         }
     }
 }
