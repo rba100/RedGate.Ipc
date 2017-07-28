@@ -38,7 +38,7 @@ namespace RedGate.Ipc
             var namedPipesClient = new NamedPipeEndpointClient(pipeName);
             var typeResolver = new TypeResolver();
             var connectionFactory = new ConnectionFactory(typeResolver);
-            var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()), null);
+            var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()));
             return new RpcClient(typeResolver, clientAgent);
         }
 
@@ -47,7 +47,7 @@ namespace RedGate.Ipc
             var tcpProvider = new TcpEndpointClient(portNumber, hostname);
             var typeResolver = new TypeResolver();
             var connectionFactory = new ConnectionFactory(typeResolver);
-            var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()), null);
+            var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()));
             return new RpcClient(typeResolver, clientAgent);
         }
 

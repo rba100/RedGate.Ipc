@@ -9,10 +9,9 @@ namespace RedGate.Ipc
     {
         // Dependencies
         private readonly Func<IConnection> m_GetConnection;
-        private readonly Action<IConnection> m_Initialisation;
 
         // Constants
-        private const long c_DelayMs = 5000;
+        private const long c_RetryDelayMs = 5000;
 
         // State variables
         private volatile bool m_Disposed;
@@ -23,10 +22,9 @@ namespace RedGate.Ipc
         private readonly ManualResetEvent m_ConnectionWaitHandle = new ManualResetEvent(false);
         private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
-        public ReliableConnectionAgent(Func<IConnection> getConnection, Action<IConnection> initialisation)
+        public ReliableConnectionAgent(Func<IConnection> getConnection)
         {
             m_GetConnection = getConnection;
-            m_Initialisation = initialisation;
 
             AsyncReconnect();
         }
@@ -75,7 +73,6 @@ namespace RedGate.Ipc
                 {
                     m_ConnectionWaitHandle.Reset();
                     var connection = m_GetConnection();
-                    m_Initialisation?.Invoke(connection);
                     lock(m_ConnectionLock)
                     {
                         m_Connection = connection;
@@ -88,7 +85,7 @@ namespace RedGate.Ipc
                 {
                     //
                 }
-                var remaingDelay = (int)(c_DelayMs - stopwatch.ElapsedMilliseconds);
+                var remaingDelay = (int)(c_RetryDelayMs - stopwatch.ElapsedMilliseconds);
                 if (remaingDelay > 0)
                 {
                     try
