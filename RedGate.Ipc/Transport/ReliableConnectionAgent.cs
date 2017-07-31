@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace RedGate.Ipc
 {
@@ -20,7 +19,7 @@ namespace RedGate.Ipc
         // Synchronisation objects
         private readonly object m_ConnectionLock = new object();
         private readonly ManualResetEvent m_ConnectionWaitHandle = new ManualResetEvent(false);
-        private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+        private readonly ManualResetEvent m_CancellationToken = new ManualResetEvent(false);
         private WaitHandle[] TryGetConnectionWaitHandles;
         public ReliableConnectionAgent(Func<IConnection> getConnection)
         {
@@ -28,7 +27,7 @@ namespace RedGate.Ipc
             TryGetConnectionWaitHandles = new[]
             {
                 m_ConnectionWaitHandle,
-                m_CancellationTokenSource.Token.WaitHandle
+                m_CancellationToken
             };
             AsyncReconnect();
         }
@@ -62,9 +61,8 @@ namespace RedGate.Ipc
 
         private void AsyncReconnect()
         {
-            Task.Factory.StartNew(
-                ReconnectLoop,
-                TaskCreationOptions.LongRunning);
+            var reconnectThread = new Thread(ReconnectLoop);
+            reconnectThread.Start();
         }
 
         private void ReconnectLoop()
@@ -73,7 +71,8 @@ namespace RedGate.Ipc
 
             while (!m_Disposed)
             {
-                stopwatch.Restart();
+                stopwatch.Reset();
+                stopwatch.Start();
                 try
                 {
                     m_ConnectionWaitHandle.Reset();
@@ -95,7 +94,7 @@ namespace RedGate.Ipc
                 {
                     try
                     {
-                        m_CancellationTokenSource.Token.WaitHandle.WaitOne(remaingDelay);
+                        m_CancellationToken.WaitOne(remaingDelay);
                     }
                     catch (ObjectDisposedException)
                     {
@@ -110,8 +109,25 @@ namespace RedGate.Ipc
             if (!m_Disposed)
             {
                 m_Disposed = true;
-                m_CancellationTokenSource.Cancel();
-                m_ConnectionWaitHandle.Dispose();
+
+                try
+                {
+                    m_CancellationToken.Close();
+                }
+                catch
+                {
+                    //
+                }
+
+                try
+                {
+                    m_ConnectionWaitHandle.Close();
+                }
+                catch
+                {
+                    //
+                }
+
                 m_Connection?.Dispose();
             }
         }

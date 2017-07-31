@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace RedGate.Ipc.Rpc
@@ -8,13 +8,13 @@ namespace RedGate.Ipc.Rpc
 
     internal class RpcMessageBroker : IRpcMessageBroker
     {
-        private readonly ConcurrentDictionary<string, RequestToken> m_PendingQueries
-            = new ConcurrentDictionary<string, RequestToken>();
+        private readonly Dictionary<string, RequestToken> m_PendingQueries
+            = new Dictionary<string, RequestToken>();
 
         private readonly IRpcMessageWriter m_RpcMessageWriter;
         private readonly IRpcRequestHandler m_RpcRequestHandler;
 
-        private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+        private readonly ManualResetEvent m_CancellationToken = new ManualResetEvent(false);
 
         internal RpcMessageBroker(
             IRpcMessageWriter messageWriter,
@@ -29,23 +29,28 @@ namespace RedGate.Ipc.Rpc
             using (var token = new RequestToken())
             {
                 BeginRequest(request, token);
-
-                var waitValue = WaitHandle.WaitAny(new[]
+                try
                 {
-                    token.Completed,
-                    m_CancellationTokenSource.Token.WaitHandle
-                }, TimeSpan.FromSeconds(15));
+                    var waitValue = WaitHandle.WaitAny(new[]
+                    {
+                        token.Completed,
+                        m_CancellationToken
+                    }, TimeSpan.FromSeconds(15));
 
-                RequestToken dummy;
-                m_PendingQueries.TryRemove(request.QueryId, out dummy);
+                    m_PendingQueries.Remove(request.QueryId);
 
-                if (waitValue == 0)
-                {
-                    if (token.Response != null) return token.Response;
-                    if (token.Exception != null) throw token.Exception;
+                    if (waitValue == 0)
+                    {
+                        if (token.Response != null) return token.Response;
+                        if (token.Exception != null) throw token.Exception;
+                    }
+
+                    if (waitValue == WaitHandle.WaitTimeout) throw new ChannelFaultedException("Connection timed out.");
                 }
-
-                if (waitValue == WaitHandle.WaitTimeout) throw new ChannelFaultedException("Connection timed out.");
+                catch (ObjectDisposedException)
+                {
+                    
+                }
 
                 throw new ChannelFaultedException("The connection was closed before the response was received.");
             }
@@ -91,7 +96,7 @@ namespace RedGate.Ipc.Rpc
                     requestToken.Completed.Set();
                 }
                 catch (ObjectDisposedException) { }
-                m_PendingQueries.TryRemove(response.QueryId, out requestToken);
+                m_PendingQueries.Remove(response.QueryId);
             }
         }
 
@@ -106,13 +111,21 @@ namespace RedGate.Ipc.Rpc
                     requestToken.Completed.Set();
                 }
                 catch (ObjectDisposedException) { }
-                m_PendingQueries.TryRemove(message.QueryId, out requestToken);
+                m_PendingQueries.Remove(message.QueryId);
             }
         }
 
         public void Dispose()
         {
-            m_CancellationTokenSource.Cancel();
+            m_CancellationToken.Set();
+            try
+            {
+                m_CancellationToken.Close();
+            }
+            catch
+            {
+                //
+            }
         }
     }
 }

@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>RedGate.Ipc</RootNamespace>
     <AssemblyName>RedGate.Ipc</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -89,6 +89,7 @@
     <Compile Include="Rpc\IRpcMessageSerialiser.cs" />
     <Compile Include="IRpcClient.cs" />
     <Compile Include="Channel\ChannelMessagePipeline.cs" />
+    <Compile Include="SingleConnectionRpcClient.cs" />
     <Compile Include="Transport\ReliableConnectionAgent.cs" />
     <Compile Include="Channel\IChannelStream.cs" />
     <Compile Include="Channel\IEndpointClient.cs" />

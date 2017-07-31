@@ -10,57 +10,6 @@ using RedGate.Ipc.Tcp;
 
 namespace RedGate.Ipc
 {
-    public class SingleConnectionClient
-    {
-        private readonly IJsonSerializer m_JsonSerializer = new TinyJsonSerializer();
-        private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
-        private readonly IConnection m_Connection;
-        private bool m_IsDisposed;
-
-        public SingleConnectionClient(IConnection connection)
-        {
-            m_Connection = connection;
-            m_Connection.Disconnected += args => Dispose();
-        }
-
-        public void Dispose()
-        {
-            m_IsDisposed = true;
-        }
-
-        public T CreateProxy<T>()
-        {
-            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(
-                HandleCallSingleConnection,
-                ProxyDisposed));
-        }
-
-        public T CreateProxy<T, TConnectionFailureExceptionType>() where TConnectionFailureExceptionType : Exception
-        {
-            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(
-                HandleCallSingleConnection,
-                ProxyDisposed, 
-                typeof(TConnectionFailureExceptionType)));
-        }
-
-        private object HandleCallSingleConnection(MethodInfo methodInfo, object[] args)
-        {
-            if (m_IsDisposed || !m_Connection.IsConnected) throw new ChannelFaultedException();
-            var request = new RpcRequest(
-                    Guid.NewGuid().ToString(),
-                    methodInfo.DeclaringType.AssemblyQualifiedName,
-                    methodInfo.Name, args.Select(m_JsonSerializer.Serialize).ToArray());
-            var response = m_Connection.RpcMessageBroker.Send(request);
-            if (methodInfo.ReturnType == typeof(void)) return null;
-            return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
-        }
-
-        private void ProxyDisposed()
-        {
-            // Ignore
-        }
-    }
-
     public class RpcClient : IRpcClient
     {
         private readonly ITypeResolver m_TypeResolver;

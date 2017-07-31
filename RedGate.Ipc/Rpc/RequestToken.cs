@@ -12,7 +12,14 @@ namespace RedGate.Ipc.Rpc
 
         public void Dispose()
         {
-            Completed?.Dispose();
+            try
+            {
+                Completed?.Close();
+            }
+            catch
+            {
+                //
+            }
         }
     }
 }

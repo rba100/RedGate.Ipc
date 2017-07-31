@@ -8,7 +8,7 @@ namespace RedGate.Ipc
 {
     public class Connection : IConnection
     {
-        [ThreadStatic] public static IConnection CurrentThreadConnection;
+        [ThreadStatic] public static IConnection CurrentReaderConnection;
 
         private readonly List<IDisposable> m_Disposables;
 

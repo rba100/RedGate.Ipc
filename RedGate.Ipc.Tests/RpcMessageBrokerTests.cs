@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using RedGate.Ipc.Rpc;
 using Rhino.Mocks;
@@ -68,7 +67,7 @@ namespace RedGate.Ipc.Tests
             var response = new RpcResponse(queryId, "ReturnValue");
 
             RpcResponse returnedResponse = null;
-            Task sendTask;
+            Thread sendTask;
 
             // Call Send() and ensure the request obejct was passed to the underlying message writer
             // before simulating the inbound response.
@@ -76,7 +75,9 @@ namespace RedGate.Ipc.Tests
             {
                 // ReSharper disable once AccessToDisposedClosure
                 writer.Stub(w => w.Write(request)).WhenCalled(call => { requestSent.Set(); });
-                sendTask = Task.Run(() => { returnedResponse = broker.Send(request); });
+                Action sendFunc = () => { returnedResponse = broker.Send(request); };
+                sendTask = new Thread(new ThreadStart(sendFunc));
+                sendTask.Start();
                 Assert.True(requestSent.WaitOne(2000),
                     "Timed out waiting for Send() to pass the request to the underlying message writer");
             }
@@ -85,7 +86,7 @@ namespace RedGate.Ipc.Tests
             broker.HandleInbound(response);
 
             // ...which should unlock .Send()
-            var timedOut = !sendTask.Wait(2000);
+            var timedOut = !sendTask.Join(2000);
 
             Assert.False(timedOut, "The broker.Send() should have unblocked.");
             Assert.NotNull(returnedResponse, "Send should have returned the RpcResponse");
