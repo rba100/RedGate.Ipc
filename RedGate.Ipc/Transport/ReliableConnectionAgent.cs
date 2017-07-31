@@ -21,11 +21,15 @@ namespace RedGate.Ipc
         private readonly object m_ConnectionLock = new object();
         private readonly ManualResetEvent m_ConnectionWaitHandle = new ManualResetEvent(false);
         private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-
+        private WaitHandle[] TryGetConnectionWaitHandles;
         public ReliableConnectionAgent(Func<IConnection> getConnection)
         {
             m_GetConnection = getConnection;
-
+            TryGetConnectionWaitHandles = new[]
+            {
+                m_ConnectionWaitHandle,
+                m_CancellationTokenSource.Token.WaitHandle
+            };
             AsyncReconnect();
         }
 
@@ -34,9 +38,10 @@ namespace RedGate.Ipc
             if (m_Disposed) throw new ObjectDisposedException(GetType().FullName);
 
             // ReSharper disable once InconsistentlySynchronizedField
-            if (timeoutMs > 0 && !m_ConnectionWaitHandle.WaitOne(timeoutMs))
+            if (timeoutMs > 0)
             {
-                return null;
+                var waitResult = WaitHandle.WaitAny(TryGetConnectionWaitHandles, timeoutMs);
+                if (waitResult == 0) return m_Connection;
             }
             if (m_Disposed) throw new ObjectDisposedException(GetType().FullName);
             return m_Connection;
@@ -73,12 +78,12 @@ namespace RedGate.Ipc
                 {
                     m_ConnectionWaitHandle.Reset();
                     var connection = m_GetConnection();
-                    lock(m_ConnectionLock)
+                    lock (m_ConnectionLock)
                     {
                         m_Connection = connection;
                         connection.Disconnected += ConnectionOnDisconnected;
                     }
-                    if(m_Connection?.IsConnected == true) m_ConnectionWaitHandle.Set();
+                    if (m_Connection?.IsConnected == true) m_ConnectionWaitHandle.Set();
                     return;
                 }
                 catch (Exception)
@@ -102,10 +107,13 @@ namespace RedGate.Ipc
 
         public void Dispose()
         {
-            m_Disposed = true;
-            m_CancellationTokenSource.Cancel();
-            m_ConnectionWaitHandle.Dispose();
-            m_Connection?.Dispose();
+            if (!m_Disposed)
+            {
+                m_Disposed = true;
+                m_CancellationTokenSource.Cancel();
+                m_ConnectionWaitHandle.Dispose();
+                m_Connection?.Dispose();
+            }
         }
     }
 }

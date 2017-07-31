@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.IO.Pipes;
 using System.Net.Sockets;
 using System.Threading;
@@ -15,6 +17,7 @@ namespace RedGate.Ipc.NamedPipes
         private Thread m_Worker;
         private bool m_Disposed;
         private NamedPipeServerStream m_CurrentListener;
+        private readonly List<IChannelStream> m_ActiveConnections = new List<IChannelStream>();
 
         public NamedPipeEndpoint(
             string pipeName)
@@ -24,7 +27,7 @@ namespace RedGate.Ipc.NamedPipes
 
         public void Start()
         {
-            if (m_Disposed) throw new InvalidOperationException($"{nameof(NamedPipeEndpoint)} does not support restarting.");
+            if (m_Disposed) throw new ObjectDisposedException(typeof(NamedPipeEndpoint).FullName);
             if (m_Worker == null)
             {
                 m_Worker = new Thread(Worker)
@@ -48,8 +51,20 @@ namespace RedGate.Ipc.NamedPipes
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous);
                     m_CurrentListener.WaitForConnection();
-                    ChannelConnected(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(), new ChannelStream(m_CurrentListener)));
+                    var channelStream = new ChannelStream(m_CurrentListener);
+                    m_ActiveConnections.Add(channelStream);
+                    channelStream.Disconnected += () => m_ActiveConnections.Remove(channelStream);
+                    ChannelConnected(new ChannelConnectedEventArgs(Guid.NewGuid().ToString(),
+                        channelStream));
                 }
+            }
+            catch (IOException)
+            {
+
+            }
+            catch (ObjectDisposedException)
+            {
+
             }
             catch (SocketException)
             {
@@ -57,11 +72,29 @@ namespace RedGate.Ipc.NamedPipes
             }
         }
 
-        public void Stop()
+        public void Dispose()
         {
             m_Disposed = true;
-            m_CurrentListener?.Dispose();
-            m_Worker.Abort();
+            try
+            {
+                m_CurrentListener?.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+                
+            }
+            var activeConnections = m_ActiveConnections.ToArray();
+            foreach (var activeConnection in activeConnections)
+            {
+                try
+                {
+                    activeConnection.Dispose();
+                }
+                catch
+                {
+                    //
+                }
+            }
         }
     }
 }

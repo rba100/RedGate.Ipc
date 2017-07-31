@@ -35,5 +35,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-[assembly: InternalsVisibleTo("RedGate.Ipc.Tests")]
+[assembly: InternalsVisibleTo("RedGate.Ipc.Tests, PublicKey=" +
+    "00240000048000009400000006020000002400005253413100040000010001008fc10f454406bf" +
+    "85568f958675567383eb344ef516bec3937aad9239b15edf1eb663e2501ce211ab47fb6c265546" +
+    "97b487e8cda6b2d662b42146417d62aa9c74c4719bc5910db2659584adc4f07f0687744b038085" +
+    "b76cc6336a7108738ccfd0aabe44760ec94c8dfd29009fc2def78455ce1920a2a5696d10873438" +
+    "6ce04ad9")]

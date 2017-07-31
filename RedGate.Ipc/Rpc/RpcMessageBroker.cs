@@ -42,7 +42,7 @@ namespace RedGate.Ipc.Rpc
                 if (waitValue == 0)
                 {
                     if (token.Response != null) return token.Response;
-                    throw token.Exception;
+                    if (token.Exception != null) throw token.Exception;
                 }
 
                 if (waitValue == WaitHandle.WaitTimeout) throw new ChannelFaultedException("Connection timed out.");

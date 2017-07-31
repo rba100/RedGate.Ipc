@@ -34,6 +34,10 @@ namespace RedGate.Ipc.Rpc
             }
             
             var handler = m_DelegateCache[request.Interface];
+            if (handler == null)
+            {
+                throw new InvalidOperationException($"The type '{request.Interface}' was not registered for RPC invocation.");
+            }
             var methodType = handler.GetType().GetMethod(request.Method);
 
             var arguments =

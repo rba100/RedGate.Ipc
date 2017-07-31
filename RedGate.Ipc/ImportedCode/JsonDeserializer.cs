@@ -57,6 +57,7 @@ namespace RedGate.Ipc.ImportedCode
                 if (type == typeof(uint)) return uint.Parse(jsonNumber.StringRepresentation);
                 if (type == typeof(ulong)) return ulong.Parse(jsonNumber.StringRepresentation);
                 if (type == typeof(byte)) return byte.Parse(jsonNumber.StringRepresentation);
+                if (type == typeof(object)) return jsonNumber.StringRepresentation;
             }
             catch (FormatException)
             {
@@ -103,6 +104,7 @@ namespace RedGate.Ipc.ImportedCode
         private object DeserializeBoolean(Type type, bool value)
         {
             if (type == typeof(bool)) return value;
+            if (type == typeof(bool?)) return (bool?) value;
             throw new JsonException($"Could not map '{value}' to {type.Name}");
         }
 

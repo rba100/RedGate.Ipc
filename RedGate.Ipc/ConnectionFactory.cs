@@ -38,6 +38,7 @@ namespace RedGate.Ipc
                 disconnectReporters: new IDisconnectReporter[]{ stream } ,
                 disposeChain: new IDisposable[] { channelMessageReader, rpcMessageBroker });
 
+            channelMessageReader.OwnedConnection = connection;
             return connection;
         }
     }

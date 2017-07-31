@@ -10,6 +10,57 @@ using RedGate.Ipc.Tcp;
 
 namespace RedGate.Ipc
 {
+    public class SingleConnectionClient
+    {
+        private readonly IJsonSerializer m_JsonSerializer = new TinyJsonSerializer();
+        private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
+        private readonly IConnection m_Connection;
+        private bool m_IsDisposed;
+
+        public SingleConnectionClient(IConnection connection)
+        {
+            m_Connection = connection;
+            m_Connection.Disconnected += args => Dispose();
+        }
+
+        public void Dispose()
+        {
+            m_IsDisposed = true;
+        }
+
+        public T CreateProxy<T>()
+        {
+            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(
+                HandleCallSingleConnection,
+                ProxyDisposed));
+        }
+
+        public T CreateProxy<T, TConnectionFailureExceptionType>() where TConnectionFailureExceptionType : Exception
+        {
+            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(
+                HandleCallSingleConnection,
+                ProxyDisposed, 
+                typeof(TConnectionFailureExceptionType)));
+        }
+
+        private object HandleCallSingleConnection(MethodInfo methodInfo, object[] args)
+        {
+            if (m_IsDisposed || !m_Connection.IsConnected) throw new ChannelFaultedException();
+            var request = new RpcRequest(
+                    Guid.NewGuid().ToString(),
+                    methodInfo.DeclaringType.AssemblyQualifiedName,
+                    methodInfo.Name, args.Select(m_JsonSerializer.Serialize).ToArray());
+            var response = m_Connection.RpcMessageBroker.Send(request);
+            if (methodInfo.ReturnType == typeof(void)) return null;
+            return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
+        }
+
+        private void ProxyDisposed()
+        {
+            // Ignore
+        }
+    }
+
     public class RpcClient : IRpcClient
     {
         private readonly ITypeResolver m_TypeResolver;
@@ -19,7 +70,7 @@ namespace RedGate.Ipc
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
         private bool m_IsDisposed;
 
-        public int ConnectionTimeoutMs = 30000;
+        public int ConnectionTimeoutMs = 6000;
 
         internal RpcClient(
             ITypeResolver typeResolver,
@@ -53,12 +104,14 @@ namespace RedGate.Ipc
 
         public T CreateProxy<T>()
         {
-            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(HandleCall, ProxyDisposed));
+            ICallHandler callHandler = new DelegatingCallHandler(HandleCallReconnectOnFailure, ProxyDisposed);
+            return s_ProxyFactory.Create<T>(callHandler);
         }
 
         public T CreateProxy<T, TConnectionFailureExceptionType>() where TConnectionFailureExceptionType : Exception
         {
-            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(HandleCall, ProxyDisposed, typeof(TConnectionFailureExceptionType)));
+            ICallHandler callHandler = new DelegatingCallHandler(HandleCallReconnectOnFailure, ProxyDisposed, typeof(TConnectionFailureExceptionType));
+            return s_ProxyFactory.Create<T>(callHandler);
         }
 
         public void Register<T>(object implementation)
@@ -66,9 +119,19 @@ namespace RedGate.Ipc
             m_TypeResolver.RegisterGlobal<T>(implementation);
         }
 
-        private object HandleCall(MethodInfo methodInfo, object[] args)
+        public void RegisterDi(Func<Type, object> delegateFactory)
         {
-            if(m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, $"The underlying {nameof(RpcClient)} was disposed.");
+            m_TypeResolver.RegisterDi(delegateFactory);
+        }
+
+        public void RegisterTypeAlias(string assemblyQualifiedName, Type type)
+        {
+            m_TypeResolver.RegisterTypeAlias(assemblyQualifiedName, type);
+        }
+
+        private object HandleCallReconnectOnFailure(MethodInfo methodInfo, object[] args)
+        {
+            if (m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, $"The underlying {nameof(RpcClient)} was disposed.");
             var request = new RpcRequest(
                     Guid.NewGuid().ToString(),
                     methodInfo.DeclaringType.AssemblyQualifiedName,
@@ -89,7 +152,7 @@ namespace RedGate.Ipc
         public void Dispose()
         {
             m_IsDisposed = true;
-            m_ReliableConnectionAgent.Dispose();
+            m_ReliableConnectionAgent?.Dispose();
         }
     }
 }

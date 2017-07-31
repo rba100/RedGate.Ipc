@@ -98,9 +98,11 @@ namespace RedGate.Ipc.ImportedCode
 
             GenerateConstructor(typeBuilder, callHandlerFieldBuilder);
 
-            var properties = interfaceType.GetProperties();
-            var events = interfaceType.GetEvents();
-            var methods = interfaceType.GetMethods()
+            var interfaces = interfaceType.GetInterfaces().Union(new[] { interfaceType }).ToArray();
+
+            var properties = interfaces.SelectMany(i=> i.GetProperties());
+            var events = interfaces.SelectMany(i=> i.GetEvents());
+            var methods = interfaces.SelectMany(i=> i.GetMethods())
                 .Where(m => !m.IsSpecialName && m.Name != "Dispose");
 
             foreach (var methodInfo in methods)
@@ -151,7 +153,7 @@ namespace RedGate.Ipc.ImportedCode
 
                 eventBuilder.SetRemoveOnMethod(GenerateProxyMethodFromInfo(
                     evt.GetRemoveMethod(),
-                    typeBuilder, 
+                    typeBuilder,
                     callHandlerFieldBuilder,
                     getMethodFromHandle));
             }
@@ -160,9 +162,9 @@ namespace RedGate.Ipc.ImportedCode
         }
 
         private MethodBuilder GenerateProxyMethodFromInfo(
-            MethodInfo methodInfo, 
+            MethodInfo methodInfo,
             TypeBuilder typeBuilder,
-            FieldBuilder callHandlerFieldBuilder, 
+            FieldBuilder callHandlerFieldBuilder,
             MethodInfo getMethodFromHandle)
         {
             var basicAttributes =

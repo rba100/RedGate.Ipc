@@ -56,7 +56,7 @@ namespace RedGate.Ipc.Rpc
             catch (ChannelFaultedException ex)
             {
                 if (m_ConnectionFailureExceptionType == null) throw;
-                throw (Exception)Activator.CreateInstance(m_ConnectionFailureExceptionType, new object[] { ex.Message });
+                throw (Exception)Activator.CreateInstance(m_ConnectionFailureExceptionType, ex.Message);
             }
         }
 

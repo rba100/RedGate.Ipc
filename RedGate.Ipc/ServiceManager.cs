@@ -33,7 +33,7 @@ namespace RedGate.Ipc
 
         public void Stop()
         {
-            foreach (var endpoint in m_Endpoints) endpoint.Stop();
+            foreach (var endpoint in m_Endpoints) endpoint.Dispose();
         }
 
         public void Register<T>(object implementation)
@@ -44,6 +44,11 @@ namespace RedGate.Ipc
         public void RegisterDi(Func<Type, object> delegateFactory)
         {
             m_TypeResolver.RegisterDi(delegateFactory);
+        }
+
+        public void RegisterTypeAlias(string assemblyQualifiedName, Type type)
+        {
+            m_TypeResolver.RegisterTypeAlias(assemblyQualifiedName, type);
         }
 
         private void EndpointOnClientConnected(ChannelConnectedEventArgs args)

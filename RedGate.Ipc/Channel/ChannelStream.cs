@@ -60,7 +60,14 @@ namespace RedGate.Ipc.Channel
 
             if (m_CustomDisposeAction == null)
             {
-                m_Stream.Dispose();
+                try
+                {
+                    m_Stream.Dispose();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //
+                }
             }
             else
             {

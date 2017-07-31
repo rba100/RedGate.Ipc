@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>RedGate.Ipc</RootNamespace>
     <AssemblyName>RedGate.Ipc</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -63,6 +63,7 @@
     <Compile Include="RpcClient.cs" />
     <Compile Include="Rpc\DelegatingCallHandler.cs" />
     <Compile Include="Rpc\IRpcMessageWriter.cs" />
+    <Compile Include="Rpc\ITypeResolver.cs" />
     <Compile Include="Rpc\RpcChannelMessageHandler.cs" />
     <Compile Include="Rpc\RpcException.cs" />
     <Compile Include="Rpc\RpcExceptionBinding.cs" />
@@ -75,7 +76,6 @@
     <Compile Include="Channel\ChannelMessageSerializer.cs" />
     <Compile Include="Channel\ChannelMessageType.cs" />
     <Compile Include="ConnectionFactory.cs" />
-    <Compile Include="Rpc\RpcTypeResolver.cs" />
     <Compile Include="ServiceManager.cs" />
     <Compile Include="Channel\IChannelMessageHandler.cs" />
     <Compile Include="Channel\IChannelMessageSerializer.cs" />

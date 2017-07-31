@@ -6,8 +6,10 @@ using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc
 {
-    internal class Connection : IConnection
+    public class Connection : IConnection
     {
+        [ThreadStatic] public static IConnection CurrentThreadConnection;
+
         private readonly List<IDisposable> m_Disposables;
 
         private volatile bool m_Disposed;
