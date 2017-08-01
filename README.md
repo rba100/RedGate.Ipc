@@ -51,6 +51,30 @@ In the above example, clients requsting calls to `MySoftware.Client.ISomeInterfa
 or any other interface starting with `MySoftware.Client.ISomeInterface` would be serviced by `ServerImplementation()`.
 It is obviously important that the interfaces are functionally identical or an `InvalidOperationException` will be thrown.
 
+## Registering service implementation on the server
+
+In the simple example, a concrete object is passed the `ServiceManager` and this same object will be used to satisfy all
+requests whilst the server is running.
+
+As an alternative strategy, consumers can pass a dependency injector or factory method to the ServiceManager which will create
+RPC service delegates on demand, scoped to individual connected clients.
+
+	public void StartServer()
+	{
+		_serviceManager = new ServiceManager();
+		_serviceManager.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
+		_serviceManager.RegisterDi(GetDelegate);
+		_serviceManager.Start();
+	}
+
+	public object GetDelegate(Type type)
+	{
+		if(type == typeof(ISomeInterface)) return new ConnectionScopedHandler();
+		return null; // return null if cannot satisfy type request.
+	}
+
+Under consideration: automatic disposing of `IDisposable` when connections disconnect.
+
 ## Limitations
 
 Currently, service interfaces should not contain method overrides with the same number of arguments.
