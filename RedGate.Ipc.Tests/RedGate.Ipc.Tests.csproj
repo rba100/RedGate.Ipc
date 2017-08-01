@@ -49,6 +49,8 @@
   <ItemGroup>
     <Compile Include="RpcMessageBrokerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rpc\ITestInterface.cs" />
+    <Compile Include="Rpc\RpcRequestHandlerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

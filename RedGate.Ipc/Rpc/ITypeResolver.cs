@@ -21,7 +21,7 @@ namespace RedGate.Ipc.Rpc
         /// Aliases do not need to be a full assembly qualified name; matching is done with
         /// a StartsWith() match.
         /// </summary>
-        /// <param name="typeNameStartsWith">The alias, i.e. an assemblyQualifiedName that TypeGetType() would reject.</param>
+        /// <param name="typeNameStartsWith">The alias, i.e. an assemblyQualifiedName that Type.GetType() would reject.</param>
         /// <param name="type">The local type to map the alias to.</param>
         void RegisterTypeAlias(string typeNameStartsWith, Type type);
 

@@ -36,12 +36,31 @@ namespace RedGate.Ipc.Rpc
             }
 
             Connection.RequestHandlerConnection = OwningConnection;
-            var handler = m_DelegateCache[request.Interface];
-            if (handler == null)
+            var requestDelegate = m_DelegateCache[request.Interface];
+            if (requestDelegate == null)
             {
                 throw new InvalidOperationException($"The type '{request.Interface}' was not registered for RPC invocation.");
             }
-            var methodType = handler.GetType().GetMethod(request.Method);
+
+            var argumentCount = request.Arguments?.Length ?? 0;
+
+            MethodInfo methodType;
+            try
+            {
+                methodType =
+                    requestDelegate.GetType()
+                        .GetInterfaces()
+                        .SelectMany(i => i.GetMethods())
+                        .Where(m => m.Name == request.Method)
+                        .SingleOrDefault(m => m.GetParameters().Length == argumentCount);
+            }
+            catch(InvalidOperationException)
+            {
+                throw new InvalidOperationException($"RedGate.Ipc does not currently support polymorphic methods with the same number of parameters.");
+            }
+
+            if (methodType == null)
+                throw new InvalidOperationException($"No method with name {request.Method} could be found on the service delegate {request.Interface}.");
 
             var arguments =
                 methodType.GetParameters()
@@ -49,7 +68,7 @@ namespace RedGate.Ipc.Rpc
                     .ToArray();
             try
             {
-                var returnValue = methodType.Invoke(handler, arguments);
+                var returnValue = methodType.Invoke(requestDelegate, arguments);
 
                 if (methodType.ReturnType == typeof(void))
                 {
