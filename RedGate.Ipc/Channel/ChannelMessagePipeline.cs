@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace RedGate.Ipc.Channel
 {
@@ -8,6 +9,8 @@ namespace RedGate.Ipc.Channel
 
         public ChannelMessagePipeline(IEnumerable<IChannelMessageHandler> handlers)
         {
+            if (handlers == null) throw new ArgumentNullException(nameof(handlers));
+
             m_Handlers = new List<IChannelMessageHandler>(handlers);
         }
 

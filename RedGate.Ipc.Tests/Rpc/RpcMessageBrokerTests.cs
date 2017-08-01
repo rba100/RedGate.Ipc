@@ -4,7 +4,7 @@ using NUnit.Framework;
 using RedGate.Ipc.Rpc;
 using Rhino.Mocks;
 
-namespace RedGate.Ipc.Tests
+namespace RedGate.Ipc.Tests.Rpc
 {
     [TestFixture]
     public class RpcMessageBrokerTests
