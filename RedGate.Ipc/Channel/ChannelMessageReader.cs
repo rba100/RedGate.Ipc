@@ -14,8 +14,6 @@ namespace RedGate.Ipc.Channel
         private bool IsDisposed => m_Disposed != 0;
         private int m_Disposed;
 
-        public IConnection OwnedConnection { get; set; }
-
         internal ChannelMessageReader(
             IChannelMessageStream channelMessageStream,
             IChannelMessageSerializer channelMessageSerializer,
@@ -55,7 +53,6 @@ namespace RedGate.Ipc.Channel
                 }
                 ThreadPool.QueueUserWorkItem(o =>
                 {
-                    Connection.CurrentReaderConnection = OwnedConnection;
                     m_InboundHandler.Handle(channelMessage);
                 });
             }

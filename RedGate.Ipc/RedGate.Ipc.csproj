@@ -76,6 +76,7 @@
     <Compile Include="Channel\ChannelMessageSerializer.cs" />
     <Compile Include="Channel\ChannelMessageType.cs" />
     <Compile Include="ConnectionFactory.cs" />
+    <Compile Include="Rpc\TypeResolver.cs" />
     <Compile Include="ServiceManager.cs" />
     <Compile Include="Channel\IChannelMessageHandler.cs" />
     <Compile Include="Channel\IChannelMessageSerializer.cs" />

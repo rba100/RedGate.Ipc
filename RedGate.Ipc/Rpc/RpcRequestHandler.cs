@@ -14,6 +14,8 @@ namespace RedGate.Ipc.Rpc
 
         private readonly Dictionary<string, object> m_DelegateCache = new Dictionary<string, object>();
 
+        public IConnection OwningConnection { get; set; }
+
         internal RpcRequestHandler(ITypeResolver typeResolver, IJsonSerializer jsonSerializer)
         {
             if (typeResolver == null) throw new ArgumentNullException(nameof(typeResolver));
@@ -32,7 +34,8 @@ namespace RedGate.Ipc.Rpc
                     m_DelegateCache[request.Interface] = m_TypeResolver.Resolve(request.Interface);
                 }
             }
-            
+
+            Connection.RequestHandlerConnection = OwningConnection;
             var handler = m_DelegateCache[request.Interface];
             if (handler == null)
             {

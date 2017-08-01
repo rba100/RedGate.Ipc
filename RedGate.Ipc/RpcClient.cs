@@ -19,7 +19,7 @@ namespace RedGate.Ipc
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
         private bool m_IsDisposed;
 
-        public int ConnectionTimeoutMs = 6000;
+        public int ConnectionTimeoutMs { get; set; } = 6000;
 
         internal RpcClient(
             ITypeResolver typeResolver,

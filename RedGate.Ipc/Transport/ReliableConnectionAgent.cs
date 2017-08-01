@@ -9,8 +9,8 @@ namespace RedGate.Ipc
         // Dependencies
         private readonly Func<IConnection> m_GetConnection;
 
-        // Constants
-        private const long c_RetryDelayMs = 5000;
+        // Settings
+        public int RetryDelayMs { get; set; } = 5000;
 
         // State variables
         private volatile bool m_Disposed;
@@ -21,6 +21,7 @@ namespace RedGate.Ipc
         private readonly ManualResetEvent m_ConnectionWaitHandle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_CancellationToken = new ManualResetEvent(false);
         private WaitHandle[] TryGetConnectionWaitHandles;
+
         public ReliableConnectionAgent(Func<IConnection> getConnection)
         {
             m_GetConnection = getConnection;
@@ -89,7 +90,7 @@ namespace RedGate.Ipc
                 {
                     //
                 }
-                var remaingDelay = (int)(c_RetryDelayMs - stopwatch.ElapsedMilliseconds);
+                var remaingDelay = (int)(RetryDelayMs - stopwatch.ElapsedMilliseconds);
                 if (remaingDelay > 0)
                 {
                     try
