@@ -6,10 +6,10 @@ Provides full duplex interprocess communication to .NET processes using a client
 
 From the server side
 
-   var sm = new ServiceManager();
-   sm.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-   sm.Register<ISomeInterface>(new ServerImplementation());
-   sm.Start();
+    var sm = new ServiceManager();
+    sm.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
+    sm.Register<ISomeInterface>(new ServerImplementation());
+    sm.Start();
 
 From the client side
 
