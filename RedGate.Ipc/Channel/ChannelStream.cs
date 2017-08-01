@@ -4,7 +4,7 @@ using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc.Channel
 {
-    class ChannelStream : IChannelStream
+    internal class ChannelStream : IChannelStream
     {
         private event DisconnectedEventHandler DisconnectedImpl = delegate { };
 
@@ -56,6 +56,14 @@ namespace RedGate.Ipc.Channel
             {
                 if (m_IsDisposed) return;
                 m_IsDisposed = true;
+                try
+                {
+                    DisconnectedImpl();
+                }
+                catch
+                {
+                    //
+                }
             }
 
             if (m_CustomDisposeAction == null)
@@ -80,15 +88,6 @@ namespace RedGate.Ipc.Channel
                 {
                     //
                 }
-            }
-
-            try
-            {
-                DisconnectedImpl();
-            }
-            catch
-            {
-                //
             }
         }
 

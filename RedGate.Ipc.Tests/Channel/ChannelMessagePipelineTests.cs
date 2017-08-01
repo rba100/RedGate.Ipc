@@ -1,6 +1,8 @@
 ﻿using System;
-using NUnit.Framework;
+
 using RedGate.Ipc.Channel;
+
+using NUnit.Framework;
 using Rhino.Mocks;
 
 namespace RedGate.Ipc.Tests.Channel
@@ -40,9 +42,8 @@ namespace RedGate.Ipc.Tests.Channel
             Assert.Null(returnedMessage);
         }
 
-
         [Test]
-        public void PipelinePassesReturnValueToNextHandler()
+        public void PipelineFeedsSuccessiveResultsToHandlersAndThenReturnsLast()
         {
             var channelMessage1 = new ChannelMessage(0, new byte[0]);
             var channelMessage2 = new ChannelMessage(1, new byte[1]);
