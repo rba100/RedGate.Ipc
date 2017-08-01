@@ -1,6 +1,6 @@
 # RedGate.Ipc
 
-Provides full duplex interprocess communication to .NET processes using a client-server model.
+Provides full duplex inter-process communication to .NET processes using a client-server model.
 
 ## Simple example
 
@@ -22,7 +22,7 @@ with the return result being returned by the proxy.
 
 ## Exceptions
 
-Exceptions thrown by the serverside implementation will be thrown by the proxy, however in addition to any
+Exceptions thrown by the server-side implementation will be thrown by the proxy, however in addition to any
 expected exceptions the proxy can also throw `ChannelFaultedException` if a connection could not be established
 within `client.ConnectionTimeoutMs` or if the client was disposed.
 In the event that a call cannot be satisfied by the connected server (e.g. there is no registered implementation)
@@ -31,7 +31,7 @@ then a proxy can throw `InvalidOperationException`.
 Consumers can override `ChannelFaultedException` with an exception type of their choice using
 `client.CreateProxy<ISomeInterface,MyPreferredException>()`. This can make exception handling easier
 in the consuming architecture. `InvalidOperationException` cannot be overridden, but should hopefully be
-a very exceptional case during development or with backwards compatability.
+a very exceptional case during development or with backwards compatibility.
 
 ## Versioning API
 
@@ -39,7 +39,7 @@ Internally the framework uses the assembly qualified name of proxy's interface t
 implementations registered on the server.
 This can cause a problem if the interface asked for by the client isn't the exact same interface registered on the server.
 For example if the version of the assembly defining the interface changes it will be necessary to tell the `ServiceManager`
-what aliases to expect for backwards comptability. Aliases are a subtring match from the start of the interface name.
+what aliases to expect for backwards compatibility. Aliases are a substring match from the start of the interface name.
 
 	var sm = new ServiceManager();
 	sm.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
@@ -47,7 +47,7 @@ what aliases to expect for backwards comptability. Aliases are a subtring match 
 	sm.RegisterTypeAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
 	sm.Start();
 
-In the above example, clients requsting calls to `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
+In the above example, clients requesting calls to `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
 or any other interface starting with `MySoftware.Client.ISomeInterface` would be serviced by `ServerImplementation()`.
 It is obviously important that the interfaces are functionally identical or an `InvalidOperationException` will be thrown.
 
@@ -56,7 +56,7 @@ It is obviously important that the interfaces are functionally identical or an `
 In the simple example, a concrete object is passed the `ServiceManager` and this same object will be used to satisfy all
 requests whilst the server is running.
 
-As an alternative strategy, consumers can pass a dependency injector or factory method to the ServiceManager which will create
+As an alternative strategy, consumers can pass a dependency injector or factory method to the `ServiceManager` which will create
 RPC service delegates on demand, scoped to individual connected clients.
 
 	public void StartServer()
@@ -78,7 +78,7 @@ Under consideration: automatic disposing of `IDisposable` when connections disco
 ## Limitations
 
 Currently, service interfaces should not contain method overrides with the same number of arguments.
-For exmple the following interface is not currently supported by this RPC framework.
+For example the following interface is not currently supported by this RPC framework.
 
     public interface IReasonableButWontWork
 	{
@@ -93,3 +93,4 @@ but this one would be:
 		void Log(string message);
 		void Log(LogLevel level, string message);
 	}
+
