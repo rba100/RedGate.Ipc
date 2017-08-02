@@ -86,3 +86,32 @@ It is obviously important that the interfaces are functionally identical or an `
 
 Note: `RegisterAlias` maps a name to an *interface type*. Consumers must also use `Register` to map that interface type
 to an *implementation* as has been done in the example above, or by supplying a delegate factory.
+
+## Full duplex
+
+The server application can supply a `ClientConnected` event handler to the service host builder, to obtain a handle
+to `IConnection`s when clients connect. Using this connection object, the server can create proxies to services running on the client.
+The important difference between the client-created and server-created proxies is that the client will attempt to reconnect
+to the server in the event of connection failure, such as when the service is restarting, but server-created proxies will immediately
+throw `ChannelFaultedException` and attempt no reconnection in the event of disconnection.
+
+On the client
+
+    using(var client = RpcClient.CreateNamedPipeClient("my-service-name")))
+    {
+        client.Register<ICallback>(new ClientSideHandler());
+        ...
+    }
+
+On the server
+
+    var builder = new ServiceHostBuilder();
+    builder.ClientConnected += OnClientConnected;
+    ...
+    
+    private void OnClientConnected(ConnectedEventArgs args)
+    {
+        var client = new SingleConnectionRpcClient(args.Connection);
+    	var proxy = client.CreateProxy<ICallback>();
+        proxy.ClientCallback();
+    }

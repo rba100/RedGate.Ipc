@@ -21,14 +21,14 @@ namespace RedGate.Ipc
         private readonly object m_ConnectionLock = new object();
         private readonly ManualResetEvent m_ConnectionWaitHandle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_CancellationToken = new ManualResetEvent(false);
-        private readonly WaitHandle[] TryGetConnectionWaitHandles;
+        private readonly WaitHandle[] m_TryGetConnectionWaitHandles;
 
         public long ConnectionRefreshCount => m_ConnectionRefreshCount;
 
         public ReliableConnectionAgent(Func<IConnection> getConnection)
         {
             m_GetConnection = getConnection;
-            TryGetConnectionWaitHandles = new WaitHandle[]
+            m_TryGetConnectionWaitHandles = new WaitHandle[]
             {
                 m_ConnectionWaitHandle,
                 m_CancellationToken
@@ -43,7 +43,7 @@ namespace RedGate.Ipc
             // ReSharper disable once InconsistentlySynchronizedField
             if (timeoutMs > 0)
             {
-                var waitResult = WaitHandle.WaitAny(TryGetConnectionWaitHandles, timeoutMs);
+                var waitResult = WaitHandle.WaitAny(m_TryGetConnectionWaitHandles, timeoutMs);
                 if (waitResult == 0) return m_Connection;
             }
             if (m_Disposed) throw new ObjectDisposedException(GetType().FullName);
