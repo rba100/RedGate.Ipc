@@ -73,18 +73,24 @@ namespace RedGate.Ipc.Tests.Rpc
         }
 
         [Test]
-        public void HandleThrowsInvalidOperationExceptionOnAmbiguousPolymrphicMethod()
+        public void HandlePolymorphicMethods()
         {
             var serialiser = MockRepository.GenerateStub<IJsonSerializer>();
-            var requestDelegate = MockRepository.GenerateStub<ITestInterface>();
+            serialiser.Stub(s => s.Deserialize(typeof(string), "0")).Return("0");
+            serialiser.Stub(s => s.Deserialize(typeof(int), "0")).Return(0);
+
+            var requestDelegate = MockRepository.GenerateStrictMock<ITestInterface>();
+            requestDelegate.Expect(d => d.Polymorphic("0")).Repeat.Once();
+            requestDelegate.Expect(d => d.Polymorphic(0)).Repeat.Once();
             var typeResolver = MockRepository.GenerateStub<IDelegateProvider>();
             typeResolver.Stub(t => t.Get("TypeName")).Return(requestDelegate);
 
-            var request = new RpcRequest("id", "TypeName", "Polymorphic", new[] { "0" });
+            var request1 = new RpcRequest("id", "TypeName", "Polymorphic_System.String", new[] { "0" });
+            var request2 = new RpcRequest("id", "TypeName", "Polymorphic_System.Int32", new[] { "0" });
 
             var rpcRequestHandler = new RpcRequestHandler(typeResolver, serialiser);
-
-            Assert.That(() => rpcRequestHandler.Handle(request), Throws.Exception.TypeOf<InvalidOperationException>().With.Message.Contains("polymorphic"));
+            rpcRequestHandler.Handle(request1);
+            rpcRequestHandler.Handle(request2);
         }
     }
 }

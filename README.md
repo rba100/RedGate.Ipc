@@ -76,23 +76,3 @@ RPC service delegates on demand, scoped to individual connected clients.
 	}
 
 Under consideration: automatic disposing of `IDisposable` when connections disconnect.
-
-## Limitations
-
-Currently, service interfaces should not contain method overrides with the same number of arguments.
-For example the following interface is not currently supported by this RPC framework.
-
-    public interface IReasonableButWontWork
-	{
-		int Add(int a, int b);
-		long Add(long a, long b);
-	}
-
-but this one would be:
-
-    public interface IReasonableAndWillWork
-	{
-		void Log(string message);
-		void Log(LogLevel level, string message);
-	}
-

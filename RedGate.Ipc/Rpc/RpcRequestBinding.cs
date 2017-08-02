@@ -4,7 +4,7 @@
     {
         public string QueryId { get; set; }
         public string Interface { get; set; }
-        public string Method { get; set; }
+        public string MethodSignature { get; set; }
         public string[] Arguments { get; set; }
     }
 }

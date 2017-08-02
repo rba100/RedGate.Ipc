@@ -23,11 +23,6 @@ namespace RedGate.Ipc.Rpc
             m_GlobalImplementations[typeof(TInterface).AssemblyQualifiedName] = implementation;
         }
 
-        /// <summary>
-        /// The delegateFactory will be called once per type per connection
-        /// and the result cached for that connection. It will not be disposed
-        /// when the connection is disposed.
-        /// </summary>
         public void RegisterDi(Func<Type, object> delegateFactory)
         {
             m_DependencyInjectors.Add(delegateFactory);
@@ -49,6 +44,7 @@ namespace RedGate.Ipc.Rpc
         public object Get(Type type)
         {
             object obj;
+            // ReSharper disable once AssignNullToNotNullAttribute
             if (m_GlobalImplementations.TryGetValue(type.AssemblyQualifiedName, out obj))
             {
                 return obj;

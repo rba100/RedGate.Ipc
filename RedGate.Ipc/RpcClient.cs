@@ -84,7 +84,8 @@ namespace RedGate.Ipc
             var request = new RpcRequest(
                     Guid.NewGuid().ToString(),
                     methodInfo.DeclaringType.AssemblyQualifiedName,
-                    methodInfo.Name, args.Select(m_JsonSerializer.Serialize).ToArray());
+                    methodInfo.GetRpcSignature(), 
+                    args.Select(m_JsonSerializer.Serialize).ToArray());
             var connection = m_ReliableConnectionAgent.TryGetConnection(ConnectionTimeoutMs);
             if (m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, $"The underlying {nameof(RpcClient)} was disposed.");
             if (connection == null) throw new ChannelFaultedException("Timed out trying to connect");

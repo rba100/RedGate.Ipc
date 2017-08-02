@@ -81,7 +81,7 @@ namespace RedGate.Ipc.Rpc
             return new RpcRequest(
                 binding.QueryId,
                 binding.Interface,
-                binding.Method,
+                binding.MethodSignature,
                 binding.Arguments);
         }
 

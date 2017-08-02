@@ -51,7 +51,7 @@ namespace RedGate.Ipc.Rpc
                     requestDelegate.GetType()
                         .GetInterfaces()
                         .SelectMany(i => i.GetMethods())
-                        .Where(m => m.Name == request.Method)
+                        .Where(m => m.GetRpcSignature() == request.MethodSignature)
                         .SingleOrDefault(m => m.GetParameters().Length == argumentCount);
             }
             catch(InvalidOperationException)
@@ -60,7 +60,7 @@ namespace RedGate.Ipc.Rpc
             }
 
             if (methodType == null)
-                throw new InvalidOperationException($"No method with name {request.Method} could be found on the service delegate {request.Interface}.");
+                throw new InvalidOperationException($"No method with name {request.MethodSignature} could be found on the service delegate {request.Interface}.");
 
             var arguments =
                 methodType.GetParameters()
