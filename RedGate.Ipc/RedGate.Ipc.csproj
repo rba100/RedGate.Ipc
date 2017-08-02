@@ -57,6 +57,7 @@
     <Compile Include="Channel\ChannelMessageWriter.cs" />
     <Compile Include="Channel\IChannelMessageWriter.cs" />
     <Compile Include="ConnectedEventArgs.cs" />
+    <Compile Include="ContractMismatchException.cs" />
     <Compile Include="DisconnectedEventArgs.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="IConnection.cs" />

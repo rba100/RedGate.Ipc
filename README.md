@@ -31,31 +31,12 @@ Exceptions thrown by the server-side implementation will be thrown by the proxy.
 expected exception types, the proxy can also throw `ChannelFaultedException` if a connection could not be established
 within `client.ConnectionTimeoutMs` or if the client was disposed.
 In the event that a call cannot be satisfied by the connected server (e.g. there is no registered implementation)
-then a proxy can throw `InvalidOperationException`.
+then a proxy can throw `ContractMismatchException`.
 
 Consumers can override `ChannelFaultedException` with an exception type of their choice using
 `client.CreateProxy<ISomeInterface,MyPreferredException>()`. This can make exception handling easier
-in the consuming architecture. `InvalidOperationException` cannot be overridden, but should hopefully be
+in the consuming architecture. `ContractMismatchException` cannot be overridden, but should hopefully be
 a very exceptional case during development or with backwards compatibility.
-
-## API Versioning
-
-The framework uses the assembly qualified name of interface type to match client requests against server implementations.
-This can cause a problem if the interface asked for by the client isn't the exact same interface registered on the server.
-For example if the assembly version or namespace of the interface changes it will be necessary to indicate what aliases to
-expect for backwards compatibility. Aliases are a substring match from the start of the interface name.
-
-	var builder = new ServiceHostBuilder();
-	builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-	builder.Register<MySoftware.Server.ISomeInterface>(new ServerImplementation());
-	builder.RegisterAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
-
-In the above example, a client interface that is interpreted as `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
-(or any other interface starting with `MySoftware.Client.ISomeInterface`) would be serviced by `ServerImplementation()`.
-It is obviously important that the interfaces are functionally identical or an `InvalidOperationException` will be thrown.
-
-Note: `RegisterAlias` maps a partial type name to an interface type. Consumers must also use `Register` to map that interface type
-to an implementation.
 
 ## Registering service implementations on the server
 
@@ -86,3 +67,22 @@ service delegates on demand, scoped to individual connected clients.
 	}
 
 Under consideration: automatic disposing of `IDisposable` when connections disconnect.
+
+## API Versioning
+
+The framework uses the assembly qualified name of interface type to match client requests against server implementations.
+This can cause a problem if the interface asked for by the client isn't the exact same interface registered on the server.
+For example if the assembly version or namespace of the interface changes it will be necessary to indicate what aliases to
+expect for backwards compatibility. Aliases are a substring match from the start of the interface name.
+
+	var builder = new ServiceHostBuilder();
+	builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
+	builder.Register<MySoftware.Server.ISomeInterface>(new ServerImplementation());
+	builder.RegisterAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
+
+In the above example, a client interface that is interpreted as `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
+(or any other interface starting with `MySoftware.Client.ISomeInterface`) would be serviced by `ServerImplementation()`.
+It is obviously important that the interfaces are functionally identical or an `ContractMismatchException` will be thrown.
+
+Note: `RegisterAlias` maps a name to an *interface type*. Consumers must also use `Register` to map that interface type
+to an *implementation* as has been done in the example above, or by supplying a delegate factory.

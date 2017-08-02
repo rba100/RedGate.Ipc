@@ -38,10 +38,8 @@ namespace RedGate.Ipc.Rpc
             var requestDelegate = m_DelegateCache[request.Interface];
             if (requestDelegate == null)
             {
-                throw new InvalidOperationException($"The type '{request.Interface}' was not registered for RPC invocation.");
+                throw new ContractMismatchException($"The type '{request.Interface}' was not registered for RPC invocation.");
             }
-
-            var argumentCount = request.Arguments?.Length ?? 0;
 
             MethodInfo methodType;
             try
@@ -50,21 +48,30 @@ namespace RedGate.Ipc.Rpc
                     requestDelegate.GetType()
                         .GetInterfaces()
                         .SelectMany(i => i.GetMethods())
-                        .Where(m => m.GetRpcSignature() == request.MethodSignature)
-                        .SingleOrDefault(m => m.GetParameters().Length == argumentCount);
+                        .SingleOrDefault(m => m.GetRpcSignature() == request.MethodSignature);
             }
             catch(InvalidOperationException)
             {
-                throw new InvalidOperationException($"RedGate.Ipc does not currently support polymorphic methods with the same number of parameters.");
+                // This should never happen
+                throw new ContractMismatchException($"Could not execute {request.MethodSignature} as multiple handlers were found.");
             }
 
             if (methodType == null)
-                throw new InvalidOperationException($"No method with name {request.MethodSignature} could be found on the service delegate {request.Interface}.");
+                throw new ContractMismatchException($"No method with signature {request.MethodSignature} could be found on the service delegate {request.Interface}.");
 
-            var arguments =
-                methodType.GetParameters()
-                    .Select((p, i) => m_JsonSerializer.Deserialize(p.ParameterType, request.Arguments[i]))
-                    .ToArray();
+            object[] arguments;
+            try
+            {
+                arguments =
+                    methodType.GetParameters()
+                        .Select((p, i) => m_JsonSerializer.Deserialize(p.ParameterType, request.Arguments[i]))
+                        .ToArray();
+            }
+            catch(Exception ex)
+            {
+                throw new ContractMismatchException($"The arguments for {request.MethodSignature} could not be deserialized.", ex);
+            }
+
             try
             {
                 Connection.RequestHandlerConnection = OwningConnection;
