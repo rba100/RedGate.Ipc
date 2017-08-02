@@ -42,14 +42,13 @@ a very exceptional case during development or with backwards compatibility.
 
 The framework uses the assembly qualified name of interface type to match client requests against server implementations.
 This can cause a problem if the interface asked for by the client isn't the exact same interface registered on the server.
-For example if the assembly version or namespace of the interface changes it will be necessary to tell the `ServiceManager`
-what aliases to expect for backwards compatibility. Aliases are a substring match from the start of the interface name.
+For example if the assembly version or namespace of the interface changes it will be necessary to indicate what aliases to
+expect for backwards compatibility. Aliases are a substring match from the start of the interface name.
 
-	var sm = new ServiceManager();
-	sm.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-	sm.Register<MySoftware.Server.ISomeInterface>(new ServerImplementation());
-	sm.RegisterAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
-	sm.Start();
+	var builder = new ServiceHostBuilder();
+	builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
+	builder.Register<MySoftware.Server.ISomeInterface>(new ServerImplementation());
+	builder.RegisterAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
 
 In the above example, a client interface that is interpreted as `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
 (or any other interface starting with `MySoftware.Client.ISomeInterface`) would be serviced by `ServerImplementation()`.
@@ -60,10 +59,10 @@ to an implementation.
 
 ## Registering service implementations on the server
 
-In the simple example, a concrete object is passed the `ServiceManager` and this same instance will be used to satisfy all
+In the simple example, a concrete object is registered and this same instance will be used to satisfy all
 requests whilst the server is running.
 
-As an alternative strategy consumers can pass a dependency injector or factory method to the `ServiceManager` which will create
+As an alternative strategy consumers can pass a dependency injector or factory method which will create
 service delegates on demand, scoped to individual connected clients.
 
 	public void StartServer()
