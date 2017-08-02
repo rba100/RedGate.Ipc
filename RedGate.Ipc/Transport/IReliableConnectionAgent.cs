@@ -23,5 +23,10 @@ namespace RedGate.Ipc
         /// </param>
         /// <exception cref="ObjectDisposedException">If IReliableConnectionAgent was disposed before or during the method call.</exception>
         IConnection TryGetConnection(int timeoutMs);
+
+        /// <summary>
+        /// The number of times the underlying connection has been established.
+        /// </summary>
+        long ConnectionRefreshCount { get; }
     }
 }

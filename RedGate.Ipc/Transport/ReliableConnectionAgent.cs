@@ -15,17 +15,20 @@ namespace RedGate.Ipc
         // State variables
         private volatile bool m_Disposed;
         private volatile IConnection m_Connection;
+        private long m_ConnectionRefreshCount;
 
         // Synchronisation objects
         private readonly object m_ConnectionLock = new object();
         private readonly ManualResetEvent m_ConnectionWaitHandle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_CancellationToken = new ManualResetEvent(false);
-        private WaitHandle[] TryGetConnectionWaitHandles;
+        private readonly WaitHandle[] TryGetConnectionWaitHandles;
+
+        public long ConnectionRefreshCount => m_ConnectionRefreshCount;
 
         public ReliableConnectionAgent(Func<IConnection> getConnection)
         {
             m_GetConnection = getConnection;
-            TryGetConnectionWaitHandles = new[]
+            TryGetConnectionWaitHandles = new WaitHandle[]
             {
                 m_ConnectionWaitHandle,
                 m_CancellationToken
@@ -81,6 +84,7 @@ namespace RedGate.Ipc
                     lock (m_ConnectionLock)
                     {
                         m_Connection = connection;
+                        Interlocked.Increment(ref m_ConnectionRefreshCount);
                         connection.Disconnected += ConnectionOnDisconnected;
                     }
                     if (m_Connection?.IsConnected == true) m_ConnectionWaitHandle.Set();

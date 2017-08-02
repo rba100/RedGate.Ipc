@@ -21,6 +21,8 @@ namespace RedGate.Ipc
 
         public int ConnectionTimeoutMs { get; set; } = 6000;
 
+        public long ConnectionRefreshCount => m_ReliableConnectionAgent.ConnectionRefreshCount;
+
         internal RpcClient(
             IDelegateProvider delegateProvider,
             IReliableConnectionAgent reliableConnectionAgent)
