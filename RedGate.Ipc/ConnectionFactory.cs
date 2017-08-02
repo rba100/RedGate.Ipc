@@ -40,6 +40,8 @@ namespace RedGate.Ipc
                 disposeChain: new IDisposable[] { channelMessageReader, rpcMessageBroker });
 
             rpcRequestHandler.OwningConnection = connection;
+            channelMessageReader.Start();
+
             return connection;
         }
     }

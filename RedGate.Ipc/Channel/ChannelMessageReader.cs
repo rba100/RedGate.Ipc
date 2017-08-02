@@ -9,7 +9,7 @@ namespace RedGate.Ipc.Channel
         private readonly IChannelMessageSerializer m_ChannelMessageSerializer;
         private readonly IChannelMessageHandler m_InboundHandler;
 
-        private readonly Thread m_Worker;
+        private Thread m_Worker;
 
         private bool IsDisposed => m_Disposed != 0;
         private int m_Disposed;
@@ -22,7 +22,11 @@ namespace RedGate.Ipc.Channel
             m_ChannelMessageStream = channelMessageStream;
             m_ChannelMessageSerializer = channelMessageSerializer;
             m_InboundHandler = inboundHandler;
+        }
 
+        public void Start()
+        {
+            if (m_Worker != null) return;
             m_Worker = new Thread(Worker)
             {
                 Name = "ChannelMessageReader"
