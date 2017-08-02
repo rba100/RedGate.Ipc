@@ -85,8 +85,8 @@ namespace RedGate.Ipc.Tests.Rpc
             var typeResolver = MockRepository.GenerateStub<IDelegateProvider>();
             typeResolver.Stub(t => t.Get("TypeName")).Return(requestDelegate);
 
-            var request1 = new RpcRequest("id", "TypeName", "Polymorphic_System.String", new[] { "0" });
-            var request2 = new RpcRequest("id", "TypeName", "Polymorphic_System.Int32", new[] { "0" });
+            var request1 = new RpcRequest("id", "TypeName", "Polymorphic_String", new[] { "0" });
+            var request2 = new RpcRequest("id", "TypeName", "Polymorphic_Int32", new[] { "0" });
 
             var rpcRequestHandler = new RpcRequestHandler(typeResolver, serialiser);
             rpcRequestHandler.Handle(request1);
