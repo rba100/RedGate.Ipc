@@ -53,13 +53,13 @@ It is obviously important that the interfaces are functionally identical or an `
 Note: `RegisterAlias` maps a partial type name to an interface type. Consumers must also use `Register` to map that interface type
 to an implementation.
 
-## Registering service implementation on the server
+## Registering service implementations on the server
 
-In the simple example, a concrete object is passed the `ServiceManager` and this same object will be used to satisfy all
+In the simple example, a concrete object is passed the `ServiceManager` and this same instance will be used to satisfy all
 requests whilst the server is running.
 
-As an alternative strategy, consumers can pass a dependency injector or factory method to the `ServiceManager` which will create
-RPC service delegates on demand, scoped to individual connected clients.
+As an alternative strategy consumers can pass a dependency injector or factory method to the `ServiceManager` which will create
+service delegates on demand, scoped to individual connected clients.
 
 	public void StartServer()
 	{
