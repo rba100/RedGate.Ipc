@@ -10,16 +10,16 @@ From the server side
     sm.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
     sm.Register<ISomeInterface>(new ServerImplementation());
     sm.Start();
-	..
-	sm.Stop();
+    ..
+    sm.Stop();
 
 From the client side
 
-	using(var client = RpcClient.CreateNamedPipeClient("my-service-name")))
-	{
-		var proxy = client.CreateProxy<ISomeInterface>()
-		proxy.DoThingOnServer();
-	}
+    using(var client = RpcClient.CreateNamedPipeClient("my-service-name")))
+    {
+        var proxy = client.CreateProxy<ISomeInterface>()
+        proxy.DoThingOnServer();
+    }
 
 Methods called on a client side proxy will block whilst the registered delegate is executed by the server,
 with the return result being returned by the proxy.
