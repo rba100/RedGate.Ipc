@@ -6,12 +6,13 @@ Provides full duplex inter-process communication to .NET processes using a clien
 
 From the server side
 
-    var sm = new ServiceManager();
-    sm.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-    sm.Register<ISomeInterface>(new ServerImplementation());
-    sm.Start();
+    var builder = new ServiceHostBuilder();
+    builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
+    builder.Register<ISomeInterface>(new ServerImplementation());
+
+    var host = builder.Create();
     ..
-    sm.Stop();
+    host.Dispose();
 
 From the client side
 
@@ -67,16 +68,22 @@ service delegates on demand, scoped to individual connected clients.
 
 	public void StartServer()
 	{
-		_serviceManager = new ServiceManager();
-		_serviceManager.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-		_serviceManager.RegisterDi(GetDelegate);
-		_serviceManager.Start();
+        var serviceHostBuilder = new ServiceHostBuilder();
+        serviceHostBuilder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
+        serviceHostBuilder.RegisterDi(GetDelegate);
+
+        _serviceHost = serviceHostBuilder.Create();
+	}
+
+    public void StopServer()
+	{
+        _serviceHost.Dispose();
 	}
 
 	public object GetDelegate(Type type)
 	{
-		if(type == typeof(ISomeInterface)) return new ConnectionScopedHandler();
-		return null; // return null if cannot satisfy type request.
+        if(type == typeof(ISomeInterface)) return new ConnectionScopedHandler();
+        return null; // return null if cannot satisfy type request.
 	}
 
 Under consideration: automatic disposing of `IDisposable` when connections disconnect.

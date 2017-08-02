@@ -3,7 +3,7 @@ using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc
 {
-    public interface IServiceManager
+    public interface IServiceHostBuilder
     {
         void Register<T>(object implementation);
 
@@ -27,11 +27,13 @@ namespace RedGate.Ipc
         void RegisterAlias(string alias, Type interfaceType);
 
         void AddEndpoint(IEndpoint endpoint);
-        void Start();
-        void Stop();
+        IServiceHost Create();
 
         event ClientConnectedEventHandler ClientConnected;
     }
 
-
+    public interface IServiceHost : IDisposable
+    {
+        
+    }
 }

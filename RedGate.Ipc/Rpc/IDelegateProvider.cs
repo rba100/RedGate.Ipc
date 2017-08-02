@@ -5,6 +5,7 @@ namespace RedGate.Ipc.Rpc
     public interface IDelegateProvider
     {
         void Register<TInterface>(object implementation);
+        void Register(Type tInterface, object implementation);
 
         /// <summary>
         /// The delegateFactory will be called once per type per connection

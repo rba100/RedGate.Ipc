@@ -12,15 +12,19 @@ namespace RedGate.Ipc.Rpc
 
         public void Register<TInterface>(object implementation)
         {
-            if (implementation.GetType().GetInterfaces().All(i => i != typeof(TInterface)))
+            Register(typeof(TInterface), implementation);
+        }
+
+        public void Register(Type tInterface, object implementation)
+        {
+            if (implementation.GetType().GetInterfaces().All(i => i != tInterface))
             {
-                throw new ArgumentException(
-                    "Supplied implementation must implement the specified TInterface type.",
-                    nameof(implementation));
+                throw new InvalidOperationException(
+                    $"{implementation.GetType().Name} does not implement {tInterface.Name}.");
             }
             // ReSharper disable once AssignNullToNotNullAttribute
             // typeof(t) should not return a type that does not have AQN
-            m_GlobalImplementations[typeof(TInterface).AssemblyQualifiedName] = implementation;
+            m_GlobalImplementations[tInterface.AssemblyQualifiedName] = implementation;
         }
 
         public void RegisterDi(Func<Type, object> delegateFactory)
