@@ -35,7 +35,6 @@ namespace RedGate.Ipc.Rpc
                 }
             }
 
-            Connection.RequestHandlerConnection = OwningConnection;
             var requestDelegate = m_DelegateCache[request.Interface];
             if (requestDelegate == null)
             {
@@ -68,6 +67,7 @@ namespace RedGate.Ipc.Rpc
                     .ToArray();
             try
             {
+                Connection.RequestHandlerConnection = OwningConnection;
                 var returnValue = methodType.Invoke(requestDelegate, arguments);
 
                 if (methodType.ReturnType == typeof(void))
