@@ -12,12 +12,12 @@ namespace RedGate.Ipc
 
         private readonly List<IEndpoint> m_Endpoints = new List<IEndpoint>();
         private readonly IConnectionFactory m_ConnectionFactory;
-        private readonly ITypeResolver m_TypeResolver;
+        private readonly IDelegateResolver m_DelegateResolver;
 
         public ServiceManager()
         {
-            m_TypeResolver = new TypeResolver();
-            m_ConnectionFactory = new ConnectionFactory(m_TypeResolver);
+            m_DelegateResolver = new DelegateResolver();
+            m_ConnectionFactory = new ConnectionFactory(m_DelegateResolver);
         }
 
         public void AddEndpoint(IEndpoint endpoint)
@@ -38,17 +38,17 @@ namespace RedGate.Ipc
 
         public void Register<T>(object implementation)
         {
-            m_TypeResolver.RegisterGlobal<T>(implementation);
+            m_DelegateResolver.Register<T>(implementation);
         }
 
         public void RegisterDi(Func<Type, object> delegateFactory)
         {
-            m_TypeResolver.RegisterDi(delegateFactory);
+            m_DelegateResolver.RegisterDi(delegateFactory);
         }
 
-        public void RegisterTypeAlias(string assemblyQualifiedName, Type type)
+        public void RegisterAlias(string alias, Type interfaceType)
         {
-            m_TypeResolver.RegisterTypeAlias(assemblyQualifiedName, type);
+            m_DelegateResolver.RegisterAlias(alias, interfaceType);
         }
 
         private void EndpointOnClientConnected(ChannelConnectedEventArgs args)

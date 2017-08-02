@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace RedGate.Ipc.Rpc
 {
-    public class TypeResolver : ITypeResolver
+    public class DelegateResolver : IDelegateResolver
     {
         private readonly List<Func<Type, object>> m_DependencyInjectors = new List<Func<Type, object>>();
         private readonly Dictionary<string, object> m_GlobalImplementations = new Dictionary<string, object>();
         private readonly Dictionary<string, Type> m_TypeAliases = new Dictionary<string, Type>();
 
-        public void RegisterGlobal<TInterface>(object implementation)
+        public void Register<TInterface>(object implementation)
         {
             if (implementation.GetType().GetInterfaces().All(i => i != typeof(TInterface)))
             {
@@ -33,20 +33,20 @@ namespace RedGate.Ipc.Rpc
             m_DependencyInjectors.Add(delegateFactory);
         }
 
-        public void RegisterTypeAlias(string typeNameStartsWith, Type type)
+        public void RegisterAlias(string typeNameStartsWith, Type type)
         {
             m_TypeAliases[typeNameStartsWith] = type;
         }
 
-        public object Resolve(string typeFullName)
+        public object Get(string typeFullName)
         {
             var type =
                 m_TypeAliases.Where(kvp => typeFullName.StartsWith(kvp.Key)).Select(kvp => kvp.Value).FirstOrDefault();
             type = type ?? Type.GetType(typeFullName);
-            return Resolve(type);
+            return Get(type);
         }
 
-        public object Resolve(Type type)
+        public object Get(Type type)
         {
             object obj;
             if (m_GlobalImplementations.TryGetValue(type.AssemblyQualifiedName, out obj))
@@ -63,9 +63,9 @@ namespace RedGate.Ipc.Rpc
             return null;
         }
 
-        public T Resolve<T>()
+        public T Get<T>()
         {
-            return (T) Resolve(typeof(T));
+            return (T) Get(typeof(T));
         }
     }
 }

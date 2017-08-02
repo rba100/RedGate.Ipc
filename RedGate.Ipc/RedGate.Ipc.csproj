@@ -69,7 +69,7 @@
     <Compile Include="RpcClient.cs" />
     <Compile Include="Rpc\DelegatingCallHandler.cs" />
     <Compile Include="Rpc\IRpcMessageWriter.cs" />
-    <Compile Include="Rpc\ITypeResolver.cs" />
+    <Compile Include="Rpc\IDelegateResolver.cs" />
     <Compile Include="Rpc\RpcChannelMessageHandler.cs" />
     <Compile Include="Rpc\RpcException.cs" />
     <Compile Include="Rpc\RpcExceptionBinding.cs" />
@@ -82,7 +82,7 @@
     <Compile Include="Channel\ChannelMessageSerializer.cs" />
     <Compile Include="Channel\ChannelMessageType.cs" />
     <Compile Include="ConnectionFactory.cs" />
-    <Compile Include="Rpc\TypeResolver.cs" />
+    <Compile Include="Rpc\DelegateResolver.cs" />
     <Compile Include="ServiceManager.cs" />
     <Compile Include="Channel\IChannelMessageHandler.cs" />
     <Compile Include="Channel\IChannelMessageSerializer.cs" />

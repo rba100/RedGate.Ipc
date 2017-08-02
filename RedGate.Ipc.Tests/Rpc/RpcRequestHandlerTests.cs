@@ -17,8 +17,8 @@ namespace RedGate.Ipc.Tests.Rpc
             var handler = MockRepository.GenerateStrictMock<ITestInterface>();
             handler.Expect(h => h.VoidCall()).Repeat.Once();
 
-            var typeResolver = MockRepository.GenerateStub<ITypeResolver>();
-            typeResolver.Stub(t => t.Resolve("TypeName")).Return(handler);
+            var typeResolver = MockRepository.GenerateStub<IDelegateResolver>();
+            typeResolver.Stub(t => t.Get("TypeName")).Return(handler);
 
             var request = new RpcRequest("id", "TypeName", "VoidCall", new string[0]);
 
@@ -37,8 +37,8 @@ namespace RedGate.Ipc.Tests.Rpc
             var handler = MockRepository.GenerateStrictMock<ITestInterface>();
             handler.Expect(h => h.VoidCall()).Repeat.Twice();
 
-            var typeResolver = MockRepository.GenerateStrictMock<ITypeResolver>();
-            typeResolver.Expect(t => t.Resolve("TypeName")).Return(handler).Repeat.Once();
+            var typeResolver = MockRepository.GenerateStrictMock<IDelegateResolver>();
+            typeResolver.Expect(t => t.Get("TypeName")).Return(handler).Repeat.Once();
 
             var request = new RpcRequest("id", "TypeName", "VoidCall", new string[0]);
 
@@ -57,8 +57,8 @@ namespace RedGate.Ipc.Tests.Rpc
             var connection = MockRepository.GenerateStub<IConnection>();
             var requestDelegate = MockRepository.GenerateStub<ITestInterface>();
 
-            var typeResolver = MockRepository.GenerateStub<ITypeResolver>();
-            typeResolver.Stub(t => t.Resolve("TypeName")).Return(requestDelegate);
+            var typeResolver = MockRepository.GenerateStub<IDelegateResolver>();
+            typeResolver.Stub(t => t.Get("TypeName")).Return(requestDelegate);
 
             var request = new RpcRequest("id", "TypeName", "VoidCall", new string[0]);
 
@@ -77,8 +77,8 @@ namespace RedGate.Ipc.Tests.Rpc
         {
             var serialiser = MockRepository.GenerateStub<IJsonSerializer>();
             var requestDelegate = MockRepository.GenerateStub<ITestInterface>();
-            var typeResolver = MockRepository.GenerateStub<ITypeResolver>();
-            typeResolver.Stub(t => t.Resolve("TypeName")).Return(requestDelegate);
+            var typeResolver = MockRepository.GenerateStub<IDelegateResolver>();
+            typeResolver.Stub(t => t.Get("TypeName")).Return(requestDelegate);
 
             var request = new RpcRequest("id", "TypeName", "Polymorphic", new[] { "0" });
 

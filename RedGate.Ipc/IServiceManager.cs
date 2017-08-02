@@ -22,9 +22,9 @@ namespace RedGate.Ipc
         /// Aliases do not need to be a full assembly qualified name; matching is done with
         /// a StartsWith() match.
         /// </summary>
-        /// <param name="assemblyQualifiedName">The alias, i.e. an assemblyQualifiedName that TypeGetType() would reject.</param>
-        /// <param name="type">The local type to map the alias to.</param>
-        void RegisterTypeAlias(string assemblyQualifiedName, Type type);
+        /// <param name="alias">The alias, i.e. all or part of an assemblyQualifiedName that Type.GetType() would reject.</param>
+        /// <param name="interfaceType">The interface type to map the alias to.</param>
+        void RegisterAlias(string alias, Type interfaceType);
 
         void AddEndpoint(IEndpoint endpoint);
         void Start();

@@ -9,19 +9,19 @@ namespace RedGate.Ipc.Rpc
 {
     public class RpcRequestHandler : IRpcRequestHandler
     {
-        private readonly ITypeResolver m_TypeResolver;
+        private readonly IDelegateResolver m_DelegateResolver;
         private readonly IJsonSerializer m_JsonSerializer;
 
         private readonly Dictionary<string, object> m_DelegateCache = new Dictionary<string, object>();
 
         public IConnection OwningConnection { get; set; }
 
-        internal RpcRequestHandler(ITypeResolver typeResolver, IJsonSerializer jsonSerializer)
+        internal RpcRequestHandler(IDelegateResolver delegateResolver, IJsonSerializer jsonSerializer)
         {
-            if (typeResolver == null) throw new ArgumentNullException(nameof(typeResolver));
+            if (delegateResolver == null) throw new ArgumentNullException(nameof(delegateResolver));
             if (jsonSerializer == null) throw new ArgumentNullException(nameof(jsonSerializer));
 
-            m_TypeResolver = typeResolver;
+            m_DelegateResolver = delegateResolver;
             m_JsonSerializer = jsonSerializer;
         }
 
@@ -31,7 +31,7 @@ namespace RedGate.Ipc.Rpc
             {
                 if (!m_DelegateCache.ContainsKey(request.Interface))
                 {
-                    m_DelegateCache[request.Interface] = m_TypeResolver.Resolve(request.Interface);
+                    m_DelegateCache[request.Interface] = m_DelegateResolver.Get(request.Interface);
                 }
             }
 

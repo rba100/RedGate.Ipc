@@ -7,13 +7,13 @@ namespace RedGate.Ipc
 {
     public class ConnectionFactory : IConnectionFactory
     {
-        private readonly ITypeResolver m_TypeResolver;
+        private readonly IDelegateResolver m_DelegateResolver;
 
-        public ConnectionFactory(ITypeResolver typeResolver)
+        public ConnectionFactory(IDelegateResolver delegateResolver)
         {
-            if (typeResolver == null) throw new ArgumentNullException(nameof(typeResolver));
+            if (delegateResolver == null) throw new ArgumentNullException(nameof(delegateResolver));
 
-            m_TypeResolver = typeResolver;
+            m_DelegateResolver = delegateResolver;
         }
 
         public IConnection Create(string connectionId, IChannelStream stream)
@@ -26,7 +26,7 @@ namespace RedGate.Ipc
 
             var rpcMessageEncoder = new RpcMessageEncoder(jsonSerialiser);
             var rpcMessageWriter = new RpcMessageWriter(channelMessageWriter, rpcMessageEncoder);
-            var rpcRequestHandler = new RpcRequestHandler(m_TypeResolver, jsonSerialiser);
+            var rpcRequestHandler = new RpcRequestHandler(m_DelegateResolver, jsonSerialiser);
             var rpcMessageBroker = new RpcMessageBroker(rpcMessageWriter, rpcRequestHandler);
             var rpcMessageHandler = new RpcChannelMessageHandler(rpcMessageBroker, rpcMessageEncoder);
 

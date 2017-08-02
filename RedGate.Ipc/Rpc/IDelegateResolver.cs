@@ -2,9 +2,9 @@
 
 namespace RedGate.Ipc.Rpc
 {
-    public interface ITypeResolver
+    public interface IDelegateResolver
     {
-        void RegisterGlobal<TInterface>(object implementation);
+        void Register<TInterface>(object implementation);
 
         /// <summary>
         /// The delegateFactory will be called once per type per connection
@@ -21,12 +21,12 @@ namespace RedGate.Ipc.Rpc
         /// Aliases do not need to be a full assembly qualified name; matching is done with
         /// a StartsWith() match.
         /// </summary>
-        /// <param name="typeNameStartsWith">The alias, i.e. an assemblyQualifiedName that Type.GetType() would reject.</param>
-        /// <param name="type">The local type to map the alias to.</param>
-        void RegisterTypeAlias(string typeNameStartsWith, Type type);
+        /// <param name="alias">The alias, i.e. all or part of an assemblyQualifiedName that Type.GetType() would reject.</param>
+        /// <param name="interfaceType">The interface type to map the alias to.</param>
+        void RegisterAlias(string alias, Type interfaceType);
 
-        object Resolve(string typeFullName);
-        object Resolve(Type type);
-        T Resolve<T>();
+        object Get(string typeFullName);
+        object Get(Type type);
+        T Get<T>();
     }
 }
