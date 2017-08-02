@@ -28,7 +28,7 @@ namespace RedGate.Ipc
         /// </summary>
         /// <param name="assemblyQualifiedName">The alias, i.e. an assemblyQualifiedName that TypeGetType() would reject.</param>
         /// <param name="type">The local type to map the alias to.</param>
-        void RegisterTypeAlias(string assemblyQualifiedName, Type type);
+        void RegisterAlias(string assemblyQualifiedName, Type type);
 
         /// <summary>
         /// Creates an object impementing T that will forward calls to the connected server's implementation.

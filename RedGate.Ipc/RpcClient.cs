@@ -75,7 +75,7 @@ namespace RedGate.Ipc
             m_DelegateProvider.RegisterDi(delegateFactory);
         }
 
-        public void RegisterTypeAlias(string assemblyQualifiedName, Type type)
+        public void RegisterAlias(string assemblyQualifiedName, Type type)
         {
             m_DelegateProvider.RegisterAlias(assemblyQualifiedName, type);
         }
