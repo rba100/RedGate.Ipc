@@ -2,7 +2,7 @@
 
 namespace RedGate.Ipc.Rpc
 {
-    public interface IDelegateResolver
+    public interface IDelegateProvider
     {
         void Register<TInterface>(object implementation);
 

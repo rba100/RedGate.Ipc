@@ -12,7 +12,7 @@ namespace RedGate.Ipc
 {
     public class RpcClient : IRpcClient
     {
-        private readonly IDelegateResolver m_DelegateResolver;
+        private readonly IDelegateProvider m_DelegateProvider;
         private readonly IReliableConnectionAgent m_ReliableConnectionAgent;
         private readonly IJsonSerializer m_JsonSerializer;
 
@@ -22,13 +22,13 @@ namespace RedGate.Ipc
         public int ConnectionTimeoutMs { get; set; } = 6000;
 
         internal RpcClient(
-            IDelegateResolver delegateResolver,
+            IDelegateProvider delegateProvider,
             IReliableConnectionAgent reliableConnectionAgent)
         {
-            if (delegateResolver == null) throw new ArgumentNullException(nameof(delegateResolver));
+            if (delegateProvider == null) throw new ArgumentNullException(nameof(delegateProvider));
             if (reliableConnectionAgent == null) throw new ArgumentNullException(nameof(reliableConnectionAgent));
 
-            m_DelegateResolver = delegateResolver;
+            m_DelegateProvider = delegateProvider;
             m_ReliableConnectionAgent = reliableConnectionAgent;
             m_JsonSerializer = new TinyJsonSerializer();
         }
@@ -36,7 +36,7 @@ namespace RedGate.Ipc
         public static IRpcClient CreateNamedPipeClient(string pipeName)
         {
             var namedPipesClient = new NamedPipeEndpointClient(pipeName);
-            var typeResolver = new DelegateResolver();
+            var typeResolver = new DelegateProvider();
             var connectionFactory = new ConnectionFactory(typeResolver);
             var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()));
             return new RpcClient(typeResolver, clientAgent);
@@ -45,7 +45,7 @@ namespace RedGate.Ipc
         public static IRpcClient CreateTcpClient(string hostname, int portNumber)
         {
             var tcpProvider = new TcpEndpointClient(portNumber, hostname);
-            var typeResolver = new DelegateResolver();
+            var typeResolver = new DelegateProvider();
             var connectionFactory = new ConnectionFactory(typeResolver);
             var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()));
             return new RpcClient(typeResolver, clientAgent);
@@ -65,17 +65,17 @@ namespace RedGate.Ipc
 
         public void Register<T>(object implementation)
         {
-            m_DelegateResolver.Register<T>(implementation);
+            m_DelegateProvider.Register<T>(implementation);
         }
 
         public void RegisterDi(Func<Type, object> delegateFactory)
         {
-            m_DelegateResolver.RegisterDi(delegateFactory);
+            m_DelegateProvider.RegisterDi(delegateFactory);
         }
 
         public void RegisterTypeAlias(string assemblyQualifiedName, Type type)
         {
-            m_DelegateResolver.RegisterAlias(assemblyQualifiedName, type);
+            m_DelegateProvider.RegisterAlias(assemblyQualifiedName, type);
         }
 
         private object HandleCallReconnectOnFailure(MethodInfo methodInfo, object[] args)

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace RedGate.Ipc.Rpc
 {
-    public class DelegateResolver : IDelegateResolver
+    public class DelegateProvider : IDelegateProvider
     {
         private readonly List<Func<Type, object>> m_DependencyInjectors = new List<Func<Type, object>>();
         private readonly Dictionary<string, object> m_GlobalImplementations = new Dictionary<string, object>();
