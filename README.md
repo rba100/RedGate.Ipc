@@ -89,8 +89,8 @@ to an *implementation* as has been done in the example above, or by supplying a 
 
 ## Full duplex
 
-The server application can supply a `ClientConnected` event handler to the service host builder, to obtain a handle
-to `IConnection`s when clients connect. Using this connection object, the server can create proxies to services running on the client.
+The server application can supply a `ClientConnected` event handler to obtain a handle to `IConnection`s when clients connect.
+Using this connection object, the server can create proxies to services running on the client.
 The important difference between the client-created and server-created proxies is that the client will attempt to reconnect
 to the server in the event of connection failure, such as when the service is restarting, but server-created proxies will immediately
 throw `ChannelFaultedException` and attempt no reconnection in the event of disconnection.
@@ -112,6 +112,6 @@ On the server
     private void OnClientConnected(ConnectedEventArgs args)
     {
         var client = new SingleConnectionRpcClient(args.Connection);
-    	var proxy = client.CreateProxy<ICallback>();
+        var proxy = client.CreateProxy<ICallback>();
         proxy.ClientCallback();
     }
