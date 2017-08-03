@@ -23,8 +23,7 @@ From the client side
         proxy.DoThingOnServer();
     }
 
-Methods called on a client side proxy will block whilst the registered delegate is executed by the server,
-with the return result being returned by the proxy.
+Methods called on a client side proxy will sent to the server and executed on the registered delegate (`ServerImplementation` in this case).
 
 ## Exceptions
 
@@ -61,17 +60,17 @@ service delegates on demand, scoped to individual connected clients.
         _serviceHost.Dispose();
 	}
 
-	public object GetDelegate(Type type)
+	public object GetDelegate(Type delegateType)
 	{
-        if(type == typeof(ISomeInterface)) return new ConnectionScopedHandler();
-        return null; // return null if cannot satisfy type request.
+        if(delegateType == typeof(ISomeInterface)) return new ConnectionScopedHandler();
+        return null; // return null if cannot satisfy delegate request.
 	}
 
 Under consideration: automatic disposing of `IDisposable` when connections disconnect.
 
 ## API Versioning
 
-The framework uses the assembly qualified name of interface type to match client requests against server implementations.
+The framework uses the assembly qualified name of the interface type to match client requests against server implementations.
 This can cause a problem if the interface asked for by the client isn't the exact same interface registered on the server.
 For example if the assembly version or namespace of the interface changes it will be necessary to indicate what aliases to
 expect for backwards compatibility. Aliases are a substring match from the start of the interface name.
@@ -118,3 +117,11 @@ On the server
         var proxy = client.CreateProxy<ICallback>();
         proxy.ClientCallback();
     }
+
+## Naughty hacks
+
+WCF provides the static variable `OperationContext.Current.SessionId` so that delegates can distinguish connected parties.
+In this framework `Connection.RequestHandlerConnection.ConnectionId` can be used in the same way, but must only be called from the thread
+used to invoke the delegate. I.e. in the simple example the implementation of `ServerImplementation.DoThingOnServer` may read `Connection.RequestHandlerConnection` but if it spins off a thread, that new thread must not read the variable as it is `[ThreadStatic]`.
+
+Under consideration: removing this hack and providing a different mechanism for delegates to distinguish connected parties.
