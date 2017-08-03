@@ -103,7 +103,7 @@
     <Compile Include="IRpcClient.cs" />
     <Compile Include="Channel\ChannelMessagePipeline.cs" />
     <Compile Include="SingleConnectionRpcClient.cs" />
-    <Compile Include="Transport\ConnectionProvider.cs" />
+    <Compile Include="Transport\ReconnectingConnectionProvider.cs" />
     <Compile Include="Channel\IChannelStream.cs" />
     <Compile Include="Channel\IEndpointClient.cs" />
     <Compile Include="Transport\IConnectionProvider.cs" />

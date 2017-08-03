@@ -13,7 +13,7 @@ namespace RedGate.Ipc
         {
             var namedPipesClient = new NamedPipeEndpointClient(pipeName);
             var connectionFactory = new ConnectionFactory(m_DelegateProvider);
-            var connectionProvider = new ConnectionProvider(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()));
+            var connectionProvider = new ReconnectingConnectionProvider(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()));
             return new ReconnectingRpcClient(m_DelegateProvider, connectionProvider);
         }
 
@@ -21,7 +21,7 @@ namespace RedGate.Ipc
         {
             var tcpProvider = new TcpEndpointClient(portNumber, hostname);
             var connectionFactory = new ConnectionFactory(m_DelegateProvider);
-            var connectionProvider = new ConnectionProvider(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()));
+            var connectionProvider = new ReconnectingConnectionProvider(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()));
             return new ReconnectingRpcClient(m_DelegateProvider, connectionProvider);
         }
 
