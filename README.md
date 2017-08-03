@@ -16,7 +16,7 @@ From the server side
 
 From the client side
 
-    using(var client = RpcClient.CreateNamedPipeClient("my-service-name")))
+    using(var client = ClientFactory.ConnectToNamedPipe("my-service-name")))
     {
         var proxy = client.CreateProxy<ISomeInterface>()
         proxy.DoThingOnServer();
@@ -41,7 +41,7 @@ a very exceptional case during development or with backwards compatibility.
 ## Registering service implementations on the server
 
 In the simple example, a concrete object is registered and this same instance will be used to satisfy all
-requests whilst the server is running.
+requests.
 
 As an alternative strategy consumers can pass a dependency injector or factory method which will create
 service delegates on demand, scoped to individual connected clients.
@@ -97,7 +97,7 @@ throw `ChannelFaultedException` and attempt no reconnection in the event of disc
 
 On the client
 
-    using(var client = RpcClient.CreateNamedPipeClient("my-service-name")))
+    using(var client = ClientFactory.ConnectToNamedPipe("my-service-name")))
     {
         client.Register<ICallback>(new ClientSideHandler());
         ...
