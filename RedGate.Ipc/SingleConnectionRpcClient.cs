@@ -8,7 +8,7 @@ using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc
 {
-    public class SingleConnectionRpcClient
+    public class SingleConnectionRpcClient : IRpcClient
     {
         private readonly IJsonSerializer m_JsonSerializer = new TinyJsonSerializer();
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
@@ -51,5 +51,12 @@ namespace RedGate.Ipc
         {
             // Ignore
         }
+
+        public void Dispose()
+        {
+            // No resources
+        }
+
+        public long ConnectionRefreshCount => 1;
     }
 }

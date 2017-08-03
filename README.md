@@ -11,12 +11,12 @@ From the server side
     builder.Register<ISomeInterface>(new ServerImplementation());
 
     var host = builder.Create();
-    ..
+    // listening
     host.Dispose();
+	// closed
 
 From the client side
-
-    using(var client = ClientFactory.ConnectToNamedPipe("my-service-name")))
+    using(var client = new ClientBuildlr().ConnectToNamedPipe("my-service-name")))
     {
         var proxy = client.CreateProxy<ISomeInterface>()
         proxy.DoThingOnServer();
