@@ -56,6 +56,7 @@
     <Compile Include="Channel\IChannelMessageDispatcher.cs" />
     <Compile Include="Channel\ChannelMessageWriter.cs" />
     <Compile Include="Channel\IChannelMessageWriter.cs" />
+    <Compile Include="ClientFactory.cs" />
     <Compile Include="ConnectedEventArgs.cs" />
     <Compile Include="ContractMismatchException.cs" />
     <Compile Include="DisconnectedEventArgs.cs" />
@@ -67,7 +68,7 @@
     <Compile Include="ImportedCode\JsonParser.cs" />
     <Compile Include="ImportedCode\JsonSerializer.cs" />
     <Compile Include="ImportedCode\ProxyFactory.cs" />
-    <Compile Include="RpcClient.cs" />
+    <Compile Include="ReconnectingRpcClient.cs" />
     <Compile Include="Rpc\DelegatingCallHandler.cs" />
     <Compile Include="Rpc\IRpcMessageWriter.cs" />
     <Compile Include="Rpc\IDelegateProvider.cs" />
@@ -99,10 +100,10 @@
     <Compile Include="IRpcClient.cs" />
     <Compile Include="Channel\ChannelMessagePipeline.cs" />
     <Compile Include="SingleConnectionRpcClient.cs" />
-    <Compile Include="Transport\ReliableConnectionAgent.cs" />
+    <Compile Include="Transport\ConnectionProvider.cs" />
     <Compile Include="Channel\IChannelStream.cs" />
     <Compile Include="Channel\IEndpointClient.cs" />
-    <Compile Include="Transport\IReliableConnectionAgent.cs" />
+    <Compile Include="Transport\IConnectionProvider.cs" />
     <Compile Include="Transport\NamedPipes\NamedPipeEndpointClient.cs" />
     <Compile Include="Rpc\RpcRequestHandler.cs" />
     <Compile Include="Rpc\RequestToken.cs" />

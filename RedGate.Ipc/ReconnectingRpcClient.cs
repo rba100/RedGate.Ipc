@@ -4,16 +4,14 @@ using System.Reflection;
 
 using RedGate.Ipc.ImportedCode;
 using RedGate.Ipc.Json;
-using RedGate.Ipc.NamedPipes;
 using RedGate.Ipc.Rpc;
-using RedGate.Ipc.Tcp;
 
 namespace RedGate.Ipc
 {
-    public class RpcClient : IRpcClient
+    public class ReconnectingRpcClient : IRpcClient
     {
         private readonly IDelegateProvider m_DelegateProvider;
-        private readonly IReliableConnectionAgent m_ReliableConnectionAgent;
+        private readonly IConnectionProvider m_ConnectionProvider;
         private readonly IJsonSerializer m_JsonSerializer;
 
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
@@ -21,36 +19,18 @@ namespace RedGate.Ipc
 
         public int ConnectionTimeoutMs { get; set; } = 6000;
 
-        public long ConnectionRefreshCount => m_ReliableConnectionAgent.ConnectionRefreshCount;
+        public long ConnectionRefreshCount => m_ConnectionProvider.ConnectionRefreshCount;
 
-        internal RpcClient(
+        internal ReconnectingRpcClient(
             IDelegateProvider delegateProvider,
-            IReliableConnectionAgent reliableConnectionAgent)
+            IConnectionProvider connectionProvider)
         {
             if (delegateProvider == null) throw new ArgumentNullException(nameof(delegateProvider));
-            if (reliableConnectionAgent == null) throw new ArgumentNullException(nameof(reliableConnectionAgent));
+            if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
 
             m_DelegateProvider = delegateProvider;
-            m_ReliableConnectionAgent = reliableConnectionAgent;
+            m_ConnectionProvider = connectionProvider;
             m_JsonSerializer = new TinyJsonSerializer();
-        }
-
-        public static IRpcClient CreateNamedPipeClient(string pipeName)
-        {
-            var namedPipesClient = new NamedPipeEndpointClient(pipeName);
-            var typeResolver = new DelegateProvider();
-            var connectionFactory = new ConnectionFactory(typeResolver);
-            var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()));
-            return new RpcClient(typeResolver, clientAgent);
-        }
-
-        public static IRpcClient CreateTcpClient(string hostname, int portNumber)
-        {
-            var tcpProvider = new TcpEndpointClient(portNumber, hostname);
-            var typeResolver = new DelegateProvider();
-            var connectionFactory = new ConnectionFactory(typeResolver);
-            var clientAgent = new ReliableConnectionAgent(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()));
-            return new RpcClient(typeResolver, clientAgent);
         }
 
         public T CreateProxy<T>()
@@ -82,14 +62,14 @@ namespace RedGate.Ipc
 
         private object HandleCallReconnectOnFailure(MethodInfo methodInfo, object[] args)
         {
-            if (m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, $"The underlying {nameof(RpcClient)} was disposed.");
+            if (m_IsDisposed) throw new ObjectDisposedException(typeof(ReconnectingRpcClient).FullName, $"The underlying {nameof(ReconnectingRpcClient)} was disposed.");
             var request = new RpcRequest(
                     Guid.NewGuid().ToString(),
                     methodInfo.DeclaringType.AssemblyQualifiedName,
                     methodInfo.GetRpcSignature(), 
                     args.Select(m_JsonSerializer.Serialize).ToArray());
-            var connection = m_ReliableConnectionAgent.TryGetConnection(ConnectionTimeoutMs);
-            if (m_IsDisposed) throw new ObjectDisposedException(typeof(RpcClient).FullName, $"The underlying {nameof(RpcClient)} was disposed.");
+            var connection = m_ConnectionProvider.TryGetConnection(ConnectionTimeoutMs);
+            if (m_IsDisposed) throw new ObjectDisposedException(typeof(ReconnectingRpcClient).FullName, $"The underlying {nameof(ReconnectingRpcClient)} was disposed.");
             if (connection == null) throw new ChannelFaultedException("Timed out trying to connect");
             var response = connection.RpcMessageBroker.Send(request);
             if (methodInfo.ReturnType == typeof(void)) return null;
@@ -104,7 +84,7 @@ namespace RedGate.Ipc
         public void Dispose()
         {
             m_IsDisposed = true;
-            m_ReliableConnectionAgent?.Dispose();
+            m_ConnectionProvider?.Dispose();
         }
     }
 }

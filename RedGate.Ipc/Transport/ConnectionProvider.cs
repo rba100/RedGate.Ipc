@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace RedGate.Ipc
 {
-    public class ReliableConnectionAgent : IReliableConnectionAgent
+    public class ConnectionProvider : IConnectionProvider
     {
         // Dependencies
         private readonly Func<IConnection> m_GetConnection;
@@ -25,7 +25,7 @@ namespace RedGate.Ipc
 
         public long ConnectionRefreshCount => m_ConnectionRefreshCount;
 
-        public ReliableConnectionAgent(Func<IConnection> getConnection)
+        public ConnectionProvider(Func<IConnection> getConnection)
         {
             m_GetConnection = getConnection;
             m_TryGetConnectionWaitHandles = new WaitHandle[]
