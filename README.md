@@ -2,7 +2,7 @@
 
 Provides full duplex inter-process communication to .NET processes using a client-server model.
 
-## Simple example
+## Example
 
 From the server side
 
@@ -48,8 +48,13 @@ expect for backwards compatibility. Aliases are a substring match from the start
 
 	var builder = new ServiceHostBuilder();
 	builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-	builder.Register<MySoftware.Server.ISomeInterface>(new ServerImplementation());
-	builder.RegisterAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
+	builder.AddDelegateFactory(GetHandler);
+	builder.AddTypeAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
+
+	private object GetHandler(Type delegateType)
+	{
+        return delegateType == typeof(MySoftware.Server.ISomeInterface) ? new ServerImplementation() : null;
+	}
 
 In the above example, a client interface that is interpreted as `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
 (or any other interface starting with `MySoftware.Client.ISomeInterface`) would be serviced by `ServerImplementation()`.
