@@ -5,18 +5,11 @@ namespace RedGate.Ipc
     public interface IDelegateRegistrar
     {
         /// <summary>
-        /// Regesters a concrete implementation of T to be used when remote parties create and use proxies of T.
-        /// </summary>
-        /// <typeparam name="T">Must be an interface.</typeparam>
-        /// <param name="implementation">Must implement T.</param>
-        void Register<T>(object implementation);
-
-        /// <summary>
         /// The delegateFactory will be called once per type per connection
         /// and the result cached for that connection. It will not be disposed
         /// when the connection is disposed.
         /// </summary>
-        void RegisterDi(Func<Type, object> delegateFactory);
+        void AddDelegateFactory(Func<Type, object> delegateFactory);
 
         /// <summary>
         /// When a functionally identical interface has been declared in another assembly
@@ -28,6 +21,6 @@ namespace RedGate.Ipc
         /// </summary>
         /// <param name="alias">The alias, i.e. all or part of an assemblyQualifiedName that Type.GetType() would reject.</param>
         /// <param name="interfaceType">The interface type to map the alias to.</param>
-        void RegisterAlias(string alias, Type interfaceType);
+        void AddTypeAlias(string alias, Type interfaceType);
     }
 }

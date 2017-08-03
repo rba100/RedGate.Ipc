@@ -8,7 +8,7 @@ From the server side
 
     var builder = new ServiceHostBuilder();
     builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-    builder.Register<ISomeInterface>(new ServerImplementation());
+    builder.AddDelegateFactory(type => type == typeof(ISomeInterface) ? new ServerImplementation() : null);
 
     var host = builder.Create();
     // listening
@@ -24,6 +24,7 @@ From the client side
     }
 
 Methods called on a client side proxy will sent to the server and executed on the registered delegate (`ServerImplementation` in this case).
+The factory method provided will be called once per connection and the delegate handler cached until disconnection.
 
 ## Exceptions
 
@@ -37,36 +38,6 @@ Consumers can override `ChannelFaultedException` with an exception type of their
 `client.CreateProxy<ISomeInterface,MyPreferredException>()`. This can make exception handling easier
 in the consuming architecture. `ContractMismatchException` cannot be overridden, but should hopefully be
 a very exceptional case during development or with backwards compatibility.
-
-## Registering service implementations on the server
-
-In the simple example, a concrete object is registered and this same instance will be used to satisfy all
-requests.
-
-As an alternative strategy consumers can pass a dependency injector or factory method which will create
-service delegates on demand, scoped to individual connected clients.
-
-	public void StartServer()
-	{
-        var serviceHostBuilder = new ServiceHostBuilder();
-        serviceHostBuilder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-        serviceHostBuilder.RegisterDi(GetDelegate);
-
-        _serviceHost = serviceHostBuilder.Create();
-	}
-
-    public void StopServer()
-	{
-        _serviceHost.Dispose();
-	}
-
-	public object GetDelegate(Type delegateType)
-	{
-        if(delegateType == typeof(ISomeInterface)) return new ConnectionScopedHandler();
-        return null; // return null if cannot satisfy delegate request.
-	}
-
-Under consideration: automatic disposing of `IDisposable` when connections disconnect.
 
 ## API Versioning
 
@@ -85,7 +56,7 @@ In the above example, a client interface that is interpreted as `MySoftware.Clie
 It is obviously important that the interfaces are functionally identical or an `ContractMismatchException` will be thrown.
 
 Note: `RegisterAlias` maps a name to an *interface type*. Consumers must also use `Register` to map that interface type
-to an *implementation* as has been done in the example above, or by supplying a delegate factory.
+to an *implementation* as has been done in the example.
 
 ## Full duplex
 

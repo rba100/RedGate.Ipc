@@ -14,7 +14,6 @@ namespace RedGate.Ipc
 
         public ServiceHost(
             IEnumerable<IEndpoint> endpoints,
-            IEnumerable<KeyValuePair<Type, object>> delegates,
             IEnumerable<Func<Type,object>> delegateFactories,
             IEnumerable<KeyValuePair<string,Type>> interfaceAliases,
             IEnumerable<ClientConnectedEventHandler> handlers)
@@ -22,19 +21,14 @@ namespace RedGate.Ipc
             m_Endpoints = new List<IEndpoint>(endpoints);
             IDelegateProvider delegateProvider = new DelegateProvider();
 
-            foreach (var pair in delegates)
-            {
-                delegateProvider.Register(pair.Key, pair.Value);
-            }
-
             foreach (var factory in delegateFactories)
             {
-                delegateProvider.RegisterDi(factory);
+                delegateProvider.AddDelegateFactory(factory);
             }
 
             foreach (var pair in interfaceAliases)
             {
-                delegateProvider.RegisterAlias(pair.Key, pair.Value);
+                delegateProvider.AddTypeAlias(pair.Key, pair.Value);
             }
 
             foreach (var handler in handlers)

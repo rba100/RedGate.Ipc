@@ -25,19 +25,14 @@ namespace RedGate.Ipc
             return new ReconnectingRpcClient(m_DelegateProvider, connectionProvider);
         }
 
-        public void Register<T>(object implementation)
+        public void AddDelegateFactory(Func<Type, object> delegateFactory)
         {
-            m_DelegateProvider.Register<T>(implementation);
+            m_DelegateProvider.AddDelegateFactory(delegateFactory);
         }
 
-        public void RegisterDi(Func<Type, object> delegateFactory)
+        public void AddTypeAlias(string alias, Type interfaceType)
         {
-            m_DelegateProvider.RegisterDi(delegateFactory);
-        }
-
-        public void RegisterAlias(string alias, Type interfaceType)
-        {
-            m_DelegateProvider.RegisterAlias(alias, interfaceType);
+            m_DelegateProvider.AddTypeAlias(alias, interfaceType);
         }
     }
 }

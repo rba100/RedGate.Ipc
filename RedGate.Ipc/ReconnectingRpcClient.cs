@@ -45,19 +45,14 @@ namespace RedGate.Ipc
             return s_ProxyFactory.Create<T>(callHandler);
         }
 
-        public void Register<T>(object implementation)
+        public void AddDelegateFactory(Func<Type, object> delegateFactory)
         {
-            m_DelegateProvider.Register<T>(implementation);
+            m_DelegateProvider.AddDelegateFactory(delegateFactory);
         }
 
-        public void RegisterDi(Func<Type, object> delegateFactory)
+        public void AddTypeAlias(string assemblyQualifiedName, Type type)
         {
-            m_DelegateProvider.RegisterDi(delegateFactory);
-        }
-
-        public void RegisterAlias(string assemblyQualifiedName, Type type)
-        {
-            m_DelegateProvider.RegisterAlias(assemblyQualifiedName, type);
+            m_DelegateProvider.AddTypeAlias(assemblyQualifiedName, type);
         }
 
         private object HandleCallReconnectOnFailure(MethodInfo methodInfo, object[] args)
