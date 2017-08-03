@@ -16,6 +16,7 @@ From the server side
 	// closed
 
 From the client side
+
     using(var client = new ClientBuildlr().ConnectToNamedPipe("my-service-name")))
     {
         var proxy = client.CreateProxy<ISomeInterface>()
