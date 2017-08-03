@@ -17,7 +17,7 @@ From the server side
 
 From the client side
 
-    using(var client = new ClientBuildlr().ConnectToNamedPipe("my-service-name")))
+    using(var client = new ClientBuilder().ConnectToNamedPipe("my-service-name")))
     {
         var proxy = client.CreateProxy<ISomeInterface>()
         proxy.DoThingOnServer();
