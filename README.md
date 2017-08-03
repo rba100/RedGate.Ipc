@@ -98,10 +98,12 @@ throw `ChannelFaultedException` and attempt no reconnection in the event of disc
 
 On the client
 
-    using(var client = ClientFactory.ConnectToNamedPipe("my-service-name")))
+    var builder = new ClientBuilder();
+	builder.Register<ICallback>(new ClientSideHandler());
+
+    using(var client = builder.ConnectToNamedPipe("my-service-name")))
     {
-        client.Register<ICallback>(new ClientSideHandler());
-        ...
+        // client can handle server requests as soon as connection is established.
     }
 
 On the server
