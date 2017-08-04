@@ -27,7 +27,8 @@ namespace RedGate.Ipc.Tcp
             if (m_Worker != null) return;
             m_Worker = new Thread(Worker)
             {
-                Name = "TcpEndpoint Listener"
+                Name = "TcpEndpoint Listener",
+                IsBackground = true
             };
             m_Worker.Start();
         }

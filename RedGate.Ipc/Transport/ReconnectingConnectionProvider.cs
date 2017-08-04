@@ -65,7 +65,10 @@ namespace RedGate.Ipc
 
         private void AsyncReconnect()
         {
-            var reconnectThread = new Thread(ReconnectLoop);
+            var reconnectThread = new Thread(ReconnectLoop)
+            {
+                IsBackground = true
+            };
             reconnectThread.Start();
         }
 

@@ -32,7 +32,8 @@ namespace RedGate.Ipc.NamedPipes
             {
                 m_Worker = new Thread(Worker)
                 {
-                    Name = "NamedPipeEndpoint Listener"
+                    Name = "NamedPipeEndpoint Listener",
+                    IsBackground = true
                 };
                 m_Worker.Start();
             }
