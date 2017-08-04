@@ -55,10 +55,15 @@ namespace RedGate.Ipc.Channel
                     Dispose();
                     return;
                 }
-                ThreadPool.QueueUserWorkItem(o =>
-                {
-                    m_InboundHandler.Handle(channelMessage);
-                });
+
+                // Serious performance questions to be had here
+                // ThreadPool can be very slow if the handler ends up invoking something on the duplex
+                // channel.
+                // Manual threads result in less contention in certain cases but have unbounded overhead if tonnes of messages come it at once.
+
+                //new Thread(() => m_InboundHandler.Handle(channelMessage)).Start();
+
+                ThreadPool.QueueUserWorkItem(o => m_InboundHandler.Handle(channelMessage));
             }
         }
 

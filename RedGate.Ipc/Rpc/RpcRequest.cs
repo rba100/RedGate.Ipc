@@ -14,6 +14,11 @@ namespace RedGate.Ipc.Rpc
             Arguments = arguments;
         }
 
+        public RpcRequest(string interfaceName, string methodSignature, string[] arguments)
+            : this(Guid.NewGuid().ToString(), interfaceName, methodSignature, arguments)
+        {
+        }
+
         public string QueryId { get; }
         public string Interface { get; }
 

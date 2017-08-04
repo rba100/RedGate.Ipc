@@ -116,6 +116,10 @@ namespace RedGate.Ipc.Channel
                 m_Stream.Write(buffer, offset, count);
                 m_Stream.Flush();
             }
+            catch (OperationCanceledException e)
+            {
+                throw OnFailure(e.Message);
+            }
             catch (IOException e)
             {
                 throw OnFailure(e.Message);
