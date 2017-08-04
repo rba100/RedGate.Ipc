@@ -8,17 +8,6 @@ namespace RedGate.Ipc
 {
     public class Connection : IConnection
     {
-        /// <summary>
-        /// The connection currently being serviced. This property should only be used by
-        /// request handlers consumed by a ServiceManager or RpcClient.
-        /// </summary>
-        public static IConnection RequestHandlerConnection
-        {
-            get { return s_RequestHandlerConnectionThreadStatic; }
-            internal set { s_RequestHandlerConnectionThreadStatic = value; }
-        }
-        [ThreadStatic] private static IConnection s_RequestHandlerConnectionThreadStatic;
-
         private readonly List<IDisposable> m_Disposables;
 
         private volatile bool m_Disposed;

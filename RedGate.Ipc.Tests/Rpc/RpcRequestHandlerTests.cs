@@ -51,28 +51,6 @@ namespace RedGate.Ipc.Tests.Rpc
         }
 
         [Test]
-        public void HandleSetsThreadStaticVariable()
-        {
-            var serialiser = MockRepository.GenerateStub<IJsonSerializer>();
-            var connection = MockRepository.GenerateStub<IConnection>();
-            var requestDelegate = MockRepository.GenerateStub<ITestInterface>();
-
-            var typeResolver = MockRepository.GenerateStub<IDelegateProvider>();
-            typeResolver.Stub(t => t.Get("TypeName")).Return(requestDelegate);
-
-            var request = new RpcRequest("id", "TypeName", "VoidCall", new string[0]);
-
-            var rpcRequestHandler = new RpcRequestHandler(typeResolver, serialiser)
-            {
-                OwningConnection = connection
-            };
-
-            requestDelegate.Stub(h => h.VoidCall()).Do(new Action(() => Assert.AreSame(connection, Connection.RequestHandlerConnection)));
-            Assert.Null(Connection.RequestHandlerConnection);
-            rpcRequestHandler.Handle(request);
-        }
-
-        [Test]
         public void HandlePolymorphicMethods()
         {
             var serialiser = MockRepository.GenerateStub<IJsonSerializer>();

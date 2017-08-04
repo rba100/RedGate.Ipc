@@ -74,7 +74,6 @@ namespace RedGate.Ipc.Rpc
 
             try
             {
-                Connection.RequestHandlerConnection = OwningConnection;
                 var returnValue = methodType.Invoke(requestDelegate, arguments);
 
                 if (methodType.ReturnType == typeof(void))
