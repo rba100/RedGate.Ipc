@@ -22,6 +22,6 @@ namespace RedGate.Ipc
 
         IServiceHost Create();
 
-        event ClientConnectedEventHandler ClientConnected;
+        void AddClientConnectedHandler(ClientConnectedEventHandler handler);
     }
 }

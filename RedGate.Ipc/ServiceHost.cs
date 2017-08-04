@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+
 using RedGate.Ipc.Channel;
 using RedGate.Ipc.Rpc;
 
@@ -12,7 +12,7 @@ namespace RedGate.Ipc
 
         private event ClientConnectedEventHandler ClientConnected = delegate { };
 
-        public ServiceHost(
+        internal ServiceHost(
             IEnumerable<IEndpoint> endpoints,
             IDelegateCollection delegateCollection,
             IEnumerable<ClientConnectedEventHandler> handlers)

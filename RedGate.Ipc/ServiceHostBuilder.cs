@@ -7,28 +7,13 @@ namespace RedGate.Ipc
 {
     public class ServiceHostBuilder : IServiceHostBuilder
     {
-
         private readonly List<IEndpoint> m_Endpoints = new List<IEndpoint>();
-
         private readonly IDelegateCollection m_DelegateCollection = new DelegateCollection();
-        
         private readonly List<ClientConnectedEventHandler> m_ClientConnectedEventHandlers = new List<ClientConnectedEventHandler>();
 
         public void AddEndpoint(IEndpoint endpoint)
         {
             m_Endpoints.Add(endpoint);
-        }
-
-        public event ClientConnectedEventHandler ClientConnected
-        {
-            add
-            {
-                m_ClientConnectedEventHandlers.Add(value);
-            }
-            remove
-            {
-                m_ClientConnectedEventHandlers.Remove(value);
-            }
         }
 
         public IServiceHost Create()
@@ -67,6 +52,11 @@ namespace RedGate.Ipc
                 new KeyValuePair<Type, Func<object, object>>(
                     callbackType,
                     o => serviceFactory((TClientCallback)o)));
+        }
+
+        public void AddClientConnectedHandler(ClientConnectedEventHandler handler)
+        {
+            m_ClientConnectedEventHandlers.Add(handler);
         }
     }
 }
