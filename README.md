@@ -90,4 +90,4 @@ On the server
 
 When a client attempts to invoke a method on `ITestInterface`, the framework will create a proxy for `ICallback` which the server can use to initiate communications and push things to the client asynchonously.
 
-Note: Whilst client-side proxies will attempt reconnect after failure, server-side callback proxies will only use the connection that will be routed the the service delegate whose factory invocation it was passed to. The callback will therefore throw `ChannelFaultedException` immediately if it's used after the client has disconnected.
+Note: Whilst client-side proxies will attempt to reconnect after failure, server-side callback proxies are scoped to a single connection, which is guarenteed to be the same connection that invokes the service delegate made in the factory invocation.
