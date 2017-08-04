@@ -6,22 +6,19 @@ namespace RedGate.Ipc.Rpc
 {
     public delegate void DisconnectedEventHandler();
 
-    internal class RpcMessageBroker : IRpcMessageBroker
+    public class RpcMessageBroker : IRpcMessageBroker
     {
         private readonly Dictionary<string, RequestToken> m_PendingQueries
             = new Dictionary<string, RequestToken>();
 
         private readonly IRpcMessageWriter m_RpcMessageWriter;
-        private readonly IRpcRequestHandler m_RpcRequestHandler;
 
         private readonly ManualResetEvent m_CancellationToken = new ManualResetEvent(false);
 
         internal RpcMessageBroker(
-            IRpcMessageWriter messageWriter,
-            IRpcRequestHandler rpcRequestHandler)
+            IRpcMessageWriter messageWriter)
         {
             m_RpcMessageWriter = messageWriter;
-            m_RpcRequestHandler = rpcRequestHandler;
         }
 
         public RpcResponse Send(RpcRequest request)
@@ -60,29 +57,6 @@ namespace RedGate.Ipc.Rpc
         {
             m_PendingQueries[request.QueryId] = requestToken;
             m_RpcMessageWriter.Write(request);
-        }
-
-        public void HandleInbound(RpcRequest request)
-        {
-            RpcResponse rpcResponse = null;
-            RpcException rpcException = null;
-            try
-            {
-                rpcResponse = m_RpcRequestHandler.Handle(request);
-            }
-            catch (Exception exception)
-            {
-                rpcException = new RpcException(request.QueryId, exception);
-            }
-            try
-            {
-                if (rpcResponse != null) m_RpcMessageWriter.Write(rpcResponse);
-                if (rpcException != null) m_RpcMessageWriter.Write(rpcException);
-            }
-            catch (ChannelFaultedException)
-            {
-                // Other components will handle disconnection
-            }
         }
 
         public void HandleInbound(RpcResponse response)

@@ -10,7 +10,7 @@ namespace RedGate.Ipc
 {
     public class ReconnectingRpcClient : IRpcClient
     {
-        private readonly IDelegateProvider m_DelegateProvider;
+        private readonly IDelegateCollection m_DelegateCollection;
         private readonly IConnectionProvider m_ConnectionProvider;
         private readonly IJsonSerializer m_JsonSerializer;
 
@@ -21,16 +21,15 @@ namespace RedGate.Ipc
 
         public long ConnectionRefreshCount => m_ConnectionProvider.ConnectionRefreshCount;
 
-        internal ReconnectingRpcClient(
-            IDelegateProvider delegateProvider,
-            IConnectionProvider connectionProvider)
+        internal ReconnectingRpcClient(IDelegateCollection delegateCollection, IConnectionProvider connectionProvider)
         {
-            if (delegateProvider == null) throw new ArgumentNullException(nameof(delegateProvider));
+            if (delegateCollection == null) throw new ArgumentNullException(nameof(delegateCollection));
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
 
-            m_DelegateProvider = delegateProvider;
-            m_ConnectionProvider = connectionProvider;
             m_JsonSerializer = new TinyJsonSerializer();
+
+            m_DelegateCollection = delegateCollection;
+            m_ConnectionProvider = connectionProvider;
         }
 
         public T CreateProxy<T>()
@@ -47,12 +46,12 @@ namespace RedGate.Ipc
 
         public void AddDelegateFactory(Func<Type, object> delegateFactory)
         {
-            m_DelegateProvider.AddDelegateFactory(delegateFactory);
+            m_DelegateCollection.DependencyInjectors.Add(delegateFactory);
         }
 
         public void AddTypeAlias(string assemblyQualifiedName, Type type)
         {
-            m_DelegateProvider.AddTypeAlias(assemblyQualifiedName, type);
+            m_DelegateCollection.TypeAliases.Add(assemblyQualifiedName, type);
         }
 
         private object HandleCallReconnectOnFailure(MethodInfo methodInfo, object[] args)

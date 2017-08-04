@@ -7,32 +7,33 @@ namespace RedGate.Ipc
 {
     public class ClientBuilder : IClientBuilder
     {
-        private readonly IDelegateProvider m_DelegateProvider = new DelegateProvider();
+        private readonly IDelegateCollection m_DelegateCollection = new DelegateCollection();
 
         public IRpcClient ConnectToNamedPipe(string pipeName)
         {
             var namedPipesClient = new NamedPipeEndpointClient(pipeName);
-            var connectionFactory = new ConnectionFactory(m_DelegateProvider);
+            var connectionFactory = new ConnectionFactory(m_DelegateCollection);
             var connectionProvider = new ReconnectingConnectionProvider(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()));
-            return new ReconnectingRpcClient(m_DelegateProvider, connectionProvider);
+            return new ReconnectingRpcClient(m_DelegateCollection, connectionProvider);
         }
 
         public IRpcClient ConnectToTcpSocket(string hostname, int portNumber)
         {
             var tcpProvider = new TcpEndpointClient(portNumber, hostname);
-            var connectionFactory = new ConnectionFactory(m_DelegateProvider);
+            var connectionFactory = new ConnectionFactory(m_DelegateCollection);
             var connectionProvider = new ReconnectingConnectionProvider(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()));
-            return new ReconnectingRpcClient(m_DelegateProvider, connectionProvider);
+            return new ReconnectingRpcClient(m_DelegateCollection, connectionProvider);
         }
 
-        public void AddDelegateFactory(Func<Type, object> delegateFactory)
+        public void AddCallbackHandler<TCallback>(Func<TCallback> callbackFactory)
         {
-            m_DelegateProvider.AddDelegateFactory(delegateFactory);
+            Func<Type, object> wrapper = type => type == typeof(TCallback) ? (object) callbackFactory() : null;
+            m_DelegateCollection.DependencyInjectors.Add(wrapper);
         }
 
         public void AddTypeAlias(string alias, Type interfaceType)
         {
-            m_DelegateProvider.AddTypeAlias(alias, interfaceType);
+            m_DelegateCollection.TypeAliases.Add(alias, interfaceType);
         }
     }
 }

@@ -3,13 +3,13 @@ using RedGate.Ipc.Channel;
 
 namespace RedGate.Ipc.Rpc
 {
-    internal class RpcChannelMessageHandler : IChannelMessageHandler
+    internal class RpcResponseChannelMessageHandler : IChannelMessageHandler
     {
         private readonly IRpcMessageBroker m_RpcMessageBroker;
         private readonly IRpcMessageEncoder m_MessageEncoder;
 
-        public RpcChannelMessageHandler(
-            IRpcMessageBroker rpcMessageBroker, 
+        public RpcResponseChannelMessageHandler(
+            IRpcMessageBroker rpcMessageBroker,
             IRpcMessageEncoder messageEncoder)
         {
             if (rpcMessageBroker == null) throw new ArgumentNullException(nameof(rpcMessageBroker));
@@ -23,18 +23,14 @@ namespace RedGate.Ipc.Rpc
         {
             switch (message.Type())
             {
-                case ChannelMessageType.RpcRequest:
-                    var request = m_MessageEncoder.ToRequest(message);
-                    m_RpcMessageBroker.HandleInbound(request);
-                    return null; // Handled
                 case ChannelMessageType.RpcResponse:
                     var response = m_MessageEncoder.ToResponse(message);
                     m_RpcMessageBroker.HandleInbound(response);
                     return null; // Handled
-               case ChannelMessageType.RpcException:
+                case ChannelMessageType.RpcException:
                     var exception = m_MessageEncoder.ToException(message);
                     m_RpcMessageBroker.HandleInbound(exception);
-                    return null;
+                    return null; // Handled
                 default:
                     return message;  // Not handled
             }

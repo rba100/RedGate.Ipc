@@ -12,11 +12,20 @@ namespace RedGate.Ipc
     {
         private readonly IJsonSerializer m_JsonSerializer = new TinyJsonSerializer();
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
-        private readonly IConnection m_Connection;
+        private readonly IRpcMessageBroker m_MessageBroker;
 
-        public SingleConnectionRpcClient(IConnection connection)
+        public SingleConnectionRpcClient(IRpcMessageBroker messageBroker)
         {
-            m_Connection = connection;
+            m_MessageBroker = messageBroker;
+        }
+
+        public object CreateProxy(Type interfaceType)
+        {
+            return s_ProxyFactory.Create(
+                interfaceType,
+                new DelegatingCallHandler(
+                    HandleCallSingleConnection,
+                    ProxyDisposed));
         }
 
         public T CreateProxy<T>()
@@ -36,13 +45,13 @@ namespace RedGate.Ipc
 
         private object HandleCallSingleConnection(MethodInfo methodInfo, object[] args)
         {
-            if (!m_Connection.IsConnected) throw new ChannelFaultedException();
             var request = new RpcRequest(
                 Guid.NewGuid().ToString(),
                 methodInfo.DeclaringType.AssemblyQualifiedName,
                 methodInfo.GetRpcSignature(), 
                 args.Select(m_JsonSerializer.Serialize).ToArray());
-            var response = m_Connection.RpcMessageBroker.Send(request);
+
+            var response = m_MessageBroker.Send(request);
             if (methodInfo.ReturnType == typeof(void)) return null;
             return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
         }
@@ -54,7 +63,7 @@ namespace RedGate.Ipc
 
         public void Dispose()
         {
-            // No resources
+            // No resources, connection should be closed elsewhere.
         }
 
         public long ConnectionRefreshCount => 1;

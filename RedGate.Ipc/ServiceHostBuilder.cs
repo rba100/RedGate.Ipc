@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RedGate.Ipc.Channel;
+using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc
 {
@@ -9,8 +10,8 @@ namespace RedGate.Ipc
 
         private readonly List<IEndpoint> m_Endpoints = new List<IEndpoint>();
 
-        private readonly List<Func<Type, object>> m_DelegateFactories = new List<Func<Type, object>>();
-        private readonly Dictionary<string, Type> m_DelegateAliases = new Dictionary<string, Type>();
+        private readonly IDelegateCollection m_DelegateCollection = new DelegateCollection();
+        
         private readonly List<ClientConnectedEventHandler> m_ClientConnectedEventHandlers = new List<ClientConnectedEventHandler>();
 
         public void AddEndpoint(IEndpoint endpoint)
@@ -34,8 +35,7 @@ namespace RedGate.Ipc
         {
             var serviceHost = new ServiceHost(
                 m_Endpoints,
-                m_DelegateFactories,
-                m_DelegateAliases,
+                m_DelegateCollection,
                 m_ClientConnectedEventHandlers);
 
             return serviceHost;
@@ -43,12 +43,30 @@ namespace RedGate.Ipc
 
         public void AddDelegateFactory(Func<Type, object> delegateFactory)
         {
-            m_DelegateFactories.Add(delegateFactory);
+            m_DelegateCollection.DependencyInjectors.Add(delegateFactory);
         }
 
         public void AddTypeAlias(string alias, Type interfaceType)
         {
-            m_DelegateAliases.Add(alias, interfaceType);
+            m_DelegateCollection.TypeAliases.Add(alias, interfaceType);
+        }
+
+        public void AddDuplexDelegateFactory<TServiceContract, TClientCallback>(Func<TClientCallback, TServiceContract> serviceFactory) 
+        {
+            var serviceType = typeof(TServiceContract);
+            var callbackType = typeof(TClientCallback);
+
+            if (m_DelegateCollection.DuplexDelegateFactories.ContainsKey(serviceType))
+            {
+                throw new InvalidOperationException($"Duplicate factory for service '{serviceType.Name}'." +
+                                                    $" Only one factory per service type can be registered.");
+            }
+
+            m_DelegateCollection.DuplexDelegateFactories.Add(
+                serviceType,
+                new KeyValuePair<Type, Func<object, object>>(
+                    callbackType,
+                    o => serviceFactory((TClientCallback)o)));
         }
     }
 }

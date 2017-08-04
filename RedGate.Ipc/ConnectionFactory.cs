@@ -7,13 +7,11 @@ namespace RedGate.Ipc
 {
     public class ConnectionFactory : IConnectionFactory
     {
-        private readonly IDelegateProvider m_DelegateProvider;
+        private readonly IDelegateCollection m_DelegateCollection;
 
-        public ConnectionFactory(IDelegateProvider delegateProvider)
+        public ConnectionFactory(IDelegateCollection delegateCollection)
         {
-            if (delegateProvider == null) throw new ArgumentNullException(nameof(delegateProvider));
-
-            m_DelegateProvider = delegateProvider;
+            m_DelegateCollection = delegateCollection;
         }
 
         public IConnection Create(string connectionId, IChannelStream stream)
@@ -26,11 +24,13 @@ namespace RedGate.Ipc
 
             var rpcMessageEncoder = new RpcMessageEncoder(jsonSerialiser);
             var rpcMessageWriter = new RpcMessageWriter(channelMessageWriter, rpcMessageEncoder);
-            var rpcRequestHandler = new RpcRequestHandler(m_DelegateProvider, jsonSerialiser);
-            var rpcMessageBroker = new RpcMessageBroker(rpcMessageWriter, rpcRequestHandler);
-            var rpcMessageHandler = new RpcChannelMessageHandler(rpcMessageBroker, rpcMessageEncoder);
-
-            var pipeline = new ChannelMessagePipeline(new[] { rpcMessageHandler });
+            var rpcMessageBroker = new RpcMessageBroker(rpcMessageWriter);
+            var delegateProvider = new DuplexDelegateProvider(m_DelegateCollection, rpcMessageBroker);
+            var rpcRequestHandler = new RpcRequestHandler(delegateProvider, jsonSerialiser);
+            
+            var rpcResponseMessageHandler = new RpcResponseChannelMessageHandler(rpcMessageBroker, rpcMessageEncoder);
+            var rpcRequestMessageHandler = new RpcRequestChannelMessageHandler(rpcRequestHandler, rpcMessageEncoder, rpcMessageWriter);
+            var pipeline = new ChannelMessagePipeline(new IChannelMessageHandler[] { rpcResponseMessageHandler, rpcRequestMessageHandler });
             var channelMessageReader = new ChannelMessageReader(channelMessageStream, channelMessageSerializer, pipeline);
 
             var connection = new Connection(

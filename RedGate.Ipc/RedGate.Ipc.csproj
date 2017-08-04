@@ -72,7 +72,9 @@
     <Compile Include="ImportedCode\ProxyFactory.cs" />
     <Compile Include="IServiceHost.cs" />
     <Compile Include="ReconnectingRpcClient.cs" />
+    <Compile Include="Rpc\DelegateCollection.cs" />
     <Compile Include="Rpc\DelegatingCallHandler.cs" />
+    <Compile Include="Rpc\IDelegateCollection.cs" />
     <Compile Include="Rpc\IRpcMessageWriter.cs" />
     <Compile Include="Rpc\IDelegateProvider.cs" />
     <Compile Include="Rpc\RpcChannelMessageHandler.cs" />
@@ -80,6 +82,7 @@
     <Compile Include="Rpc\RpcExceptionBinding.cs" />
     <Compile Include="Rpc\RpcMessageWriter.cs" />
     <Compile Include="Rpc\RpcRequestBinding.cs" />
+    <Compile Include="Rpc\RpcRequestChannelMessageHandler.cs" />
     <Compile Include="Rpc\RpcResponseBinding.cs" />
     <Compile Include="ChannelFaultedException.cs" />
     <Compile Include="Channel\ChannelMessage.cs" />

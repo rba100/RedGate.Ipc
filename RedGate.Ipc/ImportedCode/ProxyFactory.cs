@@ -21,14 +21,14 @@ namespace RedGate.Ipc.ImportedCode
         /// <summary>
         /// Creates a proxy object for the given interface.
         /// </summary>
-        /// <typeparam name="T">Must be an interface.</typeparam>
+        /// <param name="interfaceType">
+        /// The interface to implement.
+        /// </param>
         /// <param name="callHandler">
         /// ICallHandler.HandleCall will be called on any method call on the proxy object.
         /// </param>
-        public T Create<T>(ICallHandler callHandler)
+        public object Create(Type interfaceType, ICallHandler callHandler)
         {
-            if (callHandler == null) throw new ArgumentNullException(nameof(callHandler));
-            var interfaceType = typeof(T);
             if (!interfaceType.IsInterface)
             {
                 throw new NotSupportedException("DynamicProxy can only generate proxies for interfaces.");
@@ -39,11 +39,25 @@ namespace RedGate.Ipc.ImportedCode
             {
                 if (!s_InterfaceToProxyCache.TryGetValue(interfaceType, out proxyType))
                 {
-                    proxyType = CreateInterfaceImplementation<T>();
+                    proxyType = CreateInterfaceImplementation(interfaceType);
                     s_InterfaceToProxyCache.Add(interfaceType, proxyType);
                 }
             }
-            return (T)Activator.CreateInstance(proxyType, callHandler);
+            return Activator.CreateInstance(proxyType, callHandler);
+        }
+
+        /// <summary>
+        /// Creates a proxy object for the given interface.
+        /// </summary>
+        /// <typeparam name="T">Must be an interface.</typeparam>
+        /// <param name="callHandler">
+        /// ICallHandler.HandleCall will be called on any method call on the proxy object.
+        /// </param>
+        public T Create<T>(ICallHandler callHandler)
+        {
+            if (callHandler == null) throw new ArgumentNullException(nameof(callHandler));
+            var interfaceType = typeof(T);
+            return (T) Create(interfaceType, callHandler);
         }
 
         private void InitialiseModuleBuilder()
@@ -84,9 +98,8 @@ namespace RedGate.Ipc.ImportedCode
             return typeBuilder;
         }
 
-        private Type CreateInterfaceImplementation<T>()
+        private Type CreateInterfaceImplementation(Type interfaceType)
         {
-            var interfaceType = typeof(T);
             var typeBuilder = CreateClassBuilder(interfaceType);
 
             // Add 'private readonly ICallHandler _callHandler'

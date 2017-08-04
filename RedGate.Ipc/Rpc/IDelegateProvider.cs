@@ -2,7 +2,7 @@
 
 namespace RedGate.Ipc.Rpc
 {
-    public interface IDelegateProvider : IDelegateRegistrar
+    public interface IDelegateProvider
     {
         object Get(string typeFullName);
         object Get(Type type);

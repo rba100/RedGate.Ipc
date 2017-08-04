@@ -13,8 +13,7 @@ namespace RedGate.Ipc.Tests.Rpc
         public void Broker_matches_messages_on_queryId()
         {
             var writer = MockRepository.GenerateStub<IRpcMessageWriter>();
-            var requestHandler = MockRepository.GenerateStub<IRpcRequestHandler>();
-            var broker = new RpcMessageBroker(writer, requestHandler);
+            var broker = new RpcMessageBroker(writer);
 
             var queryId = Guid.NewGuid().ToString();
 
@@ -35,8 +34,7 @@ namespace RedGate.Ipc.Tests.Rpc
         public void Broker_does_not_match_unrelated_queries()
         {
             var writer = MockRepository.GenerateStub<IRpcMessageWriter>();
-            var requestHandler = MockRepository.GenerateStub<IRpcRequestHandler>();
-            var broker = new RpcMessageBroker(writer, requestHandler);
+            var broker = new RpcMessageBroker(writer);
 
             var queryId1 = Guid.NewGuid().ToString();
             var queryId2 = Guid.NewGuid().ToString();
@@ -59,8 +57,7 @@ namespace RedGate.Ipc.Tests.Rpc
         public void Send_unblocks_on_query_resolution()
         {
             var writer = MockRepository.GenerateStub<IRpcMessageWriter>();
-            var requestHandler = MockRepository.GenerateStub<IRpcRequestHandler>();
-            var broker = new RpcMessageBroker(writer, requestHandler);
+            var broker = new RpcMessageBroker(writer);
             var queryId = Guid.NewGuid().ToString();
 
             var request = new RpcRequest(queryId, "Interface", "Method", new[] { "arg" });

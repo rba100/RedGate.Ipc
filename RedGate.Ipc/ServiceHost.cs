@@ -14,29 +14,17 @@ namespace RedGate.Ipc
 
         public ServiceHost(
             IEnumerable<IEndpoint> endpoints,
-            IEnumerable<Func<Type,object>> delegateFactories,
-            IEnumerable<KeyValuePair<string,Type>> interfaceAliases,
+            IDelegateCollection delegateCollection,
             IEnumerable<ClientConnectedEventHandler> handlers)
         {
             m_Endpoints = new List<IEndpoint>(endpoints);
-            IDelegateProvider delegateProvider = new DelegateProvider();
-
-            foreach (var factory in delegateFactories)
-            {
-                delegateProvider.AddDelegateFactory(factory);
-            }
-
-            foreach (var pair in interfaceAliases)
-            {
-                delegateProvider.AddTypeAlias(pair.Key, pair.Value);
-            }
 
             foreach (var handler in handlers)
             {
                 ClientConnected += handler;
             }
 
-            m_ConnectionFactory = new ConnectionFactory(delegateProvider);
+            m_ConnectionFactory = new ConnectionFactory(delegateCollection);
 
             foreach (var endpoint in m_Endpoints)
             {
