@@ -1,7 +1,7 @@
-﻿using System;
-using NUnit.Framework;
-using RedGate.Ipc.Json;
+﻿using RedGate.Ipc.Json;
 using RedGate.Ipc.Rpc;
+
+using NUnit.Framework;
 using Rhino.Mocks;
 
 namespace RedGate.Ipc.Tests.Rpc

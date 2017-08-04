@@ -25,9 +25,9 @@ namespace RedGate.Ipc
             return new ReconnectingRpcClient(m_DelegateCollection, connectionProvider);
         }
 
-        public void AddCallbackHandler<TCallback>(Func<TCallback> callbackFactory)
+        public void AddCallbackHandler<TCallback>(TCallback callback)
         {
-            Func<Type, object> wrapper = type => type == typeof(TCallback) ? (object) callbackFactory() : null;
+            Func<Type, object> wrapper = type => type == typeof(TCallback) ? (object) callback : null;
             m_DelegateCollection.DependencyInjectors.Add(wrapper);
         }
 

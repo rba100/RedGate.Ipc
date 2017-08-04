@@ -65,16 +65,11 @@ to an *implementation* as has been done in the example.
 
 ## Full duplex
 
-The server application can supply a `ClientConnected` event handler to obtain a handle to `IConnection`s when clients connect.
-Using this connection object, the server can create proxies to services running on the client.
-The important difference between the client-created and server-created proxies is that the client will attempt to reconnect
-to the server in the event of connection failure, such as when the service is restarting, but server-created proxies will immediately
-throw `ChannelFaultedException` and attempt no reconnection in the event of disconnection.
 
 On the client
 
     var builder = new ClientBuilder();
-	builder.Register<ICallback>(new ClientSideHandler());
+	builder.AddCallbackHandler<ICallback>(new Callback());
 
     using(var client = builder.ConnectToNamedPipe("my-service-name")))
     {
@@ -84,20 +79,13 @@ On the client
 On the server
 
     var builder = new ServiceHostBuilder();
-    builder.ClientConnected += OnClientConnected;
+    builder.AddDuplexDelegateFactory<ITestInterface, ICallback>(DuplexBuilder);
     ...
     
-    private void OnClientConnected(ConnectedEventArgs args)
+    private void DuplexBuilder(ICallback callback)
     {
-        var client = new SingleConnectionRpcClient(args.Connection);
-        var proxy = client.CreateProxy<ICallback>();
-        proxy.ClientCallback();
+	    // use or persist callback for later.
+		return new ServerImplementation();
     }
 
-## Naughty hacks
-
-WCF provides the static variable `OperationContext.Current.SessionId` so that delegates can distinguish connected parties.
-In this framework `Connection.RequestHandlerConnection.ConnectionId` can be used in the same way, but must only be called from the thread
-used to invoke the delegate. I.e. in the simple example the implementation of `ServerImplementation.DoThingOnServer` may read `Connection.RequestHandlerConnection` but if it spins off a thread, that new thread must not read the variable as it is `[ThreadStatic]`.
-
-Under consideration: removing this hack and providing a different mechanism for delegates to distinguish connected parties.
+When a client attempts to invoke a method on `ITestInterface`, the framework will create a proxy for `ICallback` which the server can use to initiate communications and push things to the client asynchonously.
