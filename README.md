@@ -85,7 +85,7 @@ On the server
     private void DuplexBuilder(ICallback callback)
     {
 	    // use or persist callback for later.
-		return new ServerImplementation();
+        return new ServerImplementation();
     }
 
 When a client attempts to invoke a method on `ITestInterface`, the framework will create a proxy for `ICallback` which the server can use to initiate communications and push things to the client asynchonously.
