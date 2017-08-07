@@ -71,6 +71,7 @@
     <Compile Include="ImportedCode\JsonSerializer.cs" />
     <Compile Include="ImportedCode\ProxyFactory.cs" />
     <Compile Include="IServiceHost.cs" />
+    <Compile Include="Logging\Logger.cs" />
     <Compile Include="ReconnectingRpcClient.cs" />
     <Compile Include="Rpc\DelegateCollection.cs" />
     <Compile Include="Rpc\DelegatingCallHandler.cs" />
