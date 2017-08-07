@@ -62,11 +62,11 @@ namespace RedGate.Ipc.Channel
                 // Manual threads result in less contention in certain cases but have unbounded overhead if tonnes of messages come it at once.
 
                 // We can use this if we really need to:
-                //var thread = new Thread(() => m_InboundHandler.Handle(channelMessage))
-                //{
-                //    IsBackground = true
-                //};
-                //thread.Start();
+                var thread = new Thread(() => m_InboundHandler.Handle(channelMessage))
+                {
+                    IsBackground = true
+                };
+                thread.Start();
 
                 // Otherwise this is fine for low concurrent service requests:
                 //ThreadPool.QueueUserWorkItem(o => m_InboundHandler.Handle(channelMessage));

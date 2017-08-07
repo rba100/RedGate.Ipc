@@ -16,13 +16,21 @@ namespace RedGate.Ipc.Channel
 
         public ChannelMessage Handle(ChannelMessage message)
         {
-            var passedMessage = message;
-            foreach (var handler in m_Handlers)
+            try
             {
-                passedMessage = handler.Handle(passedMessage);
-                if (passedMessage == null) break;
+                var passedMessage = message;
+                foreach (var handler in m_Handlers)
+                {
+                    passedMessage = handler.Handle(passedMessage);
+                    if (passedMessage == null) break;
+                }
+                return passedMessage;
             }
-            return passedMessage;
+            catch (Exception)
+            {
+                // TODO Logging
+                return null;
+            }
         }
     }
 }
