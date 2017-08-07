@@ -56,7 +56,15 @@ namespace RedGate.Ipc
             {
                 if (m_Connection == args.Connection)
                 {
-                    m_ConnectionWaitHandle.Reset();
+                    if (m_Disposed) return;
+                    try
+                    {
+                        m_ConnectionWaitHandle.Reset();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        return;
+                    }
                     m_Connection = null;
                     AsyncReconnect();
                 }
