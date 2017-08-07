@@ -33,9 +33,7 @@ namespace RedGate.Ipc.Rpc
                         token.Completed,
                         m_CancellationToken
                     }, TimeSpan.FromSeconds(15));
-
-                    m_PendingQueries.Remove(request.QueryId);
-
+                    lock (m_PendingQueries) m_PendingQueries.Remove(request.QueryId);
                     if (waitValue == 0)
                     {
                         if (token.Response != null) return token.Response;
@@ -55,37 +53,49 @@ namespace RedGate.Ipc.Rpc
 
         public void BeginRequest(RpcRequest request, RequestToken requestToken)
         {
-            m_PendingQueries[request.QueryId] = requestToken;
+            if (requestToken != null)
+            {
+                lock (m_PendingQueries) m_PendingQueries[request.QueryId] = requestToken;
+            }
             m_RpcMessageWriter.Write(request);
         }
 
         public void HandleInbound(RpcResponse response)
         {
-            RequestToken requestToken;
-            if (m_PendingQueries.TryGetValue(response.QueryId, out requestToken))
+            lock (m_PendingQueries)
             {
-                requestToken.Response = response;
-                try
+                if (m_PendingQueries.TryGetValue(response.QueryId, out RequestToken requestToken))
                 {
-                    requestToken.Completed.Set();
+                    requestToken.Response = response;
+                    try
+                    {
+                        requestToken.Completed.Set();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                    }
+                    m_PendingQueries.Remove(response.QueryId);
                 }
-                catch (ObjectDisposedException) { }
-                m_PendingQueries.Remove(response.QueryId);
             }
         }
 
         public void HandleInbound(RpcException message)
         {
-            RequestToken requestToken;
-            if (m_PendingQueries.TryGetValue(message.QueryId, out requestToken))
+            lock (m_PendingQueries)
             {
-                requestToken.Exception = message.Exception;
-                try
+                RequestToken requestToken;
+                if (m_PendingQueries.TryGetValue(message.QueryId, out requestToken))
                 {
-                    requestToken.Completed.Set();
+                    requestToken.Exception = message.Exception;
+                    try
+                    {
+                        requestToken.Completed.Set();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                    }
+                    m_PendingQueries.Remove(message.QueryId);
                 }
-                catch (ObjectDisposedException) { }
-                m_PendingQueries.Remove(message.QueryId);
             }
         }
 
