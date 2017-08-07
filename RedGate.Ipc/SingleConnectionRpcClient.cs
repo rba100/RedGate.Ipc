@@ -51,6 +51,14 @@ namespace RedGate.Ipc
                 methodInfo.GetRpcSignature(), 
                 args.Select(m_JsonSerializer.Serialize).ToArray());
 
+            var async = methodInfo.GetCustomAttributes(true)
+                .Any(a => a.GetType() == typeof(ProxyNonBlockingAttribute));
+
+            if (async)
+            {
+                m_MessageBroker.BeginRequest(request, null);
+                return null;
+            }
             var response = m_MessageBroker.Send(request);
             if (methodInfo.ReturnType == typeof(void)) return null;
             return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);

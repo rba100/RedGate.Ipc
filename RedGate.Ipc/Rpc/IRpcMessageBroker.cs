@@ -7,5 +7,6 @@ namespace RedGate.Ipc.Rpc
         RpcResponse Send(RpcRequest request);
         void HandleInbound(RpcResponse message);
         void HandleInbound(RpcException message);
+        void BeginRequest(RpcRequest request, RequestToken requestToken);
     }
 }

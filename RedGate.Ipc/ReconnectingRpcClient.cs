@@ -68,6 +68,17 @@ namespace RedGate.Ipc
 
             var connection = m_ConnectionProvider.TryGetConnection(ConnectionTimeoutMs);
             if (connection == null) throw new ChannelFaultedException("Unable to connect.");
+
+            var async = methodInfo.GetCustomAttributes(true)
+               .Any(a => a.GetType() == typeof(ProxyNonBlockingAttribute));
+
+            if (async)
+            {
+                Console.WriteLine("ASYNC!");
+                connection.RpcMessageBroker.BeginRequest(request, null);
+                return null;
+            }
+
             var response = connection.RpcMessageBroker.Send(request);
             if (methodInfo.ReturnType == typeof(void)) return null;
             return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);

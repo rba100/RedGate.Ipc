@@ -2,6 +2,9 @@
 {
     public interface ITestInterface
     {
+        [ProxyNonBlocking]
+        void AsyncVoidCall();
+
         void VoidCall();
 
         void Polymorphic(int a);

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
+using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc.ImportedCode
 {
@@ -57,7 +58,7 @@ namespace RedGate.Ipc.ImportedCode
         {
             if (callHandler == null) throw new ArgumentNullException(nameof(callHandler));
             var interfaceType = typeof(T);
-            return (T) Create(interfaceType, callHandler);
+            return (T)Create(interfaceType, callHandler);
         }
 
         private void InitialiseModuleBuilder()
@@ -113,9 +114,9 @@ namespace RedGate.Ipc.ImportedCode
 
             var interfaces = interfaceType.GetInterfaces().Union(new[] { interfaceType }).ToArray();
 
-            var properties = interfaces.SelectMany(i=> i.GetProperties());
-            var events = interfaces.SelectMany(i=> i.GetEvents());
-            var methods = interfaces.SelectMany(i=> i.GetMethods())
+            var properties = interfaces.SelectMany(i => i.GetProperties());
+            var events = interfaces.SelectMany(i => i.GetEvents());
+            var methods = interfaces.SelectMany(i => i.GetMethods())
                 .Where(m => !m.IsSpecialName && m.Name != "Dispose");
 
             foreach (var methodInfo in methods)
@@ -196,6 +197,17 @@ namespace RedGate.Ipc.ImportedCode
                 methodInfo.ReturnType,
                 parameters);
 
+            var isAsync = methodInfo.GetCustomAttributes(true).Any(a => a.GetType() == typeof(ProxyNonBlockingAttribute));
+            if (isAsync)
+            {
+                if (methodInfo.ReturnType != typeof(void))
+                {
+                    throw new InvalidOperationException(
+                        $"Cannot create asynchronous proxy for '{methodInfo.DeclaringType}.{methodInfo.Name}' because it does not return null.");
+                }
+                var cac = typeof(ProxyNonBlockingAttribute).GetConstructor(Type.EmptyTypes);
+                method.SetCustomAttribute(new CustomAttributeBuilder(cac, new object[0]));
+            }
             var g = method.GetILGenerator();
 
             // var args = new object[parameters.Length]
