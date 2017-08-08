@@ -1,10 +1,10 @@
-# RedGate.Ipc
+# RedGate.Ipcserver 
 
 Provides full duplex inter-process communication to .NET processes using a client-server model.
 
 ## Example
 
-From the server side
+From the server-side
 
     var builder = new ServiceHostBuilder();
     builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
@@ -21,7 +21,7 @@ From the server side
         return null;
     }
 
-From the client side
+From the client-side
 
     var clientBuilder = new ClientBuilder();
     using(var client = clientBuilder.ConnectToNamedPipe("my-service-name")))
@@ -30,7 +30,7 @@ From the client side
         proxy.DoThingOnServer();
     }
 
-Methods called on a client side proxy will sent to the server and executed on the registered delegate (`ServerImplementation` in this case).
+Methods called on a client-side proxy will sent to the server and executed on the registered delegate (`ServerImplementation` in this case).
 The factory method provided will be called once per connection and the delegate handler cached until disconnection.
 
 ## Full duplex
@@ -57,13 +57,13 @@ On the server
         return new ServerImplementation();
     }
 
-When a client attempts to invoke a method on `ITestInterface`, the framework will create a proxy for `ICallback` which the server can use to initiate communications and push things to the client asynchonously.
+When a client attempts to invoke a method on `ITestInterface`, the service host will create a proxy for `ICallback` and call the registered factory method to obtain a handler for `ITestInterface`.
 
-### Remarks
+#### Remarks
 
-Server-side callback proxies are scoped to a single connection, which is guarenteed to be the same connection routed to the service delegate the consumer returns in the factory. When the client disconnects, the proxy with throw `ChannelFaultedException` when a method is called.
+The provided duplex builder method will be called at most once per connection, providing a new callback scoped to that connection. The delegate method provided by the consumer should create be a new instance of the delegate object for each connection, if any guarentee is required that the delegate and callback are scoped to the same connected client.
 
-The behaviour on the client side differs in that both the proxy and the supplied callback are re-used accross reconnections.
+The behaviour on the client-side differs in connection failure and reconnection is performed silently (if it can be done within the timeout interval) which means client-side proxy instances and registered callback handlers are not scoped to a single connection.
 
 ## Exceptions
 
