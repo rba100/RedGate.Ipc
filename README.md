@@ -8,16 +8,23 @@ From the server side
 
     var builder = new ServiceHostBuilder();
     builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-    builder.AddDelegateFactory(type => type == typeof(ISomeInterface) ? new ServerImplementation() : null);
+    builder.AddDelegateFactory(DelegateFactory);
 
     var host = builder.Create();
     // listening
     host.Dispose();
-	// closed
+    // closed
+
+    private void DelegateFactory(Type type)
+    {
+        if(type == typeof(ISomeInterface)) return new ServerImplementation();
+        return null;
+    }
 
 From the client side
 
-    using(var client = new ClientBuilder().ConnectToNamedPipe("my-service-name")))
+    var clientBuilder = new ClientBuilder();
+    using(var client = clientBuilder.ConnectToNamedPipe("my-service-name")))
     {
         var proxy = client.CreateProxy<ISomeInterface>()
         proxy.DoThingOnServer();
@@ -25,6 +32,35 @@ From the client side
 
 Methods called on a client side proxy will sent to the server and executed on the registered delegate (`ServerImplementation` in this case).
 The factory method provided will be called once per connection and the delegate handler cached until disconnection.
+
+## Full duplex
+
+
+On the client
+
+    var builder = new ClientBuilder();
+    builder.AddCallbackHandler<ICallback>(new Callback());
+
+    using(var client = builder.ConnectToNamedPipe("my-service-name")))
+    {
+        // client can handle server requests as soon as connection is established.
+    }
+
+On the server
+
+    var builder = new ServiceHostBuilder();
+    builder.AddDuplexDelegateFactory<ITestInterface, ICallback>(DuplexBuilder);
+    ...
+    
+    private void DuplexBuilder(ICallback callback)
+    {
+        // use or persist callback for later.
+        return new ServerImplementation();
+    }
+
+When a client attempts to invoke a method on `ITestInterface`, the framework will create a proxy for `ICallback` which the server can use to initiate communications and push things to the client asynchonously.
+
+Note: Whilst client-side proxies will attempt to reconnect after failure, server-side callback proxies are scoped to a single connection, which is guarenteed to be the same connection that invokes the service delegate made in the factory invocation.
 
 ## Exceptions
 
@@ -46,15 +82,15 @@ This can cause a problem if the interface asked for by the client isn't the exac
 For example if the assembly version or namespace of the interface changes it will be necessary to indicate what aliases to
 expect for backwards compatibility. Aliases are a substring match from the start of the interface name.
 
-	var builder = new ServiceHostBuilder();
-	builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-	builder.AddDelegateFactory(GetHandler);
-	builder.AddTypeAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
+    var builder = new ServiceHostBuilder();
+    builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
+    builder.AddDelegateFactory(GetHandler);
+    builder.AddTypeAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
 
-	private object GetHandler(Type delegateType)
-	{
+    private object GetHandler(Type delegateType)
+    {
         return delegateType == typeof(MySoftware.Server.ISomeInterface) ? new ServerImplementation() : null;
-	}
+    }
 
 In the above example, a client interface that is interpreted as `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
 (or any other interface starting with `MySoftware.Client.ISomeInterface`) would be serviced by `ServerImplementation()`.
@@ -62,32 +98,3 @@ It is obviously important that the interfaces are functionally identical or an `
 
 Note: `RegisterAlias` maps a name to an *interface type*. Consumers must also use `Register` to map that interface type
 to an *implementation* as has been done in the example.
-
-## Full duplex
-
-
-On the client
-
-    var builder = new ClientBuilder();
-	builder.AddCallbackHandler<ICallback>(new Callback());
-
-    using(var client = builder.ConnectToNamedPipe("my-service-name")))
-    {
-        // client can handle server requests as soon as connection is established.
-    }
-
-On the server
-
-    var builder = new ServiceHostBuilder();
-    builder.AddDuplexDelegateFactory<ITestInterface, ICallback>(DuplexBuilder);
-    ...
-    
-    private void DuplexBuilder(ICallback callback)
-    {
-	    // use or persist callback for later.
-        return new ServerImplementation();
-    }
-
-When a client attempts to invoke a method on `ITestInterface`, the framework will create a proxy for `ICallback` which the server can use to initiate communications and push things to the client asynchonously.
-
-Note: Whilst client-side proxies will attempt to reconnect after failure, server-side callback proxies are scoped to a single connection, which is guarenteed to be the same connection that invokes the service delegate made in the factory invocation.
