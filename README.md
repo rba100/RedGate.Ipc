@@ -35,7 +35,6 @@ The factory method provided will be called once per connection and the delegate 
 
 ## Full duplex
 
-
 On the client
 
     var builder = new ClientBuilder();
@@ -60,7 +59,11 @@ On the server
 
 When a client attempts to invoke a method on `ITestInterface`, the framework will create a proxy for `ICallback` which the server can use to initiate communications and push things to the client asynchonously.
 
-Note: Whilst client-side proxies will attempt to reconnect after failure, server-side callback proxies are scoped to a single connection, which is guarenteed to be the same connection that invokes the service delegate made in the factory invocation.
+### Remarks
+
+Server-side callback proxies are scoped to a single connection, which is guarenteed to be the same connection routed to the service delegate the consumer returns in the factory. When the client disconnects, the proxy with throw `ChannelFaultedException` when a method is called.
+
+The behaviour on the client side differs in that both the proxy and the supplied callback are re-used accross reconnections.
 
 ## Exceptions
 
@@ -84,10 +87,10 @@ expect for backwards compatibility. Aliases are a substring match from the start
 
     var builder = new ServiceHostBuilder();
     builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
-    builder.AddDelegateFactory(GetHandler);
+    builder.AddDelegateFactory(DelegateFactory);
     builder.AddTypeAlias("MySoftware.Client.ISomeInterface", typeof(MySoftware.Server.ISomeInterface));
 
-    private object GetHandler(Type delegateType)
+    private object DelegateFactory(Type delegateType)
     {
         return delegateType == typeof(MySoftware.Server.ISomeInterface) ? new ServerImplementation() : null;
     }
