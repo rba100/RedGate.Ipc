@@ -61,20 +61,20 @@ When a client attempts to invoke a method on `ITestInterface`, the service host 
 
 #### Remarks
 
-The provided duplex builder method will be called at most once per connection, providing a new callback scoped to that connection. The delegate method provided by the consumer should create a new instance of the delegate object for each connection, if any guarentee is required that the delegate and callback are scoped to the same connected client.
+The provided duplex builder method will be called at most once per connection, providing a new callback scoped to that connection. The factory method provided by the consumer should create a new instance of the delegate object for each connection, if any guarentee is required that the delegate and callback are scoped to the same connected client.
 
-The behaviour on the client-side differs in connection failure and reconnection is performed silently (if it can be done within the timeout interval) which means client-side proxy instances and registered callback handlers are not scoped to a single connection.
+The behaviour on the client-side differs in that reconnection after connection failure is performed silently (if it can be done within the timeout interval) which means client-side proxies and registered callback handlers are not scoped to a single connection. This may cause problems if the service keeps state about each connection which the client relies on.
 
 ## Exceptions
 
-Exceptions thrown by the server-side implementation will be thrown by the proxy. However in addition to any
-expected exception types, the proxy can also throw `ChannelFaultedException` if a connection could not be established
-within `client.ConnectionTimeoutMs` or if the client was disposed.
-In the event that a call cannot be satisfied by the connected server (e.g. there is no registered implementation)
-then a proxy can throw `ContractMismatchException`.
+If an unhandled exception is thrown by the server-side implementation it will be serialized and re-thrown on the client proxy. However in addition to any
+exception types consumers may be expecting, the proxy can also throw `ChannelFaultedException` if a connection could not be established
+within `client.ConnectionTimeoutMs` or if the `IRpcClient` was disposed.
+In the event that a call cannot be satisfied by the connected server (e.g. there is no registered implementation, or the interface declaration differs)
+then a proxy will throw `ContractMismatchException`.
 
 Consumers can override `ChannelFaultedException` with an exception type of their choice using
-`client.CreateProxy<ISomeInterface,MyPreferredException>()`. This can make exception handling easier
+`client.CreateProxy<ISomeInterface, MyPreferredException>()`. This can make exception handling easier
 in the consuming architecture. `ContractMismatchException` cannot be overridden, but should hopefully be
 a very exceptional case during development or with backwards compatibility.
 
@@ -98,6 +98,3 @@ expect for backwards compatibility. Aliases are a substring match from the start
 In the above example, a client interface that is interpreted as `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
 (or any other interface starting with `MySoftware.Client.ISomeInterface`) would be serviced by `ServerImplementation()`.
 It is obviously important that the interfaces are functionally identical or an `ContractMismatchException` will be thrown.
-
-Note: `RegisterAlias` maps a name to an *interface type*. Consumers must also use `Register` to map that interface type
-to an *implementation* as has been done in the example.
