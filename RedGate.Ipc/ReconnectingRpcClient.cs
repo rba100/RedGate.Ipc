@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
-
-using RedGate.Ipc.ImportedCode;
 using RedGate.Ipc.Json;
 using RedGate.Ipc.Proxy;
 using RedGate.Ipc.Rpc;
@@ -13,7 +10,7 @@ namespace RedGate.Ipc
     {
         private readonly IDelegateCollection m_DelegateCollection;
         private readonly IConnectionProvider m_ConnectionProvider;
-        private readonly IJsonSerializer m_JsonSerializer;
+        private IRpcRequestBridge m_RpcRequestBridge;
 
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
         private bool m_IsDisposed;
@@ -21,13 +18,12 @@ namespace RedGate.Ipc
         public int ConnectionTimeoutMs { get; set; } = 6000;
 
         public long ConnectionRefreshCount => m_ConnectionProvider.ConnectionRefreshCount;
+        private long m_LastConnectionId = -1;
 
         internal ReconnectingRpcClient(IDelegateCollection delegateCollection, IConnectionProvider connectionProvider)
         {
             if (delegateCollection == null) throw new ArgumentNullException(nameof(delegateCollection));
             if (connectionProvider == null) throw new ArgumentNullException(nameof(connectionProvider));
-
-            m_JsonSerializer = new TinyJsonSerializer();
 
             m_DelegateCollection = delegateCollection;
             m_ConnectionProvider = connectionProvider;
@@ -62,27 +58,14 @@ namespace RedGate.Ipc
             var interfaceName = methodInfo.DeclaringType?.AssemblyQualifiedName;
             if (interfaceName == null) throw new ContractMismatchException("Maybe loosen off on the generics a bit? There's only so much magic an API can be.");
 
-            var request = new RpcRequest(
-                interfaceName,
-                methodInfo.GetRpcSignature(),
-                args.Select(m_JsonSerializer.Serialize).ToArray());
-
             var connection = m_ConnectionProvider.TryGetConnection(ConnectionTimeoutMs);
             if (connection == null) throw new ChannelFaultedException("Unable to connect.");
-
-            var async = methodInfo.GetCustomAttributes(true)
-               .Any(a => a.GetType() == typeof(ProxyNonBlockingAttribute));
-
-            if (async)
+            if (m_LastConnectionId != ConnectionRefreshCount)
             {
-                Console.WriteLine("ASYNC!");
-                connection.RpcMessageBroker.BeginRequest(request, null);
-                return null;
+                m_RpcRequestBridge = new RpcRequestBridge(connection.RpcMessageBroker);
             }
 
-            var response = connection.RpcMessageBroker.Send(request);
-            if (methodInfo.ReturnType == typeof(void)) return null;
-            return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
+            return m_RpcRequestBridge.Call(methodInfo, args);
         }
 
         private void ProxyDisposed()

@@ -24,11 +24,13 @@ namespace RedGate.Ipc.Rpc
 
         /// <summary>
         /// E.g. 
-        /// int Add(int a, long b) => "Add_Int32_Int64"
-        /// int Add() => "Add"
+        /// "int Add(int a, long b)" => "Add_Int32_Int64"
+        /// "int Add()" => "Add"
+        /// </summary>
+        /// <remarks>
         /// Return type is not encoded as CLR doesn't have overrides that differ only by return type.
         /// Types are not fully qualified for extra compatability and/or bugs.
-        /// </summary>
+        /// </remarks>
         public string MethodSignature { get; }
 
         /// <summary>

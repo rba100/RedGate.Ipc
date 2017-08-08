@@ -1,23 +1,18 @@
 using System;
-using System.Linq;
-using System.Reflection;
-
 using RedGate.Ipc.ImportedCode;
-using RedGate.Ipc.Json;
 using RedGate.Ipc.Proxy;
 using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc
 {
-    public class SingleConnectionRpcClient : IRpcClient
+    internal class SingleConnectionRpcClient : IRpcClient
     {
-        private readonly IJsonSerializer m_JsonSerializer = new TinyJsonSerializer();
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
-        private readonly IRpcMessageBroker m_MessageBroker;
+        private readonly IRpcRequestBridge m_RpcRequestBridge;
 
-        public SingleConnectionRpcClient(IRpcMessageBroker messageBroker)
+        internal SingleConnectionRpcClient(IRpcRequestBridge rpcRequestBridge)
         {
-            m_MessageBroker = messageBroker;
+            m_RpcRequestBridge = rpcRequestBridge;
         }
 
         public object CreateProxy(Type interfaceType)
@@ -25,44 +20,23 @@ namespace RedGate.Ipc
             return s_ProxyFactory.Create(
                 interfaceType,
                 new DelegatingCallHandler(
-                    HandleCallSingleConnection,
+                    m_RpcRequestBridge.Call,
                     ProxyDisposed));
         }
 
         public T CreateProxy<T>()
         {
             return s_ProxyFactory.Create<T>(new DelegatingCallHandler(
-                HandleCallSingleConnection,
+                m_RpcRequestBridge.Call,
                 ProxyDisposed));
         }
 
         public T CreateProxy<T, TConnectionFailureExceptionType>() where TConnectionFailureExceptionType : Exception
         {
             return s_ProxyFactory.Create<T>(new DelegatingCallHandler(
-                HandleCallSingleConnection,
+                m_RpcRequestBridge.Call,
                 ProxyDisposed, 
                 typeof(TConnectionFailureExceptionType)));
-        }
-
-        private object HandleCallSingleConnection(MethodInfo methodInfo, object[] args)
-        {
-            var request = new RpcRequest(
-                Guid.NewGuid().ToString(),
-                methodInfo.DeclaringType.AssemblyQualifiedName,
-                methodInfo.GetRpcSignature(), 
-                args.Select(m_JsonSerializer.Serialize).ToArray());
-
-            var async = methodInfo.GetCustomAttributes(true)
-                .Any(a => a.GetType() == typeof(ProxyNonBlockingAttribute));
-
-            if (async)
-            {
-                m_MessageBroker.BeginRequest(request, null);
-                return null;
-            }
-            var response = m_MessageBroker.Send(request);
-            if (methodInfo.ReturnType == typeof(void)) return null;
-            return m_JsonSerializer.Deserialize(methodInfo.ReturnType, response.ReturnValue);
         }
 
         private void ProxyDisposed()
