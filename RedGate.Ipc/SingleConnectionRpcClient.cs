@@ -4,6 +4,7 @@ using System.Reflection;
 
 using RedGate.Ipc.ImportedCode;
 using RedGate.Ipc.Json;
+using RedGate.Ipc.Proxy;
 using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc

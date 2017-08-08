@@ -1,4 +1,6 @@
-﻿namespace RedGate.Ipc.Tests.Rpc
+﻿using RedGate.Ipc.Proxy;
+
+namespace RedGate.Ipc.Tests.Rpc
 {
     public interface ITestInterface
     {

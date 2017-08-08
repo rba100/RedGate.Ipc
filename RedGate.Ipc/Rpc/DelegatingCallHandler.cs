@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
-
-using RedGate.Ipc.ImportedCode;
+using RedGate.Ipc.Proxy;
 
 namespace RedGate.Ipc.Rpc
 {

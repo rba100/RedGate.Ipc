@@ -69,11 +69,10 @@
     <Compile Include="ImportedCode\JsonDeserializer.cs" />
     <Compile Include="ImportedCode\JsonParser.cs" />
     <Compile Include="ImportedCode\JsonSerializer.cs" />
-    <Compile Include="ImportedCode\ProxyFactory.cs" />
+    <Compile Include="Proxy\ProxyFactory.cs" />
     <Compile Include="IServiceHost.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="ReconnectingRpcClient.cs" />
-    <Compile Include="ImportedCode\ProxyNonBlockingAttribute.cs" />
     <Compile Include="Rpc\DelegateCollection.cs" />
     <Compile Include="Rpc\DelegatingCallHandler.cs" />
     <Compile Include="Rpc\IDelegateCollection.cs" />

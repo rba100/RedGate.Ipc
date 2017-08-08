@@ -4,9 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using RedGate.Ipc.Rpc;
 
-namespace RedGate.Ipc.ImportedCode
+namespace RedGate.Ipc.Proxy
 {
     /// <summary>
     /// Generates objects that implement a given interface. When methods on the
@@ -290,5 +289,14 @@ namespace RedGate.Ipc.ImportedCode
     {
         object HandleCall(MethodInfo methodInfo, object[] args);
         void HandleDispose();
+    }
+
+    /// <summary>
+    /// Can only be used on void methods.
+    /// When this is delclared on a method on interface declaration, calls to proxies of this interface
+    /// will return immediately after the request is sent, without waiting for the opertion to complete on the server side.
+    /// </summary>
+    public class ProxyNonBlockingAttribute : Attribute
+    {
     }
 }
