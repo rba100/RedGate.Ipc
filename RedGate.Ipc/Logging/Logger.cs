@@ -53,7 +53,7 @@ namespace RedGate.Ipc.Logging
                 }
             }
 
-            return new MappedLogger(debug, info, warn, error, debuge, infoe, warne, errore);
+            return new FlexiLogger(debug, info, warn, error, debuge, infoe, warne, errore);
         }
 
         private static bool HasStringInvocation(MethodInfo method)
@@ -70,7 +70,7 @@ namespace RedGate.Ipc.Logging
                    && parameters[1].ParameterType.IsSubclassOf(typeof(Exception));
         }
 
-        private class MappedLogger : ILogger
+        private class FlexiLogger : ILogger
         {
             private readonly Action<string> _debug;
             private readonly Action<string> _info;
@@ -82,7 +82,7 @@ namespace RedGate.Ipc.Logging
             private readonly Action<string, Exception> _warn_exception;
             private readonly Action<string, Exception> _error_exception;
 
-            public MappedLogger(
+            public FlexiLogger(
                 Action<string> debug,
                 Action<string> info,
                 Action<string> warn,
@@ -104,57 +104,47 @@ namespace RedGate.Ipc.Logging
 
             public void Debug(string message, Exception ex = null)
             {
-                if (ex == null)
-                    _debug?.Invoke(message);
-                else
-                {
-                    if (_debug_exception != null) _debug_exception(message, ex);
-                    else _debug?.Invoke($"{message} - {ex}");
-                }
+                Handle(message, ex, _debug, _debug_exception, fallback: null);
             }
 
             public void Info(string message, Exception ex = null)
             {
-                if (ex == null)
-                {
-                    if (_info != null) _info(message);
-                    else Debug(message);
-                }
-                else
-                {
-                    if (_info_exception != null) _info_exception(message, ex);
-                    else if (_info != null) _info($"{message} - {ex}");
-                    else Debug(message, ex);
-                }
+                Handle(message, ex, _info, _info_exception, fallback: Debug);
             }
 
             public void Warn(string message, Exception ex = null)
             {
-                if (ex == null)
-                {
-                    if (_warn != null) _warn(message);
-                    else Info(message);
-                }
-                else
-                {
-                    if (_warn_exception != null) _warn_exception(message, ex);
-                    else if (_warn != null) _warn($"{message} - {ex}");
-                    else Info(message, ex);
-                }
+                Handle(message, ex, _warn, _warn_exception, fallback: Info);
             }
 
             public void Error(string message, Exception ex = null)
             {
+                Handle(message, ex, _error, _error_exception, fallback: Warn);
+            }
+
+            private void Handle(
+                string message,
+                Exception ex,
+                Action<string> reporter,
+                Action<string, Exception> reporterException,
+                Action<string, Exception> fallback)
+            {
+                if (reporter == null && reporterException == null)
+                {
+                    fallback?.Invoke(message, ex);
+                    return;
+                }
+
                 if (ex == null)
                 {
-                    if (_error != null) _error(message);
-                    else Warn(message);
+                    reporter?.Invoke(message);
                 }
                 else
                 {
-                    if (_error_exception != null) _error_exception(message, ex);
-                    else if (_error != null) _error($"{message} - {ex}");
-                    else Warn(message, ex);
+                    if (reporterException == null)
+                        reporter.Invoke($"{message} - {ex}");
+                    else
+                        reporterException(message, ex);
                 }
             }
         }

@@ -9,7 +9,7 @@ using RedGate.Ipc.Rpc;
 namespace RedGate.Ipc
 {
     /// <summary>
-    /// This class has two responsibilities.
+    /// This class has two responsibilities. 'Dual responsiblity principle' - it'll be all the rage in a few years.
     ///  1) To convert a {MethodInfo,arguments[]} pair into an RpcRequest object. 
     ///  2) To pass the request object to a message broker correctly
     /// </summary>
