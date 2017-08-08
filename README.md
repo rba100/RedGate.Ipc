@@ -61,7 +61,7 @@ When a client attempts to invoke a method on `ITestInterface`, the service host 
 
 #### Remarks
 
-The provided duplex builder method will be called at most once per connection, providing a new callback scoped to that connection. The delegate method provided by the consumer should create be a new instance of the delegate object for each connection, if any guarentee is required that the delegate and callback are scoped to the same connected client.
+The provided duplex builder method will be called at most once per connection, providing a new callback scoped to that connection. The delegate method provided by the consumer should create a new instance of the delegate object for each connection, if any guarentee is required that the delegate and callback are scoped to the same connected client.
 
 The behaviour on the client-side differs in connection failure and reconnection is performed silently (if it can be done within the timeout interval) which means client-side proxy instances and registered callback handlers are not scoped to a single connection.
 
