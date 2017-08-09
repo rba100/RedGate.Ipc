@@ -13,13 +13,12 @@ namespace RedGate.Ipc
         private IRpcRequestBridge m_RpcRequestBridge;
 
         private readonly Dictionary<object, Action<object>> m_InitialisationFunctions = new Dictionary<object, Action<object>>();
+        private readonly Dictionary<Type, long> m_LastConnectionForInterfaceType = new Dictionary<Type, long>();
 
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
         private bool m_IsDisposed;
 
         public int ConnectionTimeoutMs { get; set; } = 6000;
-
-        private long m_LastConnectionCount = -1;
 
         internal ReconnectingRpcClient(IDelegateCollection delegateCollection, IConnectionProvider connectionProvider)
         {
@@ -68,9 +67,13 @@ namespace RedGate.Ipc
 
             var connection = m_ConnectionProvider.TryGetConnection(ConnectionTimeoutMs);
             if (connection == null) throw new ChannelFaultedException("Unable to connect.");
-            if (m_LastConnectionCount != m_ConnectionProvider.ConnectionRefreshCount)
+            var intType = methodInfo.DeclaringType;
+            if (!m_LastConnectionForInterfaceType.ContainsKey(intType))
+                m_LastConnectionForInterfaceType[intType] = -1;
+
+            if (m_LastConnectionForInterfaceType[intType] != m_ConnectionProvider.ConnectionRefreshCount)
             {
-                m_LastConnectionCount = m_ConnectionProvider.ConnectionRefreshCount;
+                m_LastConnectionForInterfaceType[intType] = m_ConnectionProvider.ConnectionRefreshCount;
                 m_RpcRequestBridge = new RpcRequestBridge(connection.RpcMessageBroker);
                 m_InitialisationFunctions[sender]?.Invoke(sender);
             }
@@ -80,7 +83,8 @@ namespace RedGate.Ipc
 
         private void ProxyDisposed(object sender)
         {
-            // Ignore
+            if (m_InitialisationFunctions.ContainsKey(sender))
+                m_InitialisationFunctions.Remove(sender);
         }
 
         public void Dispose()

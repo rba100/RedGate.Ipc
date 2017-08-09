@@ -98,3 +98,9 @@ expect for backwards compatibility. Aliases are a substring match from the start
 In the above example, a client interface that is interpreted as `MySoftware.Client.ISomeInterface, MySoftware.Client 1.0.0.0, PublicKey=...`
 (or any other interface starting with `MySoftware.Client.ISomeInterface`) would be serviced by `ServerImplementation()`.
 It is obviously important that the interfaces are functionally identical or an `ContractMismatchException` will be thrown.
+
+## Stateful consumers
+
+If consumers keep state about connected parties, for example, if clients must call `proxy.SetName("MyName")` before calling `proxy.DoSomethingOnServer()`, then failure can occur when a client suffers a network outage and reconnects between the two calls.
+
+To mitigate this, consumers can pass an initialisation routine to `client.CreateProxy<ISomeInterface>(Action<ISomeInterface> initialisationRoutine)`. This routine will be called against the proxy any other methods on it are called if the underlying connection has not yet been used for that interface type.
