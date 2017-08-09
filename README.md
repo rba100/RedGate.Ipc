@@ -60,9 +60,9 @@ On the server
 
 #### Remarks
 
-The provided duplex builder method will be called at most once per connection, providing a new callback scoped to that connection. The factory method provided by the consumer should create a new instance of the delegate object for each connection, if any guarentee is required that the delegate and callback are scoped to the same connected client.
+The duplex builder method will be called at most once per connection with a new callback scoped to that connection. By convention the method should return a new instance of the delegate object so each connection, otherwise there is no guarentee that the delegate and callback are scoped to the same connected client.
 
-The behaviour on the client-side differs in that reconnection after connection failure is performed silently (if it can be done within the timeout interval) which means client-side proxies and registered callback handlers are not scoped to a single connection. This may cause problems if the service keeps state about each connection which the client relies on.
+On the client-side, because the proxy may silently reconnect no assumptions should be made about the scope of underlying connections to the callback handler. See [Stateful consumers](#stateful-consumers) below on how to ensure clients maintain state across reconnections.
 
 ## Exceptions
 
