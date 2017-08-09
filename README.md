@@ -103,4 +103,4 @@ It is obviously important that the interfaces are functionally identical or an `
 
 If consumers keep state about connected parties, for example, if clients must call `proxy.SetName("MyName")` before calling `proxy.DoSomethingOnServer()`, then failure can occur when a client suffers a network outage and reconnects between the two calls.
 
-To mitigate this, consumers can pass an initialisation routine to `client.CreateProxy<ISomeInterface>(Action<ISomeInterface> initialisationRoutine)`. This routine will be called against the proxy any other methods on it are called if the underlying connection has not yet been used for that interface type.
+To mitigate this, consumers can pass an initialisation routine to `client.CreateProxy<ISomeInterface>(Action<ISomeInterface> initialisationRoutine)`. This routine will be called against the proxy before any other methods on it are called if the underlying connection has not yet been used for that interface type.
