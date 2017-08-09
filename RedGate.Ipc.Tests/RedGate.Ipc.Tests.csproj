@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channel\ChannelMessagePipelineTests.cs" />
+    <Compile Include="Channel\ChannelStreamReaderTests.cs" />
     <Compile Include="Channel\ChannelStreamTests.cs" />
     <Compile Include="Rpc\RpcMessageBrokerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

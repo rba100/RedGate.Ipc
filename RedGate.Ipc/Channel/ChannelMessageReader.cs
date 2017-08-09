@@ -21,6 +21,11 @@ namespace RedGate.Ipc.Channel
             IChannelMessageHandler inboundHandler,
             ITaskLauncher taskLauncher)
         {
+            if (channelMessageStream == null) throw new ArgumentNullException(nameof(channelMessageStream));
+            if (channelMessageSerializer == null) throw new ArgumentNullException(nameof(channelMessageSerializer));
+            if (inboundHandler == null) throw new ArgumentNullException(nameof(inboundHandler));
+            if (taskLauncher == null) throw new ArgumentNullException(nameof(taskLauncher));
+
             m_ChannelMessageStream = channelMessageStream;
             m_ChannelMessageSerializer = channelMessageSerializer;
             m_InboundHandler = inboundHandler;
