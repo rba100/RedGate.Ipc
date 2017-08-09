@@ -66,22 +66,23 @@ namespace RedGate.Ipc.Tests.Channel
         [TestCase(typeof(ChannelFaultedException))]
         public void StreamDisposedExceptionDisposesReader(Type exceptionType)
         {
-            var readCalled = new ManualResetEvent(false);
+            var disposed = new ManualResetEvent(false);
             var factory = new TestFactory();
             var exception = Activator.CreateInstance(exceptionType, new object[] { "message" });
             factory.ChannelMessageStream.Stub(s => s.Read())
                 .Do(new Func<byte[]>(() =>
                 {
-                    readCalled.Set();
                     throw (Exception) exception;
                 }));
 
-            factory.ChannelMessageStream.Expect(s => s.Dispose()).Repeat.Once();
+            factory.ChannelMessageStream.Expect(s => s.Dispose())
+                .Do(new Action(() => disposed.Set()))
+                .Repeat.Once();
 
             var reader = factory.Create();
             reader.Start();
 
-            if (!readCalled.WaitOne(2000))
+            if (!disposed.WaitOne(2000))
             {
                 reader.Dispose();
                 Assert.Fail("Test timed out waiting for reader to dispose.");

@@ -48,7 +48,5 @@ namespace RedGate.Ipc
         {
             // No resources, connection should be closed elsewhere.
         }
-
-        public long ConnectionRefreshCount => 1;
     }
 }

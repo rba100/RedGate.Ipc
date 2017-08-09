@@ -25,6 +25,10 @@ namespace RedGate.Ipc
 
         public object Call(MethodInfo methodInfo, object[] args)
         {
+            var interfaceName = methodInfo.DeclaringType?.AssemblyQualifiedName;
+            if (interfaceName == null)
+                throw new ContractMismatchException("Maybe loosen off on the reflection and generics a bit?");
+
             var request = new RpcRequest(
                 Guid.NewGuid().ToString(),
                 methodInfo.DeclaringType.AssemblyQualifiedName,

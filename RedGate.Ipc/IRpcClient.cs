@@ -26,10 +26,5 @@ namespace RedGate.Ipc
         /// The type must have a constructor that takes a string message argument.</typeparam>
         /// <exception cref="ArgumentException">T was not an interface or TConnectionFailureExceptionType did not have an appropriate constructor.</exception>
         T CreateProxy<T, TConnectionFailureExceptionType>() where TConnectionFailureExceptionType : Exception;
-
-        /// <summary>
-        /// The number of times the underlying connection has been established.
-        /// </summary>
-        long ConnectionRefreshCount { get; }
     }
 }

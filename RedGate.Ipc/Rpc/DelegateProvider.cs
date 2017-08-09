@@ -42,9 +42,9 @@ namespace RedGate.Ipc.Rpc
                 var callbackContractAndFactory = m_DelegateCollection.DuplexDelegateFactories[type];
                 var callbackType = callbackContractAndFactory.Key;
                 var delegateFactory = callbackContractAndFactory.Value;
-                var caller = new RpcRequestBridge(m_RpcMessageBroker);
-                var duplexRpcClient = new SingleConnectionRpcClient(caller);
-                var callback = duplexRpcClient.CreateProxy(callbackType);
+                var requestBridge = new RpcRequestBridge(m_RpcMessageBroker);
+                var rpcClient = new SingleConnectionRpcClient(requestBridge);
+                var callback = rpcClient.CreateProxy(callbackType);
                 delegateObject = delegateFactory(callback);
             }
             else
