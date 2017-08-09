@@ -8,6 +8,7 @@ From the server-side
 
     var builder = new ServiceHostBuilder();
     builder.AddEndpoint(new NamedPipeEndpoint("my-service-name"));
+    builder.AddEndpoint(new TcpEndpoint(IPAddress.Any, 1234));
     builder.AddDelegateFactory(DelegateFactory);
 
     var host = builder.Create();
@@ -38,11 +39,11 @@ The factory method provided will be called once per connection and the delegate 
 On the client
 
     var builder = new ClientBuilder();
-    builder.AddCallbackHandler<ICallback>(new Callback());
+    builder.AddCallbackHandler<ICallback>(callback);
 
     using(var client = builder.ConnectToNamedPipe("my-service-name")))
     {
-        // client can handle server requests as soon as connection is established.
+        // methods on 'callback' ICallback object may be called asynchronous by the server
     }
 
 On the server
@@ -53,11 +54,9 @@ On the server
     
     private void DuplexBuilder(ICallback callback)
     {
-        // use or persist callback for later.
+        // callback can be used now or persisted for later
         return new ServerImplementation();
     }
-
-When a client attempts to invoke a method on `ITestInterface`, the service host will create a proxy for `ICallback` and call the registered factory method to obtain a handler for `ITestInterface`.
 
 #### Remarks
 

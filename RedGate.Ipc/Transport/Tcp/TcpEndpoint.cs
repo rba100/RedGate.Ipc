@@ -9,16 +9,19 @@ namespace RedGate.Ipc.Tcp
 {
     public class TcpEndpoint : IEndpoint
     {
-        private readonly int m_PortNumber;
+        private readonly IPAddress m_LocalAddress;
+        private readonly int m_Port;
         private TcpListener m_Listener;
         private Thread m_Worker;
         private bool m_Disposed;
         private List<IChannelStream> m_ActiveConnections = new List<IChannelStream>();
 
         public TcpEndpoint(
-            int portNumber)
+            IPAddress localAddress,
+            int port)
         {
-            m_PortNumber = portNumber;
+            m_LocalAddress = localAddress;
+            m_Port = port;
         }
 
         public void Start()
@@ -35,7 +38,7 @@ namespace RedGate.Ipc.Tcp
 
         private void Worker()
         {
-            m_Listener = new TcpListener(IPAddress.Any, m_PortNumber);
+            m_Listener = new TcpListener(m_LocalAddress, m_Port);
             m_Listener.Start();
             try
             {
