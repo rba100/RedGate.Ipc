@@ -1,5 +1,5 @@
 using System;
-using RedGate.Ipc.ImportedCode;
+using System.Reflection;
 using RedGate.Ipc.Proxy;
 using RedGate.Ipc.Rpc;
 
@@ -20,26 +20,35 @@ namespace RedGate.Ipc
             return s_ProxyFactory.Create(
                 interfaceType,
                 new DelegatingCallHandler(
-                    m_RpcRequestBridge.Call,
+                    HandleCall,
                     ProxyDisposed));
         }
 
-        public T CreateProxy<T>()
+        public T CreateProxy<T>(Action<T> initialisation = null)
         {
-            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(
-                m_RpcRequestBridge.Call,
+            var proxy = s_ProxyFactory.Create<T>(new DelegatingCallHandler(
+                HandleCall,
                 ProxyDisposed));
+            initialisation?.Invoke(proxy);
+            return proxy;
         }
 
-        public T CreateProxy<T, TConnectionFailureExceptionType>() where TConnectionFailureExceptionType : Exception
+        public T CreateProxy<T, TConnectionFailureExceptionType>(Action<T> initialisation = null) where TConnectionFailureExceptionType : Exception
         {
-            return s_ProxyFactory.Create<T>(new DelegatingCallHandler(
-                m_RpcRequestBridge.Call,
+            var proxy = s_ProxyFactory.Create<T>(new DelegatingCallHandler(
+                HandleCall,
                 ProxyDisposed, 
                 typeof(TConnectionFailureExceptionType)));
+            initialisation?.Invoke(proxy);
+            return proxy;
         }
 
-        private void ProxyDisposed()
+        private object HandleCall(object sender, MethodInfo methodInfo, object[] args)
+        {
+            return m_RpcRequestBridge.Call(methodInfo, args);
+        }
+
+        private void ProxyDisposed(object sender)
         {
             // Ignore
         }

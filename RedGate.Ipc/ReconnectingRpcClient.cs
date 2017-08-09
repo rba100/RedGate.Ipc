@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using RedGate.Ipc.Proxy;
 using RedGate.Ipc.Rpc;
@@ -10,6 +11,8 @@ namespace RedGate.Ipc
         private readonly IDelegateCollection m_DelegateCollection;
         private readonly IConnectionProvider m_ConnectionProvider;
         private IRpcRequestBridge m_RpcRequestBridge;
+
+        private readonly Dictionary<object, Action<object>> m_InitialisationFunctions = new Dictionary<object, Action<object>>();
 
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
         private bool m_IsDisposed;
@@ -27,16 +30,26 @@ namespace RedGate.Ipc
             m_ConnectionProvider = connectionProvider;
         }
 
-        public T CreateProxy<T>()
+        public T CreateProxy<T>(Action<T> initialisation = null)
         {
             ICallHandler callHandler = new DelegatingCallHandler(HandleCall, ProxyDisposed);
-            return s_ProxyFactory.Create<T>(callHandler);
+            var proxy = s_ProxyFactory.Create<T>(callHandler);
+            if (initialisation != null)
+            {
+                m_InitialisationFunctions[proxy] = o => initialisation((T) o);
+            }
+            return proxy;
         }
 
-        public T CreateProxy<T, TConnectionFailureExceptionType>() where TConnectionFailureExceptionType : Exception
+        public T CreateProxy<T, TConnectionFailureExceptionType>(Action<T> initialisation = null) where TConnectionFailureExceptionType : Exception
         {
             ICallHandler callHandler = new DelegatingCallHandler(HandleCall, ProxyDisposed, typeof(TConnectionFailureExceptionType));
-            return s_ProxyFactory.Create<T>(callHandler);
+            var proxy = s_ProxyFactory.Create<T>(callHandler);
+            if (initialisation != null)
+            {
+                m_InitialisationFunctions[proxy] = o => initialisation((T)o);
+            }
+            return proxy;
         }
 
         public void AddDelegateFactory(Func<Type, object> delegateFactory)
@@ -49,7 +62,7 @@ namespace RedGate.Ipc
             m_DelegateCollection.TypeAliases.Add(assemblyQualifiedName, type);
         }
 
-        private object HandleCall(MethodInfo methodInfo, object[] args)
+        private object HandleCall(object sender, MethodInfo methodInfo, object[] args)
         {
             if (m_IsDisposed) throw new ObjectDisposedException(typeof(ReconnectingRpcClient).FullName, $"The underlying {nameof(ReconnectingRpcClient)} was disposed.");
 
@@ -57,13 +70,15 @@ namespace RedGate.Ipc
             if (connection == null) throw new ChannelFaultedException("Unable to connect.");
             if (m_LastConnectionCount != m_ConnectionProvider.ConnectionRefreshCount)
             {
+                m_LastConnectionCount = m_ConnectionProvider.ConnectionRefreshCount;
                 m_RpcRequestBridge = new RpcRequestBridge(connection.RpcMessageBroker);
+                m_InitialisationFunctions[sender]?.Invoke(sender);
             }
 
             return m_RpcRequestBridge.Call(methodInfo, args);
         }
 
-        private void ProxyDisposed()
+        private void ProxyDisposed(object sender)
         {
             // Ignore
         }

@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
 using System.Net.Sockets;
+using System.Security.Principal;
 using System.Threading;
 
 using RedGate.Ipc.Channel;
+
+using static System.IO.Pipes.PipeAccessRights;
+using static System.Security.AccessControl.AccessControlType;
 
 namespace RedGate.Ipc.NamedPipes
 {
@@ -41,16 +45,22 @@ namespace RedGate.Ipc.NamedPipes
 
         private void Worker()
         {
+            var pipeSecurity = GetPipeSecurity();
+
             try
             {
                 while (!m_Disposed)
                 {
                     m_CurrentListener = new NamedPipeServerStream(
-                        m_PipeName,
+                        m_PipeName, 
                         PipeDirection.InOut,
                         NamedPipeServerStream.MaxAllowedServerInstances,
                         PipeTransmissionMode.Byte,
-                        PipeOptions.Asynchronous);
+                        PipeOptions.Asynchronous,
+                        2048,
+                        2048,
+                        pipeSecurity);
+
                     m_CurrentListener.WaitForConnection();
                     var channelStream = new ChannelStream(m_CurrentListener);
                     m_ActiveConnections.Add(channelStream);
@@ -96,6 +106,20 @@ namespace RedGate.Ipc.NamedPipes
                     //
                 }
             }
+        }
+
+        private static PipeSecurity GetPipeSecurity()
+        {
+            var me = WindowsIdentity.GetCurrent().Owner;
+            var everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+
+            var anyoneCanReadAndWrite = new PipeAccessRule(everyone, ReadWrite, Allow);
+            var iHaveFullControl = new PipeAccessRule(me, FullControl, Allow);
+
+            var pipeSecurity = new PipeSecurity();
+            pipeSecurity.AddAccessRule(anyoneCanReadAndWrite);
+            pipeSecurity.AddAccessRule(iHaveFullControl);
+            return pipeSecurity;
         }
     }
 }

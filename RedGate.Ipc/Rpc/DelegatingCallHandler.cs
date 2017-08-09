@@ -6,13 +6,13 @@ namespace RedGate.Ipc.Rpc
 {
     internal class DelegatingCallHandler : ICallHandler
     {
-        private readonly Func<MethodInfo, object[], object> m_Handler;
-        private readonly Action m_DisposeHandler;
+        private readonly Func<object, MethodInfo, object[], object> m_Handler;
+        private readonly Action<object> m_DisposeHandler;
         private readonly Type m_ConnectionFailureExceptionType;
 
         public DelegatingCallHandler(
-            Func<MethodInfo, object[], object> handler,
-            Action disposeHandler)
+            Func<object, MethodInfo, object[], object> handler,
+            Action<object> disposeHandler)
         {
             if (handler == null) throw new ArgumentNullException(nameof(handler));
             if (disposeHandler == null) throw new ArgumentNullException(nameof(disposeHandler));
@@ -22,8 +22,8 @@ namespace RedGate.Ipc.Rpc
         }
 
         public DelegatingCallHandler(
-            Func<MethodInfo, object[], object> handler,
-            Action disposeHandler,
+            Func<object, MethodInfo, object[], object> handler,
+            Action<object> disposeHandler,
             Type exceptionTypeConnectionFailure) : this(handler, disposeHandler)
         {
             if (exceptionTypeConnectionFailure == null)
@@ -46,11 +46,11 @@ namespace RedGate.Ipc.Rpc
             m_ConnectionFailureExceptionType = exceptionTypeConnectionFailure;
         }
 
-        public object HandleCall(MethodInfo methodInfo, object[] args)
+        public object HandleCall(object sender, MethodInfo methodInfo, object[] args)
         {
             try
             {
-                return m_Handler(methodInfo, args);
+                return m_Handler(sender, methodInfo, args);
             }
             catch (ChannelFaultedException ex)
             {
@@ -59,9 +59,9 @@ namespace RedGate.Ipc.Rpc
             }
         }
 
-        public void HandleDispose()
+        public void HandleDispose(object sender)
         {
-            m_DisposeHandler();
+            m_DisposeHandler(sender);
         }
     }
 }

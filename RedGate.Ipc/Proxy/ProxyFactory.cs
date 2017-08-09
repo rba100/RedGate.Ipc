@@ -226,15 +226,17 @@ namespace RedGate.Ipc.Proxy
                 g.Emit(OpCodes.Stelem_Ref);
             }
 
-            // Call ICallHandler.HandleCall
+            // Call ICallHandler.HandleCall(object sender, MethodInfo methodInfo, object[] args)
             // ARG 0 is @_callHandler
             g.Emit(OpCodes.Ldarg_0);
             g.Emit(OpCodes.Ldfld, callHandlerFieldBuilder);
-            // ARG 1 is MethodInfo for this method
+            // ARG 1 is (object sender) which is 'this'
+            g.Emit(OpCodes.Ldarg_0);
+            // ARG 2 is MethodInfo for this method
             g.Emit(OpCodes.Ldtoken, methodInfo);
             g.Emit(OpCodes.Call, getMethodFromHandle);
             g.Emit(OpCodes.Castclass, typeof(MethodInfo));
-            // ARG 2 is object[] args
+            // ARG 3 is object[] args
             g.Emit(OpCodes.Ldloc_0);
             // The call
             g.Emit(OpCodes.Callvirt, typeof(ICallHandler).GetMethod("HandleCall"));
@@ -262,8 +264,15 @@ namespace RedGate.Ipc.Proxy
                 typeof(void),
                 Type.EmptyTypes);
             var g = disposeMethod.GetILGenerator();
+
+            // Deledate to ICallHandler.HandleDispose(object sender)
+            //
+            // load @_callHandler
             g.Emit(OpCodes.Ldarg_0);
             g.Emit(OpCodes.Ldfld, callHandlerFieldBuilder);
+            // load 'object sender'
+            g.Emit(OpCodes.Ldarg_0); 
+            // Call method
             g.Emit(OpCodes.Callvirt, typeof(ICallHandler).GetMethod("HandleDispose"));
             g.Emit(OpCodes.Ret);
         }
@@ -287,7 +296,7 @@ namespace RedGate.Ipc.Proxy
 
     public interface ICallHandler
     {
-        object HandleCall(MethodInfo methodInfo, object[] args);
-        void HandleDispose();
+        object HandleCall(object sender, MethodInfo methodInfo, object[] args);
+        void HandleDispose(object sender);
     }
 }

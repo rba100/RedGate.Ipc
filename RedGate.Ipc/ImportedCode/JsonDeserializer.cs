@@ -125,7 +125,7 @@ namespace RedGate.Ipc.ImportedCode
 
         private object DeserializeFromString(Type type, string str)
         {
-            if (type == typeof(string)) return str;
+            if (type == typeof(string) || type == typeof(object)) return str;
 
             if (type == typeof(DateTime)) return DateTime.Parse(str, null, System.Globalization.DateTimeStyles.RoundtripKind);
 
