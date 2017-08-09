@@ -56,6 +56,8 @@
     <Compile Include="Channel\IChannelMessageDispatcher.cs" />
     <Compile Include="Channel\ChannelMessageWriter.cs" />
     <Compile Include="Channel\IChannelMessageWriter.cs" />
+    <Compile Include="Channel\ITaskLauncher.cs" />
+    <Compile Include="Channel\TaskLauncherNet35.cs" />
     <Compile Include="ClientBuilder.cs" />
     <Compile Include="ConnectedEventArgs.cs" />
     <Compile Include="ContractMismatchException.cs" />
@@ -73,6 +75,7 @@
     <Compile Include="Proxy\ProxyFactory.cs" />
     <Compile Include="IServiceHost.cs" />
     <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Proxy\ProxyNonBlockingAttribute.cs" />
     <Compile Include="ReconnectingRpcClient.cs" />
     <Compile Include="RpcRequestBridge.cs" />
     <Compile Include="Rpc\DelegateCollection.cs" />

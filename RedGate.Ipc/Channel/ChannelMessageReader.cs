@@ -8,6 +8,7 @@ namespace RedGate.Ipc.Channel
         private readonly IChannelMessageStream m_ChannelMessageStream;
         private readonly IChannelMessageSerializer m_ChannelMessageSerializer;
         private readonly IChannelMessageHandler m_InboundHandler;
+        private readonly ITaskLauncher m_TaskLauncher;
 
         private Thread m_Worker;
 
@@ -17,11 +18,13 @@ namespace RedGate.Ipc.Channel
         internal ChannelMessageReader(
             IChannelMessageStream channelMessageStream,
             IChannelMessageSerializer channelMessageSerializer,
-            IChannelMessageHandler inboundHandler)
+            IChannelMessageHandler inboundHandler,
+            ITaskLauncher taskLauncher)
         {
             m_ChannelMessageStream = channelMessageStream;
             m_ChannelMessageSerializer = channelMessageSerializer;
             m_InboundHandler = inboundHandler;
+            m_TaskLauncher = taskLauncher;
         }
 
         public void Start()
@@ -57,19 +60,7 @@ namespace RedGate.Ipc.Channel
                     return;
                 }
 
-                // Serious performance questions to be had here
-                // ThreadPool can be very slow if the handler invokes duplex operations (which get handled by client's contested ThreadPool).
-                // Manual threads result in less contention in certain cases but have unbounded overhead if tonnes of messages come it at once.
-
-                // We can use this if we really need to:
-                //var thread = new Thread(() => m_InboundHandler.Handle(channelMessage))
-                //{
-                //    IsBackground = true
-                //};
-                //thread.Start();
-
-                // Otherwise this is fine for low concurrent service requests:
-                ThreadPool.QueueUserWorkItem(o => m_InboundHandler.Handle(channelMessage));
+                m_TaskLauncher.StartShortTask(() => m_InboundHandler.Handle(channelMessage));
             }
         }
 

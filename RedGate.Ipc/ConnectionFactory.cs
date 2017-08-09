@@ -17,6 +17,7 @@ namespace RedGate.Ipc
         public IConnection Create(string connectionId, IChannelStream stream)
         {
             var jsonSerialiser = new TinyJsonSerializer();
+            var taskLauncher = new TaskLauncherNet35();
 
             var channelMessageStream = new ChannelMessageStream(stream);
             var channelMessageSerializer = new ChannelMessageSerializer();
@@ -31,7 +32,7 @@ namespace RedGate.Ipc
             var rpcResponseMessageHandler = new RpcResponseChannelMessageHandler(rpcMessageBroker, rpcMessageEncoder);
             var rpcRequestMessageHandler = new RpcRequestChannelMessageHandler(rpcRequestHandler, rpcMessageEncoder, rpcMessageWriter);
             var pipeline = new ChannelMessagePipeline(new IChannelMessageHandler[] { rpcResponseMessageHandler, rpcRequestMessageHandler });
-            var channelMessageReader = new ChannelMessageReader(channelMessageStream, channelMessageSerializer, pipeline);
+            var channelMessageReader = new ChannelMessageReader(channelMessageStream, channelMessageSerializer, pipeline, taskLauncher);
 
             var connection = new Connection(
                 connectionId,
