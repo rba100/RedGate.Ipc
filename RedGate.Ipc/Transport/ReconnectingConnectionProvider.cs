@@ -23,8 +23,6 @@ namespace RedGate.Ipc
         private readonly ManualResetEvent m_CancellationToken = new ManualResetEvent(false);
         private readonly WaitHandle[] m_TryGetConnectionWaitHandles;
 
-        public long ConnectionRefreshCount => m_ConnectionRefreshCount;
-
         public event EventHandler Reconnected = delegate { };
 
         public ReconnectingConnectionProvider(Func<IConnection> getConnection)

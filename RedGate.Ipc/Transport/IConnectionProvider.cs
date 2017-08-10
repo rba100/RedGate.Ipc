@@ -29,11 +29,5 @@ namespace RedGate.Ipc
     public interface IReconnectingConnectionProvider : IConnectionProvider
     {
         event EventHandler Reconnected;
-
-        /// <summary>
-        /// The number of times the underlying connection has been established. Poor man's connection ID for applications that need to
-        /// run initialisation requests against newly-made connections.
-        /// </summary>
-        long ConnectionRefreshCount { get; }
     }
 }
