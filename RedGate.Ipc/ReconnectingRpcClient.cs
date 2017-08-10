@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+
 using RedGate.Ipc.Channel;
 using RedGate.Ipc.Proxy;
 using RedGate.Ipc.Rpc;
@@ -56,7 +57,7 @@ namespace RedGate.Ipc
                 }
                 catch
                 {
-                    // Failure will be reported when proxy method is called.
+                    // Failure will be reported when proxy method is called or another Reconnected event will occur.
                 }
             });
         }

@@ -196,17 +196,21 @@ namespace RedGate.Ipc.Proxy
                 methodInfo.ReturnType,
                 parameters);
 
-            var isAsync = methodInfo.GetCustomAttributes(true).Any(a => a.GetType() == typeof(ProxyNonBlockingAttribute));
-            if (isAsync)
+            var customeAttributes = methodInfo.GetCustomAttributes(true).Where(a => a.GetType().IsSubclassOf(typeof(ProxyShouldImplementAttribute)));
+
+            foreach (var customAttribute in customeAttributes)
             {
-                if (methodInfo.ReturnType != typeof(void))
+                var attrCtor = customAttribute.GetType().GetConstructor(Type.EmptyTypes);
+                if (attrCtor != null)
                 {
-                    throw new InvalidOperationException(
-                        $"Cannot create asynchronous proxy for '{methodInfo.DeclaringType}.{methodInfo.Name}' because it does not return null.");
+                    method.SetCustomAttribute(new CustomAttributeBuilder(attrCtor, new object[0]));
                 }
-                var cac = typeof(ProxyNonBlockingAttribute).GetConstructor(Type.EmptyTypes);
-                method.SetCustomAttribute(new CustomAttributeBuilder(cac, new object[0]));
+                else
+                {
+                    throw new InvalidOperationException($"Could not apply custom attribute {customAttribute.GetType().Name} because it did not have a default constructor");
+                }
             }
+
             var g = method.GetILGenerator();
 
             // var args = new object[parameters.Length]

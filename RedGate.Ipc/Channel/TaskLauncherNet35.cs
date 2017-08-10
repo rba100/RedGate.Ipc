@@ -24,7 +24,7 @@ namespace RedGate.Ipc.Channel
         /// thread.Start();
         ///
         /// ThreadPool : This is fine for low concurrent service requests, especially if void proxy methods
-        ///              can be <see cref="ProxyNonBlockingAttribute"/>.
+        ///              can be <see cref="RpcNonBlockingAttribute"/>.
         /// ThreadPool.QueueUserWorkItem(o => func());
         ///</remarks>
         public void StartShortTask(Action func)

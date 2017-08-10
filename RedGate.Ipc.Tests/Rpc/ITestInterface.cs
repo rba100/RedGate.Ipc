@@ -1,10 +1,10 @@
-﻿using RedGate.Ipc.Proxy;
+﻿using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc.Tests.Rpc
 {
     public interface ITestInterface
     {
-        [ProxyNonBlocking]
+        [RpcNonBlocking]
         void AsyncVoidCall();
 
         void VoidCall();

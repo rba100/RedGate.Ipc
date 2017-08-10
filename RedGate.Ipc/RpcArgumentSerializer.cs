@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 
 using RedGate.Ipc.Json;
-using RedGate.Ipc.Proxy;
 using RedGate.Ipc.Rpc;
 
 namespace RedGate.Ipc
@@ -29,7 +28,7 @@ namespace RedGate.Ipc
                 methodInfo.GetRpcSignature(),
                 arguments.Select(s_JsonSerializer.Serialize).ToArray());
             
-            var async = methodInfo.GetCustomAttributes(typeof(ProxyNonBlockingAttribute), true).Any();
+            var async = methodInfo.GetCustomAttributes(typeof(RpcNonBlockingAttribute), true).Any();
 
             if (async)
             {

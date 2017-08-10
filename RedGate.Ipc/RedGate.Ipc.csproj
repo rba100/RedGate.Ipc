@@ -75,7 +75,7 @@
     <Compile Include="Proxy\ProxyFactory.cs" />
     <Compile Include="IServiceHost.cs" />
     <Compile Include="Logging\Logger.cs" />
-    <Compile Include="Proxy\ProxyNonBlockingAttribute.cs" />
+    <Compile Include="Proxy\RpcNonBlockingAttribute.cs" />
     <Compile Include="ReconnectingRpcClient.cs" />
     <Compile Include="RpcArgumentSerializer.cs" />
     <Compile Include="Rpc\DelegateCollection.cs" />
@@ -97,6 +97,7 @@
     <Compile Include="Channel\ChannelMessageType.cs" />
     <Compile Include="ConnectionFactory.cs" />
     <Compile Include="Rpc\DelegateProvider.cs" />
+    <Compile Include="Rpc\RpcNonBlockingAttribute.cs" />
     <Compile Include="ServiceHost.cs" />
     <Compile Include="ServiceHostBuilder.cs" />
     <Compile Include="Channel\IChannelMessageHandler.cs" />
