@@ -43,11 +43,12 @@ namespace RedGate.Ipc
         {
             m_TaskLauncher.StartShortTask(() =>
             {
-                var connection = m_ConnectionProvider.TryGetConnection(ConnectionTimeoutMs);
-                if (connection == null) return; // Another event will be raised.
-                var proxies = m_ProxyState.Keys.ToArray();
                 try
                 {
+                    var connection = m_ConnectionProvider.TryGetConnection(ConnectionTimeoutMs);
+                    if (connection == null) return; // Another event will be raised.
+                    var proxies = m_ProxyState.Keys.ToArray();
+
                     foreach (var proxy in proxies)
                     {
                         CheckRunInit(connection.ConnectionId, proxy);
