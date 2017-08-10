@@ -98,7 +98,7 @@ namespace RedGate.Ipc.ImportedCode
         private object DeserializeNull(Type type)
         {
             if (!type.IsValueType) return null;
-            throw new JsonException($"Could not map JsonNull to a value type '{type.Name}'");
+            return Activator.CreateInstance(type); // default(T)
         }
 
         private object DeserializeBoolean(Type type, bool value)

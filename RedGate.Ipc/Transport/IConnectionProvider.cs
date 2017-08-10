@@ -24,6 +24,11 @@ namespace RedGate.Ipc
         /// </param>
         /// <exception cref="ObjectDisposedException">If IConnectionProvider is disposed before the call or during the timeout interval.</exception>
         IConnection TryGetConnection(int timeoutMs);
+    }
+
+    public interface IReconnectingConnectionProvider : IConnectionProvider
+    {
+        event EventHandler Reconnected;
 
         /// <summary>
         /// The number of times the underlying connection has been established. Poor man's connection ID for applications that need to

@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace RedGate.Ipc
 {
-    public class ReconnectingConnectionProvider : IConnectionProvider
+    public class ReconnectingConnectionProvider : IReconnectingConnectionProvider
     {
         // Dependencies
         private readonly Func<IConnection> m_GetConnection;
@@ -24,6 +24,8 @@ namespace RedGate.Ipc
         private readonly WaitHandle[] m_TryGetConnectionWaitHandles;
 
         public long ConnectionRefreshCount => m_ConnectionRefreshCount;
+
+        public event EventHandler Reconnected = delegate { };
 
         public ReconnectingConnectionProvider(Func<IConnection> getConnection)
         {
@@ -103,7 +105,11 @@ namespace RedGate.Ipc
                         Interlocked.Increment(ref m_ConnectionRefreshCount);
                         connection.Disconnected += ConnectionOnDisconnected;
                     }
-                    if (m_Connection?.IsConnected == true) m_ConnectionWaitHandle.Set();
+                    if (m_Connection?.IsConnected == true)
+                    {
+                        Reconnected(this, EventArgs.Empty);
+                        m_ConnectionWaitHandle.Set();
+                    }
                     return;
                 }
                 catch (Exception)

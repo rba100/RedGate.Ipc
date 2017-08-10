@@ -1,4 +1,5 @@
 using System;
+using RedGate.Ipc.Channel;
 using RedGate.Ipc.NamedPipes;
 using RedGate.Ipc.Rpc;
 using RedGate.Ipc.Tcp;
@@ -14,7 +15,7 @@ namespace RedGate.Ipc
             var namedPipesClient = new NamedPipeEndpointClient(pipeName);
             var connectionFactory = new ConnectionFactory(m_DelegateCollection);
             var connectionProvider = new ReconnectingConnectionProvider(() => connectionFactory.Create(Guid.NewGuid().ToString(), namedPipesClient.Connect()));
-            return new ReconnectingRpcClient(m_DelegateCollection, connectionProvider);
+            return new ReconnectingRpcClient(m_DelegateCollection, connectionProvider, new TaskLauncherNet35());
         }
 
         public IRpcClient ConnectToTcpSocket(string hostname, int portNumber)
@@ -22,7 +23,7 @@ namespace RedGate.Ipc
             var tcpProvider = new TcpEndpointClient(portNumber, hostname);
             var connectionFactory = new ConnectionFactory(m_DelegateCollection);
             var connectionProvider = new ReconnectingConnectionProvider(() => connectionFactory.Create(Guid.NewGuid().ToString(), tcpProvider.Connect()));
-            return new ReconnectingRpcClient(m_DelegateCollection, connectionProvider);
+            return new ReconnectingRpcClient(m_DelegateCollection, connectionProvider, new TaskLauncherNet35());
         }
 
         public void AddCallbackHandler<TCallback>(TCallback callback)

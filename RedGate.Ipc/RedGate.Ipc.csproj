@@ -77,7 +77,7 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Proxy\ProxyNonBlockingAttribute.cs" />
     <Compile Include="ReconnectingRpcClient.cs" />
-    <Compile Include="RpcRequestBridge.cs" />
+    <Compile Include="RpcArgumentSerializer.cs" />
     <Compile Include="Rpc\DelegateCollection.cs" />
     <Compile Include="Rpc\DelegatingCallHandler.cs" />
     <Compile Include="Rpc\IDelegateCollection.cs" />

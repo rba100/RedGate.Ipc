@@ -8,11 +8,13 @@ namespace RedGate.Ipc
     internal class SingleConnectionRpcClient : IRpcClient
     {
         private static readonly ProxyFactory s_ProxyFactory = new ProxyFactory();
-        private readonly IRpcRequestBridge m_RpcRequestBridge;
 
-        internal SingleConnectionRpcClient(IRpcRequestBridge rpcRequestBridge)
+        private readonly IRpcMessageBroker m_MessageBroker;
+
+        internal SingleConnectionRpcClient(IRpcMessageBroker messageBroker)
         {
-            m_RpcRequestBridge = rpcRequestBridge;
+            if (messageBroker == null) throw new ArgumentNullException(nameof(messageBroker));
+            m_MessageBroker = messageBroker;
         }
 
         public object CreateProxy(Type interfaceType)
@@ -45,7 +47,7 @@ namespace RedGate.Ipc
 
         private object HandleCall(object sender, MethodInfo methodInfo, object[] args)
         {
-            return m_RpcRequestBridge.Call(methodInfo, args);
+            return m_MessageBroker.Call(methodInfo, args);
         }
 
         private void ProxyDisposed(object sender)
