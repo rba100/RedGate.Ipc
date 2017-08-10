@@ -230,11 +230,11 @@ namespace RedGate.Ipc.Proxy
                 g.Emit(OpCodes.Stelem_Ref);
             }
 
-            // Call ICallHandler.HandleCall(object sender, MethodInfo methodInfo, object[] args)
+            // Call ICallHandler.HandleCall([this callhandler,] object sender, MethodInfo methodInfo, object[] args)
             // ARG 0 is @_callHandler
             g.Emit(OpCodes.Ldarg_0);
             g.Emit(OpCodes.Ldfld, callHandlerFieldBuilder);
-            // ARG 1 is (object sender) which is 'this'
+            // ARG 1 is (object sender) which is the proxy object
             g.Emit(OpCodes.Ldarg_0);
             // ARG 2 is MethodInfo for this method
             g.Emit(OpCodes.Ldtoken, methodInfo);

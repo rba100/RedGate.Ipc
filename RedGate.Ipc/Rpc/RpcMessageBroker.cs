@@ -57,7 +57,14 @@ namespace RedGate.Ipc.Rpc
             {
                 lock (m_PendingQueries) m_PendingQueries[request.QueryId] = requestToken;
             }
-            m_RpcMessageWriter.Write(request);
+            try
+            {
+                m_RpcMessageWriter.Write(request);
+            }
+            catch (ObjectDisposedException)
+            {
+                throw new ChannelFaultedException("The connection was closed.");
+            }
         }
 
         public void HandleInbound(RpcResponse response)
