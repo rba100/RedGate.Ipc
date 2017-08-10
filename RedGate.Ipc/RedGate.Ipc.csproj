@@ -75,7 +75,7 @@
     <Compile Include="Proxy\ProxyFactory.cs" />
     <Compile Include="IServiceHost.cs" />
     <Compile Include="Logging\Logger.cs" />
-    <Compile Include="Proxy\RpcNonBlockingAttribute.cs" />
+    <Compile Include="Proxy\ProxyShouldImplementAttribute.cs" />
     <Compile Include="ReconnectingRpcClient.cs" />
     <Compile Include="RpcArgumentSerializer.cs" />
     <Compile Include="Rpc\DelegateCollection.cs" />
